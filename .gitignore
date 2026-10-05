@@ -1,0 +1,28 @@
+# Python environment and generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Machine-specific editor settings and indexes
+.vscode/
+
+# Recorded sensor data (measurement reports remain trackable)
+/recordings/**/*.svo
+/recordings/**/*.svo2
+/recordings/**/*.mcap
+/recordings/**/*.db3
+/recordings/**/*.bag
+/recordings/**/metadata.yaml
+
+# Runtime logs and generated tracking output
+/logs/*
+!/logs/.gitkeep
+/tracking/*
+!/tracking/.gitkeep
+
+# Temporary editor and OS files
+*.swp
+.DS_Store
+Thumbs.db

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LiDAR 歩行軌跡リプレイ</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#121c2c;--panel2:#182438;--line:#29384e;--text:#e8eef7;--muted:#93a4bb;--accent:#5eead4}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 20% 0%,#1b2a40 0,#0b1220 55%);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1500px;margin:auto;padding:24px}.top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}.eyebrow{color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}.title{font-size:25px;font-weight:700;margin:3px 0}.filename{color:var(--muted);font-size:12px;word-break:break-all}.badge{padding:7px 11px;border:1px solid #315265;border-radius:999px;background:#10252d;color:#9cebe0;white-space:nowrap;font-size:12px}
+.controls,.card{border:1px solid var(--line);border-radius:14px;background:linear-gradient(150deg,rgba(24,36,56,.96),rgba(16,26,42,.96));box-shadow:0 15px 40px #0002}.controls{padding:13px 16px;margin-bottom:16px;display:grid;grid-template-columns:auto minmax(180px,1fr) auto auto;align-items:center;gap:14px}.buttons{display:flex;gap:7px}button,select{background:#202f45;color:var(--text);border:1px solid #354862;border-radius:8px;padding:8px 12px;font:inherit}button{cursor:pointer}button:hover,select:hover{border-color:var(--accent)}#play{min-width:104px;background:#174b4b;border-color:#27706b}.seek{width:100%;accent-color:#5eead4}.timeReadout{font-variant-numeric:tabular-nums;color:#c6d4e7;min-width:145px;text-align:right}.rateLabel{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(330px,.85fr);gap:16px}.card{padding:15px;min-width:0}.cardhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}.cardhead h2{font-size:14px;margin:0}.hint{font-size:11px;color:var(--muted)}canvas{display:block;width:100%;border-radius:9px;background:#0b1422}.motion{height:490px}.speed{height:300px}.summary{margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}.person{background:#0d1726;border:1px solid #24354c;border-radius:9px;padding:9px 10px;font-variant-numeric:tabular-nums}.personhead{display:flex;align-items:center;gap:7px;font-weight:700;margin-bottom:3px}.dot{width:9px;height:9px;border-radius:50%;display:inline-block}.person small{color:var(--muted)}.legend{display:flex;flex-wrap:wrap;gap:6px 13px;margin-top:8px;color:var(--muted);font-size:11px}.legend span{display:inline-flex;align-items:center;gap:5px}.empty{color:var(--muted);padding:12px 2px}.foot{margin-top:13px;color:#71839b;font-size:11px}
+@media(max-width:900px){main{padding:13px}.layout{grid-template-columns:1fr}.controls{grid-template-columns:1fr auto}.buttons{grid-column:1}.seek{grid-column:1/-1;grid-row:2}.timeReadout{grid-column:2;grid-row:1}.rateLabel{grid-column:2;grid-row:3;justify-self:end}.motion{height:380px}.speed{height:270px}.top{align-items:center}}
+</style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <div><div class="eyebrow">LiDAR · TRACK REPLAY</div><div class="title">歩行軌跡と速度の再生</div><div class="filename" id="filename"></div></div>
+    <div class="badge" id="frameBadge">読み込み中</div>
+  </header>
+  <section class="controls" aria-label="再生コントロール">
+    <div class="buttons"><button id="back" title="1フレーム戻る">◀</button><button id="play">▶ 再生</button><button id="forward" title="1フレーム進む">▶|</button></div>
+    <input id="seek" class="seek" type="range" min="0" value="0" step="1" aria-label="再生位置">
+    <div id="timeReadout" class="timeReadout"></div>
+    <label class="rateLabel">速度<select id="rate"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+  </section>
+  <section class="layout">
+    <article class="card">
+      <div class="cardhead"><h2>平面軌跡 · X-Y（m）</h2><span class="hint">点＝人物中心　矢印＝進行方向</span></div>
+      <canvas id="motion" class="motion" aria-label="人物の平面軌跡"></canvas>
+      <div id="summary" class="summary"></div>
+    </article>
+    <article class="card">
+      <div class="cardhead"><h2>速度の時系列 · 水平速度（m/s）</h2><span class="hint">再生位置に同期</span></div>
+      <canvas id="speed" class="speed" aria-label="人物ごとの速度時系列グラフ"></canvas>
+      <div id="legend" class="legend"></div>
+    </article>
+  </section>
+  <div class="foot">位置と速度は解析CSVの値を表示しています。点線の中心は未検出フレームの予測位置です。座標は選択した座標系です。カメラ画像との左右対応にはZEDとLiDARの外部パラメータが必要です。</div>
+</main>
+<script>
+const DATA = __DATA__;
+const ids = DATA.tracks.map(t => t.id);
+const colors = new Map(ids.map((id, i) => [id, `hsl(${(i * 137.508 + 168) % 360} 78% 64%)`]));
+const frames = DATA.frames;
+const seek = document.getElementById('seek');
+const playButton = document.getElementById('play');
+const rateSelect = document.getElementById('rate');
+const query = new URLSearchParams(window.location.search);
+const requestedRate = query.get('rate');
+if (requestedRate) {
+  if (![...rateSelect.options].some(option => Number(option.value) === Number(requestedRate))) {
+    rateSelect.add(new Option(`${requestedRate}×`, requestedRate));
+  }
+  rateSelect.value = requestedRate;
+}
+let index = 0, playing = false, animation = 0, startWall = 0, startTime = 0;
+seek.max = String(Math.max(0, frames.length - 1));
+const coordinateLabel = DATA.coordinate_frame === "corridor"
+  ? "廊下中心座標系"
+  : "livox_frame";
+document.getElementById("filename").textContent =
+  DATA.filename + " · 座標: " + coordinateLabel;
+document.getElementById('frameBadge').textContent = `${frames.length.toLocaleString()} frames · ${ids.length} IDs`;
+document.getElementById('legend').innerHTML = DATA.tracks.map(t => `<span><i class="dot" style="background:${colors.get(t.id)}"></i>ID ${t.id}</span>`).join('');
+
+function setupCanvas(canvas) {
+  const dpr = window.devicePixelRatio || 1;
+  const width = Math.max(1, canvas.clientWidth);
+  const height = Math.max(1, canvas.clientHeight);
+  if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) {
+    canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
+  }
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return {ctx, width, height};
+}
+function niceStep(range, divisions=5) {
+  const raw = Math.max(range / divisions, 1e-6), power = Math.pow(10, Math.floor(Math.log10(raw))), unit = raw / power;
+  return (unit <= 1 ? 1 : unit <= 2 ? 2 : unit <= 5 ? 5 : 10) * power;
+}
+function drawMotion() {
+  const canvas = document.getElementById('motion'), {ctx, width:w, height:h} = setupCanvas(canvas);
+  ctx.clearRect(0, 0, w, h);
+  const b = DATA.bounds, pad = {l:54,r:20,t:22,b:43};
+  const rx = Math.max(b.xmax-b.xmin, 0.5), ry = Math.max(b.ymax-b.ymin, 0.5);
+  const scale = Math.min((w-pad.l-pad.r)/rx, (h-pad.t-pad.b)/ry);
+  const ox = pad.l + ((w-pad.l-pad.r)-rx*scale)/2;
+  const oy = h-pad.b - ((h-pad.t-pad.b)-ry*scale)/2;
+  const px = x => ox+(x-b.xmin)*scale, py = y => oy-(y-b.ymin)*scale;
+  ctx.font = '11px system-ui'; ctx.lineWidth = 1; ctx.strokeStyle = '#25354b'; ctx.fillStyle = '#8497b0';
+  const sx=niceStep(rx), sy=niceStep(ry);
+  for(let x=Math.ceil(b.xmin/sx)*sx; x<=b.xmax+sx*0.01; x+=sx){const xx=px(x);ctx.beginPath();ctx.moveTo(xx,pad.t);ctx.lineTo(xx,h-pad.b);ctx.stroke();ctx.fillText(x.toFixed(1),xx-13,h-pad.b+19)}
+  for(let y=Math.ceil(b.ymin/sy)*sy; y<=b.ymax+sy*0.01; y+=sy){const yy=py(y);ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(w-pad.r,yy);ctx.stroke();ctx.fillText(y.toFixed(1),7,yy+4)}
+  ctx.fillStyle='#aabbd0';ctx.fillText('X (m)',w-49,h-10);ctx.save();ctx.translate(15,35);ctx.rotate(-Math.PI/2);ctx.fillText('Y (m)',0,0);ctx.restore();
+  const current = frames[index];
+  for(const track of DATA.tracks){
+    const seen=track.samples.filter(p=>p.frame<=current.frame); if(!seen.length)continue;
+    ctx.strokeStyle=colors.get(track.id);ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();
+    let previous=null;
+    for(const p of seen){if(!previous||p.frame-previous.frame>1)ctx.moveTo(px(p.x),py(p.y));else ctx.lineTo(px(p.x),py(p.y));previous=p;}
+    ctx.stroke();
+  }
+  for(const p of current.rows){
+    const x=px(p.x),y=py(p.y), color=colors.get(p.id), vx=p.vx,vy=p.vy;
+    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.setLineDash(p.detected?[]:[4,3]);ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.fillStyle='#101a2a';ctx.fill();ctx.stroke();ctx.setLineDash([]);
+    const ex=x+vx*0.65*scale,ey=y-vy*0.65*scale;
+    if(Math.hypot(ex-x,ey-y)>4){ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(ex,ey);ctx.stroke();const a=Math.atan2(ey-y,ex-x);ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex-7*Math.cos(a-.5),ey-7*Math.sin(a-.5));ctx.lineTo(ex-7*Math.cos(a+.5),ey-7*Math.sin(a+.5));ctx.closePath();ctx.fillStyle=color;ctx.fill();}
+    ctx.font='bold 12px system-ui';ctx.fillStyle='#f3f7fc';ctx.fillText(`ID ${p.id}`,x+10,y-9);
+  }
+}
+function drawSpeed() {
+  const canvas=document.getElementById('speed'),{ctx,width:w,height:h}=setupCanvas(canvas);ctx.clearRect(0,0,w,h);
+  const pad={l:57,r:18,t:20,b:42}, allTimes=frames.map(f=>f.time_sec);
+  let xmin=allTimes[0],xmax=allTimes[allTimes.length-1];if(xmax<=xmin){xmin-=.5;xmax+=.5;}
+  let ymax=Math.max(1,...DATA.tracks.flatMap(t=>t.samples.map(p=>p.speed)))*1.12;
+  const px=t=>pad.l+(t-xmin)/(xmax-xmin)*(w-pad.l-pad.r),py=v=>h-pad.b-v/ymax*(h-pad.t-pad.b);
+  ctx.font='11px system-ui';ctx.lineWidth=1;ctx.strokeStyle='#25354b';ctx.fillStyle='#8497b0';
+  const ystep=niceStep(ymax,4),xstep=niceStep(xmax-xmin,6);
+  for(let v=0;v<=ymax+ystep*.01;v+=ystep){const y=py(v);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();ctx.fillText(v.toFixed(1),8,y+4)}
+  for(let t=Math.ceil(xmin/xstep)*xstep;t<=xmax+xstep*.01;t+=xstep){const x=px(t);ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,h-pad.b);ctx.stroke();ctx.fillText(t.toFixed(1),x-14,h-pad.b+19)}
+  ctx.fillStyle='#aabbd0';ctx.fillText('時間 (s)',w-62,h-10);ctx.save();ctx.translate(15,54);ctx.rotate(-Math.PI/2);ctx.fillText('速度 (m/s)',0,0);ctx.restore();
+  for(const track of DATA.tracks){ctx.strokeStyle=colors.get(track.id);ctx.lineWidth=2;ctx.beginPath();let prev=null;for(const p of track.samples){if(!prev||p.frame-prev.frame>1)ctx.moveTo(px(p.time_sec),py(p.speed));else ctx.lineTo(px(p.time_sec),py(p.speed));prev=p;}ctx.stroke();}
+  const current=frames[index],x=px(current.time_sec);ctx.strokeStyle='#f8fafc';ctx.setLineDash([5,4]);ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,h-pad.b);ctx.stroke();ctx.setLineDash([]);
+  for(const p of current.rows){ctx.beginPath();ctx.arc(x,py(p.speed),4,0,Math.PI*2);ctx.fillStyle=colors.get(p.id);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.stroke();}
+}
+function render() {
+  const f=frames[index];seek.value=String(index);
+  document.getElementById('timeReadout').textContent=`${f.time_sec.toFixed(2)} s · frame ${f.frame}`;
+  document.getElementById('frameBadge').textContent=`${f.rows.length} 人を表示中`;
+  const summary=document.getElementById('summary');
+  if(!f.rows.length) summary.innerHTML='<div class="empty">このフレームでは追跡中の人はいません</div>';
+  else summary.innerHTML=f.rows.map(p=>`<div class="person"><div class="personhead"><i class="dot" style="background:${colors.get(p.id)}"></i>ID ${p.id} <small>${p.detected?'検出':'予測'}</small></div><div>中心 (${p.x.toFixed(2)}, ${p.y.toFixed(2)}, ${p.z.toFixed(2)}) m</div><div>速度 ${p.speed.toFixed(2)} m/s <small>(vx ${p.vx>=0?'+':''}${p.vx.toFixed(2)}, vy ${p.vy>=0?'+':''}${p.vy.toFixed(2)})</small></div></div>`).join('');
+  drawMotion();drawSpeed();
+}
+function pause(){playing=false;cancelAnimationFrame(animation);playButton.textContent='▶ 再生';}
+function tick(now){if(!playing)return;const target=startTime+(now-startWall)/1000*Number(rateSelect.value);while(index+1<frames.length&&frames[index+1].time_sec<=target)index++;render();if(index>=frames.length-1){pause();return;}animation=requestAnimationFrame(tick);}
+function play(){if(frames.length<2)return;if(index>=frames.length-1)index=0;playing=true;startWall=performance.now();startTime=frames[index].time_sec;playButton.textContent='Ⅱ 一時停止';animation=requestAnimationFrame(tick);render();}
+playButton.addEventListener('click',()=>playing?pause():play());
+document.getElementById('back').addEventListener('click',()=>{pause();index=Math.max(0,index-1);render()});
+document.getElementById('forward').addEventListener('click',()=>{pause();index=Math.min(frames.length-1,index+1);render()});
+seek.addEventListener('input',()=>{index=Number(seek.value);if(playing){startWall=performance.now();startTime=frames[index].time_sec;}render()});
+rateSelect.addEventListener('change',()=>{if(playing){startWall=performance.now();startTime=frames[index].time_sec;}});
+window.addEventListener('resize',render);
+window.addEventListener('keydown',e=>{if(e.code==='Space'&&!['INPUT','SELECT','BUTTON'].includes(document.activeElement.tagName)){e.preventDefault();playing?pause():play();}});
+render();
+if (query.get('autoplay') === '1') setTimeout(play, 350);
+</script>
+</body>
+</html>

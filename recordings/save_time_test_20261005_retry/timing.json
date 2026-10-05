@@ -1,0 +1,38 @@
+{
+  "test_id": "save_time_test_20261005_retry",
+  "settings": {
+    "zed_mode": "CPM 0 Lossless PNG",
+    "zed_frames": 900,
+    "zed_fps": 30,
+    "zed_resolution": "HD720",
+    "lidar_storage": "MCAP zstd_fast",
+    "lidar_topics": [
+      "/livox/lidar",
+      "/livox/imu"
+    ]
+  },
+  "livox_driver_start_command_monotonic": 18762.523454375,
+  "livox_publisher_ready_after_seconds": 4.755,
+  "lidar_recorder_process_start_monotonic": 18767.278440274,
+  "lidar_topics_subscribed_after_seconds": 0.502,
+  "zed_process_start_monotonic": 18767.780894934,
+  "zed_exit_code": 0,
+  "zed_process_elapsed_seconds": 31.837,
+  "zed_recording_to_process_exit_seconds": 30.455,
+  "zed_recording_announcement_to_svo_saved_seconds": 30.284,
+  "lidar_stop_signal_to_bag_exit_seconds": 0.314,
+  "lidar_recorder_process_elapsed_seconds": 32.653,
+  "bag_exit_code": 0,
+  "driver_exit_code": -11,
+  "svo_bytes": 878322282,
+  "mcap_bytes": 89164420,
+  "ros2_bag_info_exit_code": 0,
+  "ros2_bag_info": "\nFiles:             mcap_zstd_fast_0.mcap\nBag size:          85.0 MiB\nStorage id:        mcap\nROS Distro:        jazzy\nDuration:          31.919716225s\nStart:             Oct  5 2026 15:02:33.955489616 (1791180153.955489616)\nEnd:               Oct  5 2026 15:03:05.875205841 (1791180185.875205841)\nMessages:          6704\nTopic information: Topic: /livox/imu | Type: sensor_msgs/msg/Imu | Count: 6385 | Serialization Format: cdr\n                   Topic: /livox/lidar | Type: sensor_msgs/msg/PointCloud2 | Count: 319 | Serialization Format: cdr\nService:           0\nService information: \n",
+  "lidar_bag_duration_seconds": 31.919716225,
+  "lidar_bag_message_count": 6704,
+  "record_completed_at_local": "2026-10-05T15:03:08+09:00",
+  "zed_pre_recording_startup_seconds": 1.382,
+  "zed_saved_marker_to_process_exit_seconds": 0.171,
+  "both_files_closed_seconds_from_zed_process_start": 32.151,
+  "zed_target_capture_seconds": 30.0
+}

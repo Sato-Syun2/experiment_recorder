@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "source_frame": "livox_frame",
+  "target_frame": "zed_left_optical_frame",
+  "coordinate_system": "IMAGE",
+  "units": "m",
+  "calibration_status": "initial_mount_estimate",
+  "mount_pitch_down_deg": 25.0,
+  "translation_m": [0.06, -0.08, 0.02],
+  "rotation_source_to_target": [
+    [0.0, -1.0, 0.0],
+    [0.4226182617, 0.0, -0.9063077870],
+    [0.9063077870, 0.0, 0.4226182617]
+  ],
+  "notes": "Nominal mount estimate from the reported relative origin and axis alignment; refine using hallway data. RPY shown by the GUI follows Rz(yaw) Ry(pitch) Rx(roll)."
+}
