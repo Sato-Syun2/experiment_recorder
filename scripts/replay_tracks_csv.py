@@ -379,7 +379,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             if args.sync_bag is not None:
                 sync_bag = args.sync_bag.expanduser().resolve()
             else:
-                sync_bag = PROJECT_ROOT / "recordings" / "livox" / svo_path.stem
+                colocated_bag = svo_path.parent / "lidar"
+                sync_bag = (
+                    colocated_bag
+                    if colocated_bag.is_dir()
+                    else PROJECT_ROOT / "recordings" / "livox" / svo_path.stem
+                )
             timeline = (
                 _inspect_playback_timeline(svo_path, sync_bag)
                 if sync_bag.is_dir()

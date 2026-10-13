@@ -23,7 +23,7 @@ class CorridorFrameError(ValueError):
 
 @dataclasses.dataclass(frozen=True)
 class CorridorFrame:
-    """livox_frameから廊下方向・横方向・高さのメートル座標へ変換する。"""
+    """点群処理座標から廊下方向・横方向・高さのメートル座標へ変換する。"""
 
     origin_xy: np.ndarray
     longitudinal_xy: np.ndarray

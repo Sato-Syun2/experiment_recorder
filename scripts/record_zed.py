@@ -23,18 +23,21 @@ import unicodedata
 from pathlib import Path
 from typing import Optional, Union
 
+from experiment_plan import DEFAULT_PLAN_PATH, PlanError, load_run_order
+from recording_progress import ProgressError, RecordingProgress
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "recordings" / "zed"
+DEFAULT_OUTPUT_DIR = Path("/data/experiment_data/recordings")
 DEFAULT_CONFIG_PATH = PROJECT_ROOT / "config.json"
 DEFAULT_CONDITION = "test"
 DEFAULT_TRIAL = 1
+DEFAULT_GROUP_NUMBER = 1
 DEFAULT_FILENAME_TEMPLATE = "{condition}_{trial:03d}_{timestamp}.svo2"
 DEFAULT_COMPRESSION_MODE = 1
 DEFAULT_RESOLUTION = "HD720"
 DEFAULT_FPS = 30
-DEFAULT_LIVOX_OUTPUT_DIR = PROJECT_ROOT / "recordings" / "livox"
-DEFAULT_LIVOX_BAG_TEMPLATE = "{condition}_{trial:03d}_{timestamp}"
+DEFAULT_LIVOX_OUTPUT_DIR = DEFAULT_OUTPUT_DIR
 DEFAULT_LIVOX_TOPICS = ["/livox/lidar", "/livox/imu"]
 DEFAULT_LIVOX_DETECTION_TOPIC = "/livox/lidar"
 DEFAULT_ROS_SETUP_FILES = [
@@ -54,7 +57,6 @@ class LivoxSettings:
     def __init__(self) -> None:
         self.enabled = True
         self.output_dir = DEFAULT_LIVOX_OUTPUT_DIR
-        self.bag_name_template = DEFAULT_LIVOX_BAG_TEMPLATE
         self.topics = list(DEFAULT_LIVOX_TOPICS)
         self.detection_topic = DEFAULT_LIVOX_DETECTION_TOPIC
         self.connection_timeout_seconds = 5.0
@@ -90,20 +92,18 @@ class RecorderSettings:
 
     def __init__(
         self,
-        condition: str = DEFAULT_CONDITION,
         trial: int = DEFAULT_TRIAL,
         output_dir: Path = DEFAULT_OUTPUT_DIR,
-        filename_template: str = DEFAULT_FILENAME_TEMPLATE,
+        group_number: int = DEFAULT_GROUP_NUMBER,
         compression_mode: int = DEFAULT_COMPRESSION_MODE,
         resolution: str = DEFAULT_RESOLUTION,
         fps: int = DEFAULT_FPS,
         zed_explorer: str = "ZED_Explorer",
         livox: Optional[LivoxSettings] = None,
     ) -> None:
-        self.condition = condition
         self.trial = trial
         self.output_dir = output_dir
-        self.filename_template = filename_template
+        self.group_number = group_number
         self.compression_mode = compression_mode
         self.resolution = resolution
         self.fps = fps
@@ -144,10 +144,7 @@ def load_livox_config(raw_config: dict, base_dir: Path) -> LivoxSettings:
     settings = LivoxSettings()
     settings.enabled = _bool_setting(livox_raw, "enabled", settings.enabled)
     settings.output_dir = _resolve_path(
-        livox_raw.get("output_dir", "recordings/livox"), base_dir
-    )
-    settings.bag_name_template = _text_setting(
-        livox_raw, "bag_name_template", settings.bag_name_template
+        livox_raw.get("output_dir", os.fspath(DEFAULT_LIVOX_OUTPUT_DIR)), base_dir
     )
     settings.detection_topic = _text_setting(
         livox_raw, "detection_topic", settings.detection_topic
@@ -211,8 +208,6 @@ def load_livox_config(raw_config: dict, base_dir: Path) -> LivoxSettings:
         )
     settings.ping_timeout_seconds = float(ping_timeout)
 
-    if not settings.bag_name_template.strip():
-        raise RecorderError("Config value 'livox.bag_name_template' must not be empty.")
     if not settings.detection_topic:
         raise RecorderError("Config value 'livox.detection_topic' must not be empty.")
     if not settings.ros2_executable:
@@ -244,14 +239,11 @@ def load_config(config_path: Path) -> RecorderSettings:
         raise RecorderError("Config file must contain a JSON object.")
 
     settings = RecorderSettings()
-    settings.condition = _text_setting(raw_config, "condition", settings.condition)
     settings.trial = raw_config.get("trial", settings.trial)
     settings.output_dir = _resolve_path(
-        raw_config.get("output_dir", "recordings/zed"), config_path.parent
+        raw_config.get("output_dir", os.fspath(DEFAULT_OUTPUT_DIR)), config_path.parent
     )
-    settings.filename_template = _text_setting(
-        raw_config, "filename_template", settings.filename_template
-    )
+    settings.group_number = raw_config.get("group_number", DEFAULT_GROUP_NUMBER)
     settings.compression_mode = raw_config.get(
         "compression_mode", settings.compression_mode
     )
@@ -268,6 +260,12 @@ def load_config(config_path: Path) -> RecorderSettings:
         raise RecorderError("Config value 'trial' must be an integer.")
     if settings.trial < 1:
         raise RecorderError("Config value 'trial' must be a positive integer.")
+    if not isinstance(settings.group_number, int) or isinstance(
+        settings.group_number, bool
+    ):
+        raise RecorderError("Config value 'group_number' must be an integer.")
+    if settings.group_number < 1:
+        raise RecorderError("Config value 'group_number' must be a positive integer.")
     if not isinstance(settings.compression_mode, int) or isinstance(
         settings.compression_mode, bool
     ):
@@ -280,8 +278,6 @@ def load_config(config_path: Path) -> RecorderSettings:
         raise RecorderError("Config value 'fps' must be positive.")
     if not settings.resolution.strip():
         raise RecorderError("Config value 'resolution' must not be empty.")
-    if not settings.filename_template.strip():
-        raise RecorderError("Config value 'filename_template' must not be empty.")
     if not settings.zed_explorer.strip():
         raise RecorderError("Config value 'zed_explorer' must not be empty.")
     return settings
@@ -376,7 +372,7 @@ def generate_livox_bag_path(
     trial: int,
     output_dir: Path,
     timestamp: Optional[dt.datetime] = None,
-    bag_name_template: str = DEFAULT_LIVOX_BAG_TEMPLATE,
+    bag_name_template: str = "{condition}_{trial:03d}_{timestamp}",
 ) -> Path:
     """既存ディレクトリと重ならないrosbag2の保存先を作る。"""
 
@@ -395,6 +391,98 @@ def generate_livox_bag_path(
         candidate = output_dir / f"{base_path.name}_{suffix_number:02d}"
         suffix_number += 1
     return candidate
+
+
+def recording_directory(
+    output_root: Path,
+    group_number: int,
+    timestamp: Optional[dt.datetime] = None,
+    *,
+    reserve: bool = False,
+) -> Path:
+    """日付・グループ配下に録画IDフォルダを選び、必要なら確保する。"""
+
+    if (
+        not isinstance(group_number, int)
+        or isinstance(group_number, bool)
+        or group_number < 1
+    ):
+        raise ValueError("group_number must be a positive integer")
+    timestamp = timestamp or dt.datetime.now()
+    group_dir = Path(output_root) / (
+        f"{timestamp:%Y%m%d}_group{group_number:03d}"
+    )
+    existing_numbers = []
+    if group_dir.is_dir():
+        for child in group_dir.iterdir():
+            match = re.fullmatch(r"recording_(\d+)", child.name)
+            if match:
+                existing_numbers.append(int(match.group(1)))
+    recording_number = max(existing_numbers, default=0) + 1
+    while True:
+        candidate = group_dir / f"recording_{recording_number:03d}"
+        if reserve:
+            try:
+                candidate.mkdir(parents=True, exist_ok=False)
+                return candidate
+            except FileExistsError:
+                recording_number += 1
+        elif candidate.exists() or candidate.is_symlink():
+            recording_number += 1
+        else:
+            return candidate
+
+
+def write_recording_metadata(
+    recording_dir: Path,
+    run_order: dict,
+    trial_entry: dict,
+    take_number: int,
+    started_at: dt.datetime,
+    lidar_enabled: bool,
+) -> Path:
+    """共通順序データの条件・教示とTake番号を録画ファイルへ記録する。"""
+
+    group_number = int(trial_entry["group"][1:])
+    metadata = {
+        "recording_id": recording_dir.name,
+        "recording_started_at": started_at.isoformat(timespec="seconds"),
+        "group_number": group_number,
+        "trial_number": trial_entry["global_trial_number"],
+        "global_trial_number": trial_entry["global_trial_number"],
+        "set_number": trial_entry["set_number"],
+        "paper_name": trial_entry["paper_name"],
+        "paper_trial_number": trial_entry["paper_trial_number"],
+        "trial_type": trial_entry["trial_type"],
+        "trial_type_label": trial_entry["trial_type_label"],
+        "take_number": take_number,
+        "condition_id": trial_entry["condition_id"],
+        "condition_category": trial_entry["condition_category"],
+        "corridor_width": trial_entry["corridor_width"],
+        "avoidance": trial_entry["avoidance"],
+        "leading_walker_speed": trial_entry["leading_walker_speed"],
+        "overtaking_direction": trial_entry["overtaking_direction"],
+        "overtaker": trial_entry["overtaker"],
+        "overtaken_person": trial_entry["overtaken_person"],
+        "solo_target": trial_entry["solo_target"],
+        "participants": {
+            "subject_1": trial_entry["subject_1"],
+            "subject_2": trial_entry["subject_2"],
+        },
+        "plan_version": run_order["plan_version"],
+        "plan_sha256": run_order["plan_sha256"],
+        "source_workbooks": run_order["source_workbooks"],
+        "data": {
+            "svo2": f"{recording_dir.name}.svo2",
+            "lidar_bag": "lidar" if lidar_enabled else None,
+        },
+    }
+    metadata_path = recording_dir / "recording.json"
+    metadata_path.write_text(
+        json.dumps(metadata, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return metadata_path
 
 
 def build_ros_environment(settings: LivoxSettings) -> dict[str, str]:
@@ -680,7 +768,7 @@ def start_livox_bag_recording(
 
     logs_dir = PROJECT_ROOT / "logs"
     logs_dir.mkdir(parents=True, exist_ok=True)
-    session.bag_log_path = logs_dir / f"rosbag_{bag_path.name}.log"
+    session.bag_log_path = logs_dir / f"rosbag_{bag_path.parent.name}.log"
     session.bag_log = session.bag_log_path.open("a", encoding="utf-8")
     command = [
         session.ros2_executable,
@@ -910,65 +998,110 @@ def _relative_display_path(path: Path) -> str:
         return os.fspath(path)
 
 
+def _trial_entry(run_order: dict, group_number: int, trial: int) -> dict:
+    group_name = f"G{group_number:02d}"
+    try:
+        return run_order["groups"][group_name]["trials"][trial - 1]
+    except (KeyError, IndexError) as exc:
+        raise RecorderError(
+            f"計画にグループ{group_name}の試行{trial}がありません。"
+        ) from exc
+
+
+def _available_trial_numbers(
+    group_plan: dict, progress: RecordingProgress
+) -> list[int]:
+    maximum = (
+        group_plan["basic_trial_count"] + group_plan["additional_trial_count"]
+        if progress.additional_enabled
+        else group_plan["basic_trial_count"]
+    )
+    return list(range(1, maximum + 1))
+
+
+def _trial_entry_for_group(group_plan: dict, trial: int) -> dict:
+    return group_plan["trials"][trial - 1]
+
+
+def _prepare_warnings(group_plan: dict, trial_entry: dict) -> list[str]:
+    trial_number = trial_entry["global_trial_number"]
+    if trial_number <= 1:
+        return []
+    previous = _trial_entry_for_group(group_plan, trial_number - 1)
+    warnings: list[str] = []
+    if previous["set_number"] != trial_entry["set_number"]:
+        warnings.append(
+            f"セット切替：第{previous['set_number']}セット {previous['paper_name']} "
+            f"→ 第{trial_entry['set_number']}セット {trial_entry['paper_name']}"
+        )
+    if previous["corridor_width"] != trial_entry["corridor_width"]:
+        warnings.append(
+            f"通路幅変更：{previous['corridor_width'] or '—'} → "
+            f"{trial_entry['corridor_width'] or '—'}"
+        )
+    previous_roles = (previous["subject_1"]["role"], previous["subject_2"]["role"])
+    current_roles = (trial_entry["subject_1"]["role"], trial_entry["subject_2"]["role"])
+    if previous_roles != current_roles:
+        warnings.append(
+            "役割変更：被験者1 {0} / 被験者2 {1} → 被験者1 {2} / 被験者2 {3}".format(
+                previous_roles[0], previous_roles[1], current_roles[0], current_roles[1]
+            )
+        )
+    return warnings
+
+
 def _print_ready(
-    condition: str,
-    trial: int,
-    output_path: Path,
-    resolution: str = DEFAULT_RESOLUTION,
-    fps: int = DEFAULT_FPS,
-    compression_mode: int = DEFAULT_COMPRESSION_MODE,
-    livox_enabled: bool = True,
+    trial_entry: dict,
+    group_plan: dict,
+    group_number: int,
+    progress: RecordingProgress,
 ) -> None:
     _clear_screen()
-    print("=" * 40)
-    print(" Experiment Recorder (ZED + Livox)")
-    print("=" * 40)
-    print("状態      : 待機中（録画開始前）")
-    print(f"Condition : {condition}")
-    print(f"Trial     : {trial:03d}")
-    print(f"Output    : {_relative_display_path(output_path)}")
-    print(f"Capture   : {resolution} / {fps} FPS / CPM {compression_mode}")
+    trial = trial_entry["global_trial_number"]
+    print("=" * 54)
+    print(f"録画前確認  |  グループ {trial_entry['group']}（{group_number}/18）")
     print(
-        "Livox     : "
-        + (
-            "起動時に接続確認（未接続なら点群録画なし）"
-            if livox_enabled
-            else "無効（点群録画なし）"
-        )
+        f"試行 {trial:02d}  [{trial_entry['trial_type_label']}]  |  "
+        f"通路幅: {trial_entry['corridor_width'] or '—'}  |  "
+        f"Take: {progress.next_take_number(trial)}"
     )
+    for subject_number in (1, 2):
+        participant = trial_entry[f"subject_{subject_number}"]
+        print(f"被験者{subject_number}（{participant['role']}）: {participant['instruction']}")
+    warnings = _prepare_warnings(group_plan, trial_entry)
+    rerecord = progress.rerecord_trials()
+    if trial in progress.completed_trials() and trial not in rerecord:
+        warnings.append(
+            f"この試行は完了済みです。再録を開始するとTake {progress.next_take_number(trial)}になります"
+        )
+    if warnings:
+        print("\n" + "!" * 54)
+        print("【録画前に必ず確認】")
+        for warning in warnings:
+            print(f"  ◆ {warning}")
+        print("!" * 54)
     print()
-    print("操作      : ENTER = 録画開始")
+    print("← / → グループ選択   ↑ 試行-1   ↓ 試行+1")
+    print("Enter 録画開始   Q 終了")
 
 
 def _print_recording(
-    trial: int,
-    output_path: Path,
-    resolution: str = DEFAULT_RESOLUTION,
-    fps: int = DEFAULT_FPS,
-    compression_mode: int = DEFAULT_COMPRESSION_MODE,
-    livox_connected: bool = False,
-    livox_bag_path: Optional[Path] = None,
-    livox_status: Optional[str] = None,
-    livox_reason: Optional[str] = None,
+    trial_entry: dict,
+    take_number: int = 1,
 ) -> None:
-    print("=" * 40)
-    print(" RECORDING")
-    print("=" * 40)
-    print("状態      : 録画中")
-    print(f"Trial     : {trial:03d}")
-    print(f"Output    : {_relative_display_path(output_path)}")
-    print(f"Capture   : {resolution} / {fps} FPS / CPM {compression_mode}")
-    if livox_connected and livox_bag_path is not None:
-        print("Livox     : 接続済み・点群録画中")
-        print(f"Livox Bag : {_relative_display_path(livox_bag_path)}")
-    else:
-        print(f"Livox     : {livox_status or '未接続・点群録画なし'}")
-        print("点群保存  : なし（ZEDのみ録画）")
-        if livox_reason:
-            print(f"理由      : {livox_reason}")
-    print("Duration  : 00:00:00")
+    print("=" * 54)
+    print("録画中")
+    trial = trial_entry["global_trial_number"]
+    print(
+        f"グループ {trial_entry['group']}  |  試行 {trial:02d} "
+        f"[{trial_entry['trial_type_label']}]  |  通路幅: {trial_entry['corridor_width'] or '—'}  "
+        f"|  Take: {take_number}"
+    )
+    for subject_number in (1, 2):
+        participant = trial_entry[f"subject_{subject_number}"]
+        print(f"被験者{subject_number}（{participant['role']}）: {participant['instruction']}")
     print()
-    print("操作      : SPACE / S / ENTER = 録画停止 / CTRL+C = 緊急終了")
+    print("SPACE / S / ENTER 録画停止   CTRL+C 緊急終了")
 
 
 def _print_livox_warning(reason: str, lidar_connected: bool = False) -> None:
@@ -1005,7 +1138,7 @@ def _terminal_key_mode():
             return
         original_attributes = termios.tcgetattr(stdin_fd)
         tty.setcbreak(stdin_fd)
-    except (ImportError, OSError):
+    except (AttributeError, ImportError, OSError, ValueError):
         yield False
         return
 
@@ -1044,6 +1177,152 @@ def _read_command_line(prompt: str = "") -> str:
         if not raw_line:
             raise EOFError
         return raw_line.decode("utf-8", errors="ignore")
+
+
+def _read_terminal_key(stdin_fd: int) -> str:
+    """端末から矢印キーを含むキー入力を1つ読み取る。"""
+
+    ready, _, _ = select.select([stdin_fd], [], [], 0.5)
+    if not ready:
+        return ""
+    first = os.read(stdin_fd, 1)
+    if first in {b"\r", b"\n"}:
+        return "enter"
+    if first == b"\x1b":
+        sequence = bytearray()
+        while len(sequence) < 8:
+            ready, _, _ = select.select([stdin_fd], [], [], 0.05)
+            if not ready:
+                break
+            value = os.read(stdin_fd, 1)
+            if not value:
+                break
+            sequence.extend(value)
+            if value.isalpha():
+                break
+        return {
+            b"[A": "up",
+            b"[B": "down",
+            b"[C": "right",
+            b"[D": "left",
+            b"OA": "up",
+            b"OB": "down",
+            b"OC": "right",
+            b"OD": "left",
+        }.get(bytes(sequence), "")
+    return first.decode("ascii", errors="ignore").lower()
+
+
+def wait_for_recording_start(
+    output_root: Path,
+    run_order: dict,
+    group_number: int,
+    trial: int,
+) -> tuple[bool, int, int, RecordingProgress]:
+    """run_order.jsonの計画行を表示し、開始前のグループ・試行番号を選択する。"""
+
+    confirmed_completed_trial: tuple[int, int] | None = None
+    while True:
+        group_name = f"G{group_number:02d}"
+        try:
+            group_plan = run_order["groups"][group_name]
+        except KeyError as exc:
+            raise RecorderError(f"計画にグループ{group_name}がありません。") from exc
+        progress = RecordingProgress.open(
+            output_root, group_name, run_order["plan_sha256"]
+        )
+        if (
+            progress.additional_decision == "pending"
+            and progress.completed_count(list(range(1, group_plan["basic_trial_count"] + 1)))
+            == group_plan["basic_trial_count"]
+            and not any(
+                trial_number <= group_plan["basic_trial_count"]
+                for trial_number in progress.rerecord_trials()
+            )
+        ):
+            if _ask_optional_additional_set(group_plan, progress):
+                trial = group_plan["basic_trial_count"] + 1
+        available_trials = _available_trial_numbers(group_plan, progress)
+        trial = max(1, min(trial, available_trials[-1]))
+        entry = _trial_entry(run_order, group_number, trial)
+        _print_ready(
+            entry,
+            group_plan,
+            group_number,
+            progress,
+        )
+
+        try:
+            with _terminal_key_mode() as key_mode:
+                if key_mode:
+                    stdin_fd = sys.stdin.fileno()
+                    while True:
+                        key = _read_terminal_key(stdin_fd)
+                        if key == "left":
+                            group_number = max(1, group_number - 1)
+                            confirmed_completed_trial = None
+                            break
+                        if key == "right":
+                            group_number = min(run_order["group_count"], group_number + 1)
+                            confirmed_completed_trial = None
+                            break
+                        if key == "up":
+                            trial = max(1, trial - 1)
+                            confirmed_completed_trial = None
+                            break
+                        if key == "down":
+                            trial = min(available_trials[-1], trial + 1)
+                            confirmed_completed_trial = None
+                            break
+                        if key == "enter":
+                            if (
+                                trial in progress.completed_trials()
+                                and trial not in progress.rerecord_trials()
+                                and confirmed_completed_trial != (group_number, trial)
+                            ):
+                                confirmed_completed_trial = (group_number, trial)
+                                print(
+                                    f"\n【再録確認】試行{trial:02d}は完了済みです。"
+                                    f"もう一度EnterでTake {progress.next_take_number(trial)}を開始します。"
+                                    "矢印キーで選び直せます。",
+                                    flush=True,
+                                )
+                                continue
+                            return True, trial, group_number, progress
+                        if key in {"q", "Q"}:
+                            return False, trial, group_number, progress
+                else:
+                    command = _read_command_line(
+                        "矢印キー（↑は試行-1、↓は試行+1。left/rightでグループ）で変更、"
+                        "Enterで開始、qで終了: "
+                    ).strip().lower()
+                    if command in {"left", "right", "up", "down"}:
+                        confirmed_completed_trial = None
+                        if command == "left":
+                            group_number = max(1, group_number - 1)
+                        elif command == "right":
+                            group_number = min(run_order["group_count"], group_number + 1)
+                        elif command == "up":
+                            trial = max(1, trial - 1)
+                        else:
+                            trial = min(available_trials[-1], trial + 1)
+                        continue
+                    if command == "q":
+                        return False, trial, group_number, progress
+                    if (
+                        trial in progress.completed_trials()
+                        and trial not in progress.rerecord_trials()
+                        and confirmed_completed_trial != (group_number, trial)
+                    ):
+                        confirmed_completed_trial = (group_number, trial)
+                        print(
+                            f"試行{trial:02d}は完了済みです。再録する場合は、"
+                            f"もう一度Enterを押してください（Take {progress.next_take_number(trial)}）。"
+                        )
+                        continue
+                    return True, trial, group_number, progress
+        except EOFError:
+            return False, trial, group_number, progress
 
 
 def wait_for_stop(
@@ -1126,9 +1405,10 @@ def _parse_args(argv: Optional[list[str]]) -> argparse.Namespace:
         help=f"JSON config file (default: {DEFAULT_CONFIG_PATH})",
     )
     parser.add_argument(
-        "--condition",
-        default=None,
-        help="Override the condition from the config file",
+        "--run-order",
+        type=Path,
+        default=DEFAULT_PLAN_PATH,
+        help=f"Verified run_order.json (default: {DEFAULT_PLAN_PATH})",
     )
     parser.add_argument(
         "--trial",
@@ -1137,15 +1417,16 @@ def _parse_args(argv: Optional[list[str]]) -> argparse.Namespace:
         help="Override the initial trial number from the config file",
     )
     parser.add_argument(
+        "--group-number",
+        type=int,
+        default=None,
+        help="Override the group number in the recording directory",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         default=None,
-        help="Override the SVO2 output directory from the config file",
-    )
-    parser.add_argument(
-        "--filename-template",
-        default=None,
-        help="Override the filename template from the config file",
+        help="Override the recordings root directory from the config file",
     )
     parser.add_argument(
         "--compression-mode",
@@ -1175,14 +1456,12 @@ def _parse_args(argv: Optional[list[str]]) -> argparse.Namespace:
 def _apply_cli_overrides(settings: RecorderSettings, args: argparse.Namespace) -> None:
     """設定ファイルへCLI引数を上書きし、録画開始前に値を検証する。"""
 
-    if args.condition is not None:
-        settings.condition = args.condition
     if args.trial is not None:
         settings.trial = args.trial
+    if args.group_number is not None:
+        settings.group_number = args.group_number
     if args.output_dir is not None:
         settings.output_dir = _resolve_path(args.output_dir, Path.cwd())
-    if args.filename_template is not None:
-        settings.filename_template = args.filename_template
     if args.compression_mode is not None:
         settings.compression_mode = args.compression_mode
     if args.resolution is not None:
@@ -1194,10 +1473,12 @@ def _apply_cli_overrides(settings: RecorderSettings, args: argparse.Namespace) -
 
     if settings.trial < 1:
         raise RecorderError("trial must be a positive integer.")
+    if settings.group_number < 1:
+        raise RecorderError("group_number must be a positive integer.")
+    if settings.group_number > 18:
+        raise RecorderError("group_number must be between 1 and 18.")
     if not settings.resolution.strip():
         raise RecorderError("resolution must not be empty.")
-    if not settings.filename_template.strip():
-        raise RecorderError("filename_template must not be empty.")
     if not settings.zed_explorer.strip():
         raise RecorderError("zed_explorer must not be empty.")
     if not 0 <= settings.compression_mode <= 6:
@@ -1206,49 +1487,105 @@ def _apply_cli_overrides(settings: RecorderSettings, args: argparse.Namespace) -
         raise RecorderError("fps must be positive.")
 
 
+def _ask_optional_additional_set(
+    group_plan: dict, progress: RecordingProgress
+) -> bool:
+    """基本54試行の完了後に、第4セットを明示的に選んでもらう。"""
+
+    basic_trials = list(range(1, group_plan["basic_trial_count"] + 1))
+    if progress.additional_enabled or progress.additional_decision == "declined":
+        return False
+    if progress.completed_count(basic_trials) != len(basic_trials):
+        return False
+    if any(trial in basic_trials for trial in progress.rerecord_trials()):
+        return False
+    print("\n" + "!" * 72)
+    print(f"【{group_plan['group']} 基本54試行が完了しました】")
+    print(
+        f"任意の第4セット {group_plan['optional_set']}（18試行）を追加で実施しますか？"
+    )
+    print("ここではまだ録画を開始しません。Yで追加セットを選択可能にします。")
+    print("!" * 72)
+    while True:
+        try:
+            answer = unicodedata.normalize(
+                "NFKC", _read_command_line("第4セットを実施しますか [y/N]: ")
+            ).strip().lower()
+        except EOFError:
+            return False
+        if answer in {"y", "yes", "はい"}:
+            progress.enable_additional()
+            print(
+                f"第4セット {group_plan['optional_set']} を選択しました。"
+                "録画開始前画面で内容を確認し、Enterを押してください。"
+            )
+            return True
+        if answer in {"", "n", "no", "いいえ", "q"}:
+            progress.decline_additional()
+            print("第4セットは実施しません。")
+            return False
+        print("YまたはNで回答してください。")
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     args = _parse_args(argv)
     try:
         config_path = _resolve_path(args.config, Path.cwd())
         settings = load_config(config_path)
         _apply_cli_overrides(settings, args)
+        run_order_path = _resolve_path(args.run_order, Path.cwd())
+        run_order = load_run_order(run_order_path)
+        group_name = f"G{settings.group_number:02d}"
+        if group_name not in run_order["groups"]:
+            raise RecorderError(f"計画にグループ{group_name}がありません。")
+        progress = RecordingProgress.open(
+            settings.output_dir, group_name, run_order["plan_sha256"]
+        )
+        if settings.trial > run_order["basic_trial_count"] and not progress.additional_enabled:
+            raise RecorderError(
+                "第4セットは基本54試行の完了後に画面で選択してください。"
+            )
         settings.output_dir.mkdir(parents=True, exist_ok=True)
         zed_explorer = check_zed_explorer(settings.zed_explorer)
-    except (RecorderError, OSError, TypeError) as exc:
+    except (PlanError, ProgressError, RecorderError, OSError, TypeError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
 
-    # 1試行ごとに接続確認、録画、保存検証を行い、次の試行へ進む。
+    if args.trial is None:
+        available = _available_trial_numbers(run_order["groups"][group_name], progress)
+        retry_pending = any(
+            trial_number in available for trial_number in progress.rerecord_trials()
+        )
+        configured_trial_is_complete = settings.trial in progress.completed_trials()
+        if retry_pending or configured_trial_is_complete or settings.trial == DEFAULT_TRIAL:
+            recommended = progress.recommended_trial(available)
+        else:
+            recommended = None
+        if recommended is not None:
+            settings.trial = recommended
+
+    # 選択した計画行に沿って、録画開始・保存検証・進捗保存を繰り返す。
     trial = settings.trial
     interrupted = False
     while True:
         try:
-            preview_path = generate_filename(
-                settings.condition,
-                trial,
+            start_requested, trial, settings.group_number, progress = wait_for_recording_start(
                 settings.output_dir,
-                filename_template=settings.filename_template,
+                run_order,
+                settings.group_number,
+                trial,
             )
-        except (RecorderError, OSError, ValueError) as exc:
-            print(f"Error: {exc}", file=sys.stderr)
-            return 1
-        _print_ready(
-            settings.condition,
-            trial,
-            preview_path,
-            settings.resolution,
-            settings.fps,
-            settings.compression_mode,
-            settings.livox.enabled,
-        )
-        try:
-            _read_command_line()
         except KeyboardInterrupt:
             print("\nInterrupted before recording started.")
             return 130
-        except EOFError:
-            print("\nEnd of input; exiting.")
+        except (PlanError, ProgressError, RecorderError, OSError, ValueError) as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return 1
+        if not start_requested:
+            print("\nExiting before recording started.")
             return 0
+        trial_entry = _trial_entry(run_order, settings.group_number, trial)
+        take_number = progress.next_take_number(trial)
 
         # LiDARは任意のため、接続失敗時もZED単独録画を続行する。
         print("\nChecking Livox LiDAR connection...")
@@ -1261,15 +1598,24 @@ def main(argv: Optional[list[str]] = None) -> int:
             print("\nInterrupted while checking Livox. No recording was started.")
             return 130
 
-        # 接続確認後、両方の保存名と録画基準に使う時刻を一度だけ取得する。
+        # 接続確認後、録画IDと録画基準に使う時刻を一度だけ取得する。
         started_at = dt.datetime.now()
         try:
-            output_path = generate_filename(
-                settings.condition,
-                trial,
+            recording_dir = recording_directory(
                 settings.output_dir,
+                settings.group_number,
                 started_at,
-                settings.filename_template,
+                reserve=True,
+            )
+            output_path = recording_dir / f"{recording_dir.name}.svo2"
+            take_number = progress.begin_attempt(trial, recording_dir.name)
+            write_recording_metadata(
+                recording_dir,
+                run_order,
+                trial_entry,
+                take_number,
+                started_at,
+                livox_session.connected,
             )
         except KeyboardInterrupt:
             if livox_session.driver_process is not None:
@@ -1277,26 +1623,17 @@ def main(argv: Optional[list[str]] = None) -> int:
             close_livox_logs(livox_session)
             print("\nInterrupted before recording started.")
             return 130
-        except (RecorderError, OSError, ValueError) as exc:
+        except (ProgressError, RecorderError, OSError, ValueError) as exc:
             if livox_session.driver_process is not None:
                 stop_process(livox_session.driver_process, "Livox driver")
             close_livox_logs(livox_session)
             print(f"Error: {exc}", file=sys.stderr)
             return 1
-        if output_path != preview_path:
-            print(f"Output assigned at start: {_relative_display_path(output_path)}")
-
         livox_bag_path: Optional[Path] = None
         livox_recording_unavailable = False
         if livox_session.connected:
             try:
-                livox_bag_path = generate_livox_bag_path(
-                    settings.condition,
-                    trial,
-                    settings.livox.output_dir,
-                    started_at,
-                    settings.livox.bag_name_template,
-                )
+                livox_bag_path = recording_dir / "lidar"
                 print(
                     f"Livox connected: {settings.livox.detection_topic}\n"
                     f"Livox bag     : {_relative_display_path(livox_bag_path)}"
@@ -1353,27 +1690,8 @@ def main(argv: Optional[list[str]] = None) -> int:
                 fps=settings.fps,
             )
             _print_recording(
-                trial,
-                output_path,
-                settings.resolution,
-                settings.fps,
-                settings.compression_mode,
-                livox_recording_started,
-                livox_bag_path if livox_recording_started else None,
-                (
-                    "録画不可（ZEDのみ）"
-                    if livox_recording_unavailable
-                    else (
-                        "無効（ZEDのみ）"
-                        if not settings.livox.enabled
-                        else "未接続（ZEDのみ）"
-                    )
-                ),
-                (
-                    "設定で無効化"
-                    if not settings.livox.enabled
-                    else livox_session.reason
-                ),
+                trial_entry,
+                take_number,
             )
             stop_reason = wait_for_stop(
                 process,
@@ -1416,6 +1734,41 @@ def main(argv: Optional[list[str]] = None) -> int:
                 if validation_error
                 else unexpected_exit
             )
+        livox_validation_ok: Optional[bool] = None
+        livox_error = ""
+        if livox_recording_started:
+            if livox_bag_path is not None and livox_return_code is not None:
+                livox_validation_ok, livox_error = validate_livox_bag(
+                    livox_bag_path, livox_return_code
+                )
+                if livox_exited_early:
+                    livox_validation_ok = False
+                    early_error = "Livox rosbag2 exited before the stop command"
+                    livox_error = (
+                        f"{early_error}; {livox_error}" if livox_error else early_error
+                    )
+            else:
+                livox_validation_ok = False
+                livox_error = "Livox rosbag2 did not return a validation result"
+        elif livox_recording_unavailable:
+            livox_validation_ok = False
+            livox_error = livox_session.reason
+        trial_recording_ok = ok and livox_validation_ok is not False
+        progress_details = validation_error
+        if livox_validation_ok is False:
+            progress_details = "; ".join(
+                detail for detail in (progress_details, f"Livox: {livox_error}") if detail
+            )
+        try:
+            progress.finish_attempt(
+                trial,
+                take_number,
+                success=trial_recording_ok,
+                details=progress_details,
+            )
+        except ProgressError as exc:
+            print(f"進捗を更新できません: {exc}", file=sys.stderr)
+            return 1
         if ok:
             size_mb = output_path.stat().st_size / (1024 * 1024)
             print("\nZED recording completed successfully.\n")
@@ -1423,22 +1776,13 @@ def main(argv: Optional[list[str]] = None) -> int:
             print(f"\nZED Size:\n{size_mb:.2f} MB")
         else:
             print(f"\nZED recording failed: {validation_error}", file=sys.stderr)
+        print(
+            f"Recording labels:\n"
+            f"{_relative_display_path(recording_dir / 'recording.json')}"
+        )
 
-        if (
-            livox_recording_started
-            and livox_bag_path is not None
-            and livox_return_code is not None
-        ):
-            livox_ok, livox_error = validate_livox_bag(
-                livox_bag_path, livox_return_code
-            )
-            if livox_exited_early:
-                livox_ok = False
-                early_error = "Livox rosbag2 exited before the stop command"
-                livox_error = (
-                    f"{early_error}; {livox_error}" if livox_error else early_error
-                )
-            if livox_ok:
+        if livox_recording_started and livox_bag_path is not None:
+            if livox_validation_ok:
                 print("\nLivox録画完了（点群保存済み）。\n")
                 print(f"Livox bag:\n{_relative_display_path(livox_bag_path)}")
             else:
@@ -1452,14 +1796,43 @@ def main(argv: Optional[list[str]] = None) -> int:
                 "\nLivox状態: 未接続または録画開始失敗。点群は保存されていません。"
             )
             print(f"理由: {livox_session.reason}")
+        if ok and not trial_recording_ok:
+            print(
+                f"試行{trial:02d}は再録が必要な状態で記録しました。"
+                "録画前画面の再録一覧に表示します。"
+            )
 
         if interrupted:
             return 130
         if not ok:
+            print(
+                f"試行{trial:02d}を再録が必要な状態で記録しました。"
+                "再起動すると未完了試行として最初に表示します。"
+            )
             return 1
 
-        print("\n状態      : 保存完了（次の試行待ち）")
-        print("操作      : ENTER = 次の録画開始 / Q = 終了")
+        if trial == run_order["basic_trial_count"]:
+            try:
+                selected_additional = _ask_optional_additional_set(
+                    run_order["groups"][f"G{settings.group_number:02d}"], progress
+                )
+            except KeyboardInterrupt:
+                print("\n追加セットの選択を中断しました。")
+                return 130
+            if selected_additional:
+                trial = run_order["basic_trial_count"] + 1
+                continue
+            if progress.additional_decision == "declined":
+                return 0
+
+        group_plan = run_order["groups"][f"G{settings.group_number:02d}"]
+        available = _available_trial_numbers(group_plan, progress)
+        if trial == available[-1] and progress.completed_count(available) == len(available):
+            print(f"\n{group_plan['group']}の計画試行をすべて録画しました。")
+            return 0
+
+        print("\n状態      : 保存完了（次の試行を選択できます）")
+        print("操作      : ENTER = 次の候補を表示 / Q = 終了")
         while True:
             try:
                 command = unicodedata.normalize(
@@ -1475,8 +1848,10 @@ def main(argv: Optional[list[str]] = None) -> int:
                 return 0
             if not command:
                 break
-            print("ENTERで次の録画、Qで終了します。")
-        trial += 1
+            print("ENTERで次の候補を表示、Qで終了します。")
+        recommended = progress.recommended_trial(available, after_trial=trial)
+        if recommended is not None:
+            trial = recommended
 
 
 if __name__ == "__main__":

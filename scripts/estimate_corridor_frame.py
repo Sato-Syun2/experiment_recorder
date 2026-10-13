@@ -2,12 +2,13 @@
 """録画済みLiDAR bagから廊下中心座標系を校正する。
 
 最初の数フレームに含まれる左右の壁を検出し、
-結果をtracking/corridor_frame.jsonへ保存する。
+結果をconfig.jsonで指定した廊下校正ファイルへ保存する。
 """
 
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import sys
 from pathlib import Path
 from typing import Optional, Sequence
@@ -31,7 +32,7 @@ DEFAULT_CONFIG_PATH = PROJECT_ROOT / "config.json"
 def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("bag", type=Path, help="解析するrosbag2ディレクトリ")
-    parser.add_argument("--output", type=Path, default=PROJECT_ROOT / "tracking" / "corridor_frame.json", help="校正結果のJSON保存先")
+    parser.add_argument("--output", type=Path, default=None, help="校正結果のJSON保存先（省略時はconfig.jsonのcorridor_frame_file）")
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG_PATH, help="トピックとROIを読む設定ファイル")
     parser.add_argument("--topic", default=None, help="点群トピック（省略時はconfig.json）")
     parser.add_argument("--message-type", choices=("auto", "pointcloud2", "custom"), default="auto")
@@ -58,14 +59,18 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 2
     bag_path = args.bag.expanduser().resolve()
     config_path = args.config.expanduser().resolve()
-    output_path = args.output.expanduser()
-    if not output_path.is_absolute():
-        output_path = (config_path.parent / output_path).resolve()
-    else:
-        output_path = output_path.resolve()
     try:
         # 設定から点群トピックとセンサー座標系のROIを取得する。
         settings = load_settings(config_path, args.topic)
+        output_path = args.output.expanduser() if args.output is not None else (
+            settings.corridor_frame_file
+            if settings.corridor_frame_file is not None
+            else PROJECT_ROOT / "tracking" / "corridor_frame.json"
+        )
+        if not output_path.is_absolute():
+            output_path = (config_path.parent / output_path).resolve()
+        else:
+            output_path = output_path.resolve()
         points_by_frame: list[np.ndarray] = []
         actual_type = None
         # bagの先頭から指定フレーム数だけ読み込み、壁点をまとめる。
@@ -75,6 +80,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         ):
             actual_type = message_kind
             points = _custom_msg_to_numpy(message) if message_kind == "custom" else _pointcloud2_to_numpy(message)
+            if settings.gravity_alignment_enabled and len(points):
+                points = (
+                    points @ settings.gravity_alignment_rotation.T
+                    + settings.gravity_alignment_translation
+                ).astype(np.float32, copy=False)
             if len(points):
                 points_by_frame.append(points)
             if frame_number >= args.frames:
@@ -91,6 +101,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             min_wall_span=args.min_wall_span, min_wall_gap=args.min_wall_gap,
             max_wall_gap=args.max_wall_gap, ransac_iterations=args.ransac_iterations,
         )
+        if settings.gravity_alignment_enabled:
+            frame = dataclasses.replace(frame, source_frame="livox_level_frame")
         # 推定結果は次回の追跡処理から読み込めるJSONとして保存する。
         frame.write_json(output_path)
     except (TrackingError, CorridorFrameError, OSError, ValueError) as exc:

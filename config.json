@@ -1,16 +1,14 @@
 {
-  "condition": "test",
   "trial": 1,
-  "output_dir": "recordings/zed",
-  "filename_template": "{condition}_{trial:03d}_{timestamp}.svo2",
+  "group_number": 1,
+  "output_dir": "/data/experiment_data/recordings",
   "compression_mode": 1,
   "resolution": "HD720",
   "fps": 30,
   "zed_explorer": "ZED_Explorer",
   "livox": {
     "enabled": true,
-    "output_dir": "recordings/livox",
-    "bag_name_template": "{condition}_{trial:03d}_{timestamp}",
+    "output_dir": "/data/experiment_data/recordings",
     "topics": [
       "/livox/lidar",
       "/livox/imu"
@@ -43,7 +41,7 @@
   "tracking": {
     "point_cloud_topic": "/livox/lidar",
     "output_coordinate_frame": "corridor",
-    "corridor_frame_file": "tracking/corridor_frame.json",
+    "corridor_frame_file": "tracking/corridor_frame_livox_level.json",
     "lidar_to_zed_frame_file": "tracking/lidar_to_zed_left_eye.json",
     "voxel_size": 0.08,
     "roi": {
@@ -58,6 +56,11 @@
     "ground_z": 0.0,
     "ground_clearance": 0.12,
     "max_height_above_ground": 2.4,
+    "gravity_alignment": {
+      "enabled": true,
+      "up_vector": [-0.55091, -0.02410, 0.83422],
+      "ground_height_along_up_m": -2.11
+    },
     "background_mode": "temporal",
     "background_learning_frames": 30,
     "background_min_presence": 0.85,
@@ -76,6 +79,8 @@
     "far_min_cluster_points": 5,
     "far_min_cluster_width": 0.05,
     "far_min_cluster_depth": 0.05,
+    "far_cluster_tolerance_growth_per_meter": 0.012,
+    "max_cluster_tolerance": 0.80,
     "cluster_background_voxel_size": 0.90,
     "cluster_background_min_presence": 0.50,
     "max_match_distance": 0.55,
@@ -84,6 +89,7 @@
     "min_hits": 2,
     "min_confirmed_consecutive_hits": 5,
     "min_confirmed_point_count": 20.0,
+    "far_min_confirmed_point_count": 8.0,
     "min_track_displacement": 0.8,
     "min_motion_consistency": 0.55,
     "motion_consistency_window": 15,

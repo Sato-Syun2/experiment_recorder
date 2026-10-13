@@ -438,7 +438,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         # 複数のbagを順に再生し、それぞれの追跡CSVも保存する。
         for bag in args.bags:
             bag_path = bag.expanduser().resolve()
-            output_path = args.output_dir.expanduser().resolve() / f"{bag_path.name}_tracks.csv"
+            recording_name = (
+                bag_path.parent.name if bag_path.name == "lidar" else bag_path.name
+            )
+            output_path = args.output_dir.expanduser().resolve() / f"{recording_name}_tracks.csv"
             _replay_bag(
                 node,
                 point_publisher,

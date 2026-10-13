@@ -204,7 +204,11 @@ def validate_bag_path(bag_path: Path) -> None:
 
 
 def infer_bag_path(svo_path: Path, bag_dir: Path) -> Path:
-    """SVOと同じ試行名のrosbag2を探す。"""
+    """同じ録画フォルダ内を優先し、旧形式の同名rosbag2も探す。"""
+
+    colocated_candidate = svo_path.parent / "lidar"
+    if colocated_candidate.exists():
+        return colocated_candidate
 
     direct_candidate = bag_dir / svo_path.stem
     if direct_candidate.exists():

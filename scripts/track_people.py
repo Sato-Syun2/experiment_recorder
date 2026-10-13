@@ -2,7 +2,7 @@
 """録画またはライブのROS 2点群から人物を検出・追跡する。
 
 点群のROI切り出し、床・静的背景の除去、人物候補クラスタの抽出、
-フレーム間のID対応付けを行う。CSVには従来のLiDAR座標に加えて、
+フレーム間のID対応付けを行う。CSVには従来のLiDAR座標、重力水平化座標、
 校正済みの場合は廊下中心座標も出力する。
 """
 
@@ -63,6 +63,15 @@ class TrackerSettings:
     ground_z: float = 0.0
     ground_clearance: float = 0.12
     max_height_above_ground: float = 2.4
+    gravity_alignment_enabled: bool = False
+    gravity_up_vector: tuple[float, float, float] = (0.0, 0.0, 1.0)
+    ground_height_along_up: float = 0.0
+    gravity_alignment_rotation: np.ndarray = dataclasses.field(
+        default_factory=lambda: np.eye(3, dtype=np.float64)
+    )
+    gravity_alignment_translation: np.ndarray = dataclasses.field(
+        default_factory=lambda: np.zeros(3, dtype=np.float64)
+    )
     background_mode: str = "temporal"
     background_learning_frames: int = 30
     background_min_presence: float = 0.85
@@ -81,6 +90,8 @@ class TrackerSettings:
     far_min_cluster_points: int = 5
     far_min_cluster_width: float = 0.05
     far_min_cluster_depth: float = 0.05
+    far_cluster_tolerance_growth_per_meter: float = 0.012
+    max_cluster_tolerance: float = 0.80
     cluster_background_voxel_size: float = 0.90
     cluster_background_min_presence: float = 0.50
     max_match_distance: float = 0.55
@@ -89,18 +100,33 @@ class TrackerSettings:
     min_hits: int = 2
     min_confirmed_consecutive_hits: int = 5
     min_confirmed_point_count: float = 20.0
+    far_min_confirmed_point_count: float = 8.0
     min_track_displacement: float = 0.80
     min_motion_consistency: float = 0.55
     motion_consistency_window: int = 15
     velocity_smoothing: float = 0.65
     markers_topic: str = "/people/tracks"
     publish_markers: bool = False
-    # 生のLiDAR座標を残したまま、廊下座標もCSVへ併記する。
+    # 内部の追跡座標（必要なら水平化済み）から、廊下・ZED座標もCSVへ併記する。
     output_coordinate_frame: str = "livox"
     corridor_frame_file: Optional[Path] = None
     corridor_frame: Optional[CorridorFrame] = None
     lidar_to_zed_frame_file: Optional[Path] = None
     lidar_to_zed_frame: Optional[SensorTransform] = None
+
+
+def _confirmation_point_threshold(distance_m: float, settings: TrackerSettings) -> float:
+    """遠距離では点密度が落ちるため、確定に必要な平均点数を下げる。"""
+
+    if distance_m < settings.far_detection_start:
+        return settings.min_confirmed_point_count
+    range_fraction = min(1.0, settings.far_detection_start / max(distance_m, 1e-6))
+    return max(
+        float(settings.far_min_cluster_points),
+        settings.far_min_cluster_points
+        + (settings.far_min_confirmed_point_count - settings.far_min_cluster_points)
+        * range_fraction,
+    )
 
 
 def _number(
@@ -131,6 +157,35 @@ def _integer(value: object, name: str, *, positive: bool = False) -> int:
         qualifier = "positive" if positive else "non-negative"
         raise TrackingError(f"Config value '{name}' must be {qualifier}.")
     return value
+
+
+def _vector3(
+    value: object, name: str, default: tuple[float, float, float]
+) -> tuple[float, float, float]:
+    if value is None:
+        value = default
+    if not isinstance(value, (list, tuple)) or len(value) != 3:
+        raise TrackingError(f"Config value '{name}' must contain three numbers.")
+    return tuple(_number(item, f"{name}[{index}]") for index, item in enumerate(value))
+
+
+def _rotation_from_up_vector(up_vector: Sequence[float]) -> np.ndarray:
+    """重力上方向をlevel-frameの+Zへ回し、センサー前方向を水平面へ投影する。"""
+
+    up = np.asarray(up_vector, dtype=np.float64).reshape(-1)
+    norm = float(np.linalg.norm(up))
+    if up.size != 3 or not math.isfinite(norm) or norm < 1e-6:
+        raise TrackingError("tracking.gravity_alignment.up_vector must be non-zero.")
+    up /= norm
+    forward = np.array([1.0, 0.0, 0.0], dtype=np.float64)
+    level_forward = forward - float(np.dot(forward, up)) * up
+    forward_norm = float(np.linalg.norm(level_forward))
+    if forward_norm < 1e-6:
+        raise TrackingError("Gravity up vector cannot be parallel to the sensor forward axis.")
+    level_forward /= forward_norm
+    level_left = np.cross(up, level_forward)
+    level_left /= np.linalg.norm(level_left)
+    return np.vstack((level_forward, level_left, up))
 
 
 def _text(value: object, name: str, default: str) -> str:
@@ -257,6 +312,46 @@ def load_settings(config_path: Path, topic_override: Optional[str] = None) -> Tr
         "tracking.max_height_above_ground",
         positive=True,
     )
+    gravity_alignment = tracking.get("gravity_alignment", {})
+    if not isinstance(gravity_alignment, dict):
+        raise TrackingError("Config value 'tracking.gravity_alignment' must be a JSON object.")
+    settings.gravity_alignment_enabled = _boolean(
+        gravity_alignment.get("enabled"),
+        "tracking.gravity_alignment.enabled",
+        settings.gravity_alignment_enabled,
+    )
+    settings.gravity_up_vector = _vector3(
+        gravity_alignment.get("up_vector"),
+        "tracking.gravity_alignment.up_vector",
+        settings.gravity_up_vector,
+    )
+    settings.ground_height_along_up = _number(
+        gravity_alignment.get("ground_height_along_up_m", settings.ground_height_along_up),
+        "tracking.gravity_alignment.ground_height_along_up_m",
+    )
+    if settings.gravity_alignment_enabled:
+        settings.gravity_alignment_rotation = _rotation_from_up_vector(
+            settings.gravity_up_vector
+        )
+        settings.gravity_alignment_translation = np.array(
+            [0.0, 0.0, -settings.ground_height_along_up], dtype=np.float64
+        )
+    if settings.gravity_alignment_enabled and settings.lidar_to_zed_frame is not None:
+        # 点群はlevel frameへ変換済みなので、LiDAR→ZED外部変換も同じ入力座標へ合成する。
+        raw_to_level = settings.gravity_alignment_rotation
+        level_to_raw = raw_to_level.T
+        raw_to_zed = settings.lidar_to_zed_frame
+        composed_rotation = raw_to_zed.rotation @ level_to_raw
+        composed_translation = (
+            raw_to_zed.translation
+            - composed_rotation @ settings.gravity_alignment_translation
+        )
+        settings.lidar_to_zed_frame = SensorTransform(
+            rotation=composed_rotation,
+            translation=composed_translation,
+            source_frame="livox_level_frame",
+            target_frame=raw_to_zed.target_frame,
+        )
     settings.background_mode = _text(
         tracking.get("background_mode"),
         "tracking.background_mode",
@@ -350,6 +445,23 @@ def load_settings(config_path: Path, topic_override: Optional[str] = None) -> Tr
         "tracking.far_min_cluster_depth",
         nonnegative=True,
     )
+    settings.far_cluster_tolerance_growth_per_meter = _number(
+        tracking.get(
+            "far_cluster_tolerance_growth_per_meter",
+            settings.far_cluster_tolerance_growth_per_meter,
+        ),
+        "tracking.far_cluster_tolerance_growth_per_meter",
+        nonnegative=True,
+    )
+    settings.max_cluster_tolerance = _number(
+        tracking.get("max_cluster_tolerance", settings.max_cluster_tolerance),
+        "tracking.max_cluster_tolerance",
+        positive=True,
+    )
+    if settings.max_cluster_tolerance < settings.cluster_tolerance:
+        raise TrackingError(
+            "tracking.max_cluster_tolerance must be at least cluster_tolerance."
+        )
     if settings.far_min_cluster_points > settings.min_cluster_points:
         raise TrackingError(
             "tracking.far_min_cluster_points must not exceed min_cluster_points."
@@ -403,6 +515,17 @@ def load_settings(config_path: Path, topic_override: Optional[str] = None) -> Tr
         "tracking.min_confirmed_point_count",
         positive=True,
     )
+    settings.far_min_confirmed_point_count = _number(
+        tracking.get(
+            "far_min_confirmed_point_count", settings.far_min_confirmed_point_count
+        ),
+        "tracking.far_min_confirmed_point_count",
+        positive=True,
+    )
+    if settings.far_min_confirmed_point_count < settings.far_min_cluster_points:
+        raise TrackingError(
+            "tracking.far_min_confirmed_point_count must be at least far_min_cluster_points."
+        )
     settings.min_track_displacement = _number(
         tracking.get("min_track_displacement", settings.min_track_displacement),
         "tracking.min_track_displacement",
@@ -658,34 +781,68 @@ class _UnionFind:
             self.rank[left_root] += 1
 
 
-def _cluster_labels(points: np.ndarray, tolerance: float) -> np.ndarray:
-    """近傍セルを探索し、距離条件を満たす点を連結成分にまとめる。"""
+def _cluster_labels(
+    points: np.ndarray,
+    tolerance: float,
+    *,
+    range_start: float = math.inf,
+    tolerance_growth_per_meter: float = 0.0,
+    max_tolerance: Optional[float] = None,
+) -> np.ndarray:
+    """距離に応じた近傍条件で点を連結成分へまとめる。
+
+    遠距離では同じ人体表面の点間隔が広がるため、設定した上限内で
+    水平距離に応じてクラスタ接続距離を少しずつ広げる。
+    """
 
     if len(points) == 0:
         return np.empty(0, dtype=np.int64)
-    cell_size = tolerance
-    cells: dict[tuple[int, int, int], list[int]] = {}
-    cell_keys = np.floor(points / cell_size).astype(np.int64)
-    for index, key_array in enumerate(cell_keys):
-        key = (int(key_array[0]), int(key_array[1]), int(key_array[2]))
-        cells.setdefault(key, []).append(index)
-
     union_find = _UnionFind(len(points))
-    tolerance_squared = tolerance * tolerance
-    for index, key_array in enumerate(cell_keys):
-        base = (int(key_array[0]), int(key_array[1]), int(key_array[2]))
-        point = points[index]
-        for dx in (-1, 0, 1):
-            for dy in (-1, 0, 1):
-                for dz in (-1, 0, 1):
-                    candidates = cells.get((base[0] + dx, base[1] + dy, base[2] + dz))
-                    if not candidates:
-                        continue
-                    candidate_points = points[candidates]
-                    distances_squared = np.sum((candidate_points - point) ** 2, axis=1)
-                    for candidate, distance_squared in zip(candidates, distances_squared):
-                        if candidate > index and distance_squared <= tolerance_squared:
-                            union_find.union(index, candidate)
+    point_ranges = np.linalg.norm(points, axis=1)
+    maximum_pair_tolerance = max(tolerance, max_tolerance or tolerance)
+
+    def connect(indices: np.ndarray, cell_size: float, adaptive: bool) -> None:
+        cells: dict[tuple[int, int, int], list[int]] = {}
+        cell_keys = np.floor(points[indices] / cell_size).astype(np.int64)
+        for local_index, key_array in enumerate(cell_keys):
+            key = (int(key_array[0]), int(key_array[1]), int(key_array[2]))
+            cells.setdefault(key, []).append(int(indices[local_index]))
+        for index in indices:
+            base = tuple(np.floor(points[index] / cell_size).astype(np.int64))
+            point = points[index]
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+                    for dz in (-1, 0, 1):
+                        candidates = cells.get((base[0] + dx, base[1] + dy, base[2] + dz))
+                        if not candidates:
+                            continue
+                        candidate_indices = np.asarray(candidates, dtype=np.int64)
+                        distances_squared = np.sum((points[candidate_indices] - point) ** 2, axis=1)
+                        if adaptive:
+                            pair_ranges = 0.5 * (point_ranges[index] + point_ranges[candidate_indices])
+                            local_tolerances = np.minimum(
+                                maximum_pair_tolerance,
+                                tolerance
+                                + tolerance_growth_per_meter
+                                * np.maximum(0.0, pair_ranges - range_start),
+                            )
+                        else:
+                            local_tolerances = tolerance
+                        nearby = (
+                            (candidate_indices > index)
+                            & (distances_squared <= local_tolerances * local_tolerances)
+                        )
+                        for candidate in candidate_indices[nearby]:
+                            union_find.union(int(index), int(candidate))
+
+    all_indices = np.arange(len(points), dtype=np.int64)
+    connect(all_indices, tolerance, adaptive=False)
+    if maximum_pair_tolerance > tolerance and tolerance_growth_per_meter > 0:
+        # The expanded grid only contains the far field and its boundary band;
+        # close-range cells keep their finer grid and processing cost.
+        far_indices = all_indices[point_ranges >= range_start - maximum_pair_tolerance]
+        if len(far_indices):
+            connect(far_indices, maximum_pair_tolerance, adaptive=True)
 
     return np.fromiter(
         (union_find.find(index) for index in range(len(points))),
@@ -700,7 +857,13 @@ def detect_clusters(points: np.ndarray, settings: TrackerSettings) -> list[Detec
     if len(points) == 0:
         return []
     # 近接点を連結成分に分け、各成分を人物候補として形状判定する。
-    labels = _cluster_labels(points, settings.cluster_tolerance)
+    labels = _cluster_labels(
+        points,
+        settings.cluster_tolerance,
+        range_start=settings.far_detection_start,
+        tolerance_growth_per_meter=settings.far_cluster_tolerance_growth_per_meter,
+        max_tolerance=settings.max_cluster_tolerance,
+    )
     unique_labels, counts = np.unique(labels, return_counts=True)
     detections: list[Detection] = []
     for label, count in zip(unique_labels, counts):
@@ -833,6 +996,12 @@ class PeopleTracker:
         if points.size == 0:
             return np.empty((0, 3), dtype=np.float32)
         points = np.asarray(points, dtype=np.float32).reshape(-1, 3)
+        if self.settings.gravity_alignment_enabled:
+            # 固定傾斜したセンサー座標を重力に沿った水平座標へ変換してから高さ判定する。
+            points = (
+                points @ self.settings.gravity_alignment_rotation.T
+                + self.settings.gravity_alignment_translation
+            ).astype(np.float32, copy=False)
         finite = np.isfinite(points).all(axis=1)
         roi = self.settings.roi
         inside = (
@@ -997,7 +1166,9 @@ class PeopleTracker:
                     and motion_consistency >= self.settings.min_motion_consistency
                     and (
                         track.point_count_total / max(1, track.detected_observations)
-                        >= self.settings.min_confirmed_point_count
+                        >= _confirmation_point_threshold(
+                            float(np.linalg.norm(track.position[:2])), self.settings
+                        )
                     )
                 )
             )
@@ -1099,7 +1270,7 @@ def _custom_msg_to_numpy(message: object) -> np.ndarray:
 class CsvWriter:
     """トラック1件ごとにCSVを書き出し、利用可能な座標系を併記する。"""
 
-    # x/y/zとvx/vyは従来どおりlivox_frame。
+    # x/y/zとvx/vyは従来どおりlivox_frame、level_*は重力水平化座標。
     # corridor_*は校正JSONが読み込めた場合だけ値を持つ。
     # zed_*はLiDAR→ZED外部変換JSONが読み込めた場合だけ値を持つ。
     FIELDNAMES = [
@@ -1117,6 +1288,13 @@ class CsvWriter:
         "vx",
         "vy",
         "speed_xy",
+        "level_x",
+        "level_y",
+        "level_z",
+        "level_vx",
+        "level_vy",
+        "level_vz",
+        "level_speed_xy",
         "zed_x",
         "zed_y",
         "zed_z",
@@ -1142,10 +1320,22 @@ class CsvWriter:
         path: Path,
         corridor_frame: Optional[CorridorFrame] = None,
         lidar_to_zed_frame: Optional[SensorTransform] = None,
+        gravity_alignment_rotation: Optional[np.ndarray] = None,
+        gravity_alignment_translation: Optional[np.ndarray] = None,
     ) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         self.corridor_frame = corridor_frame
         self.lidar_to_zed_frame = lidar_to_zed_frame
+        self.gravity_alignment_rotation = (
+            np.asarray(gravity_alignment_rotation, dtype=np.float64).reshape(3, 3)
+            if gravity_alignment_rotation is not None
+            else np.eye(3, dtype=np.float64)
+        )
+        self.gravity_alignment_translation = (
+            np.asarray(gravity_alignment_translation, dtype=np.float64).reshape(3)
+            if gravity_alignment_translation is not None
+            else np.zeros(3, dtype=np.float64)
+        )
         self.stream = path.open("w", encoding="utf-8", newline="")
         self.writer = csv.DictWriter(self.stream, fieldnames=self.FIELDNAMES)
         self.writer.writeheader()
@@ -1153,8 +1343,16 @@ class CsvWriter:
     def write(self, frame: int, timestamp_ns: int, snapshots: Sequence[TrackSnapshot], start_ns: int) -> None:
         time_sec = (timestamp_ns - start_ns) / 1_000_000_000.0
         for snapshot in snapshots:
-            x, y, z = snapshot.position
-            vx, vy = snapshot.velocity[:2]
+            level_position = snapshot.position
+            level_velocity = snapshot.velocity
+            # x/y/zはPointCloud2の元フレームへ戻し、既存のCSV/RViz用途を保つ。
+            raw_position = (
+                (level_position - self.gravity_alignment_translation)
+                @ self.gravity_alignment_rotation
+            )
+            raw_velocity = level_velocity @ self.gravity_alignment_rotation
+            x, y, z = raw_position
+            vx, vy = raw_velocity[:2]
             width, depth, height = snapshot.extent
             # 位置は原点移動、速度は軸の回転だけを行う。
             corridor_position = (
@@ -1193,6 +1391,15 @@ class CsvWriter:
                     "vx": f"{vx:.5f}",
                     "vy": f"{vy:.5f}",
                     "speed_xy": f"{math.hypot(vx, vy):.5f}",
+                    "level_x": f"{level_position[0]:.5f}",
+                    "level_y": f"{level_position[1]:.5f}",
+                    "level_z": f"{level_position[2]:.5f}",
+                    "level_vx": f"{level_velocity[0]:.5f}",
+                    "level_vy": f"{level_velocity[1]:.5f}",
+                    "level_vz": f"{level_velocity[2]:.5f}",
+                    "level_speed_xy": (
+                        f"{math.hypot(level_velocity[0], level_velocity[1]):.5f}"
+                    ),
                     "zed_x": f"{zed_position[0]:.5f}" if zed_position is not None else "",
                     "zed_y": f"{zed_position[1]:.5f}" if zed_position is not None else "",
                     "zed_z": f"{zed_position[2]:.5f}" if zed_position is not None else "",
@@ -1320,7 +1527,9 @@ def _iter_bag_clouds(
 
 
 def _default_output_path(bag_path: Optional[Path]) -> Path:
-    name = "live" if bag_path is None else bag_path.name
+    name = "live" if bag_path is None else (
+        bag_path.parent.name if bag_path.name == "lidar" else bag_path.name
+    )
     return DEFAULT_OUTPUT_DIR / f"{name}_tracks.csv"
 
 
@@ -1345,10 +1554,14 @@ def process_offline(
     max_frames: Optional[int],
     stride: int,
 ) -> int:
-    # trackerは検出、writerは生座標と廊下座標のCSV出力を担当する。
+    # trackerは検出、writerは元フレーム・水平化・廊下座標をCSVへ出力する。
     tracker = PeopleTracker(settings)
     writer = CsvWriter(
-        output_path, settings.corridor_frame, settings.lidar_to_zed_frame
+        output_path,
+        settings.corridor_frame,
+        settings.lidar_to_zed_frame,
+        settings.gravity_alignment_rotation,
+        settings.gravity_alignment_translation,
     )
     frame = 0
     cloud_count = 0
@@ -1403,6 +1616,8 @@ class MarkerPublisher:
         *,
         include_tentative: bool = False,
         corridor_frame: Optional[CorridorFrame] = None,
+        gravity_alignment_rotation: Optional[np.ndarray] = None,
+        gravity_alignment_translation: Optional[np.ndarray] = None,
     ) -> None:
         try:
             from visualization_msgs.msg import MarkerArray
@@ -1412,10 +1627,29 @@ class MarkerPublisher:
         self.publisher = node.create_publisher(MarkerArray, topic, 10)
         self.include_tentative = include_tentative
         self.corridor_frame = corridor_frame
+        self.gravity_alignment_rotation = (
+            np.asarray(gravity_alignment_rotation, dtype=np.float64).reshape(3, 3)
+            if gravity_alignment_rotation is not None
+            else np.eye(3, dtype=np.float64)
+        )
+        self.gravity_alignment_translation = (
+            np.asarray(gravity_alignment_translation, dtype=np.float64).reshape(3)
+            if gravity_alignment_translation is not None
+            else np.zeros(3, dtype=np.float64)
+        )
         self.previous_ids: set[int] = set()
         self.trajectory_points: dict[int, list[tuple[float, float, float]]] = {}
         self.last_frame_id = ""
         self.last_stamp: object = None
+
+    def _position_in_message_frame(self, position: np.ndarray) -> np.ndarray:
+        return (
+            (np.asarray(position, dtype=np.float64) - self.gravity_alignment_translation)
+            @ self.gravity_alignment_rotation
+        )
+
+    def _vector_in_message_frame(self, vector: np.ndarray) -> np.ndarray:
+        return np.asarray(vector, dtype=np.float64) @ self.gravity_alignment_rotation
 
     def reset_sequence(self) -> None:
         """録画bagを切り替える前に、古いマーカーと軌跡を消去する。"""
@@ -1449,7 +1683,8 @@ class MarkerPublisher:
             if not snapshot.detected:
                 continue
             history = self.trajectory_points.setdefault(snapshot.track_id, [])
-            history.append(tuple(float(value) for value in snapshot.position))
+            message_position = self._position_in_message_frame(snapshot.position)
+            history.append(tuple(float(value) for value in message_position))
             if len(history) > self.TRAJECTORY_HISTORY_LENGTH:
                 del history[:-self.TRAJECTORY_HISTORY_LENGTH]
 
@@ -1469,6 +1704,8 @@ class MarkerPublisher:
                 array.markers.append(marker)
 
         for snapshot in snapshots:
+            message_position = self._position_in_message_frame(snapshot.position)
+            message_velocity = self._vector_in_message_frame(snapshot.velocity)
             color = (
                 float((snapshot.track_id * 0.37) % 1.0),
                 float((snapshot.track_id * 0.61) % 1.0),
@@ -1486,9 +1723,9 @@ class MarkerPublisher:
             center.id = snapshot.track_id
             center.type = Marker.SPHERE
             center.action = Marker.ADD
-            center.pose.position.x = float(snapshot.position[0])
-            center.pose.position.y = float(snapshot.position[1])
-            center.pose.position.z = float(snapshot.position[2])
+            center.pose.position.x = float(message_position[0])
+            center.pose.position.y = float(message_position[1])
+            center.pose.position.z = float(message_position[2])
             center.pose.orientation.w = 1.0
             center.scale.x = 0.35
             center.scale.y = 0.35
@@ -1505,13 +1742,13 @@ class MarkerPublisher:
             velocity.type = Marker.ARROW
             velocity.action = Marker.ADD
             start = Point()
-            start.x = float(snapshot.position[0])
-            start.y = float(snapshot.position[1])
-            start.z = float(snapshot.position[2])
+            start.x = float(message_position[0])
+            start.y = float(message_position[1])
+            start.z = float(message_position[2])
             end = Point()
-            end.x = start.x + float(snapshot.velocity[0]) * self.VELOCITY_ARROW_HORIZON_SECONDS
-            end.y = start.y + float(snapshot.velocity[1]) * self.VELOCITY_ARROW_HORIZON_SECONDS
-            end.z = start.z
+            end.x = start.x + float(message_velocity[0]) * self.VELOCITY_ARROW_HORIZON_SECONDS
+            end.y = start.y + float(message_velocity[1]) * self.VELOCITY_ARROW_HORIZON_SECONDS
+            end.z = start.z + float(message_velocity[2]) * self.VELOCITY_ARROW_HORIZON_SECONDS
             velocity.points = [start, end]
             velocity.scale.x = 0.045
             velocity.scale.y = 0.11
@@ -1543,27 +1780,26 @@ class MarkerPublisher:
             text.id = snapshot.track_id
             text.type = Marker.TEXT_VIEW_FACING
             text.action = Marker.ADD
-            text.pose.position.x = float(snapshot.position[0])
-            text.pose.position.y = float(snapshot.position[1])
-            text.pose.position.z = float(
-                snapshot.position[2]
-                + max(0.35, float(snapshot.extent[2]) * 0.5)
-                + 0.25
+            label_offset = max(0.35, float(snapshot.extent[2]) * 0.5) + 0.25
+            message_up = self._vector_in_message_frame(
+                np.array([0.0, 0.0, label_offset], dtype=np.float64)
             )
+            text.pose.position.x = float(message_position[0] + message_up[0])
+            text.pose.position.y = float(message_position[1] + message_up[1])
+            text.pose.position.z = float(message_position[2] + message_up[2])
             text.pose.orientation.w = 1.0
             text.scale.z = 0.20
             text.color.a = alpha
             text.color.r = text.color.g = text.color.b = 1.0
-            x, y, z = (float(value) for value in snapshot.position)
+            x, y, z = (float(value) for value in message_position)
             vx, vy = (float(value) for value in snapshot.velocity[:2])
-            speed = math.hypot(vx, vy)
+            speed = math.hypot(float(snapshot.velocity[0]), float(snapshot.velocity[1]))
             text.text = (
                 f"ID {snapshot.track_id}\n"
-                f"中心 x={x:.2f}  y={y:.2f}  z={z:.2f} m\n"
-                f"速度 {speed:.2f} m/s  (vx={vx:+.2f}, vy={vy:+.2f})"
+                f"LiDAR中心 x={x:.2f}  y={y:.2f}  z={z:.2f} m\n"
+                f"水平速度 {speed:.2f} m/s  (level vx={vx:+.2f}, vy={vy:+.2f})"
             )
-            # 点群とマーカーのframe_idはlivox_frameのまま保ち、
-            # ラベルだけに廊下中心座標を追加する。
+            # マーカーは元PointCloud2のframe_idへ戻して重ね、廊下座標もラベルへ追加する。
             if self.corridor_frame is not None:
                 corridor_position = self.corridor_frame.transform_position(snapshot.position)
                 corridor_velocity = self.corridor_frame.transform_velocity(snapshot.velocity)
@@ -1601,12 +1837,24 @@ def run_live(
             super().__init__("people_point_cloud_tracker")
             self.tracker = PeopleTracker(settings)
             self.writer = CsvWriter(
-                output_path, settings.corridor_frame, settings.lidar_to_zed_frame
+                output_path,
+                settings.corridor_frame,
+                settings.lidar_to_zed_frame,
+                settings.gravity_alignment_rotation,
+                settings.gravity_alignment_translation,
             )
             self.start_timestamp_ns: Optional[int] = None
             self.frame = 0
             self.publisher_adapter = (
-                MarkerPublisher(self, settings.markers_topic, corridor_frame=settings.corridor_frame) if publish_markers else None
+                MarkerPublisher(
+                    self,
+                    settings.markers_topic,
+                    corridor_frame=settings.corridor_frame,
+                    gravity_alignment_rotation=settings.gravity_alignment_rotation,
+                    gravity_alignment_translation=settings.gravity_alignment_translation,
+                )
+                if publish_markers
+                else None
             )
             self.subscription = self.create_subscription(
                 PointCloud2,
