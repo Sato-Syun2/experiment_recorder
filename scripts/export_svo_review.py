@@ -30,6 +30,15 @@ def _timestamp_ns(zed: object, sl: object) -> int:
     raise RuntimeError("ZED SDK did not return an image timestamp in nanoseconds.")
 
 
+def _sensor_timestamp_ns(sensor: object) -> int:
+    value = sensor.timestamp
+    if hasattr(value, "get_nanoseconds"):
+        return int(value.get_nanoseconds())
+    if hasattr(value, "data_ns"):
+        return int(value.data_ns)
+    raise RuntimeError("ZED SDK did not return an IMU timestamp in nanoseconds.")
+
+
 def _write_contact_sheet(frame_rows: list[dict[str, object]], output_path: Path) -> None:
     tile_width, tile_height, label_height, columns = 320, 180, 24, 4
     rows = math.ceil(len(frame_rows) / columns)
@@ -54,6 +63,7 @@ def export_review(
     output_dir: Path,
     sample_period_s: float,
     include_depth: bool,
+    include_imu: bool,
 ) -> None:
     try:
         import pyzed.sl as sl
@@ -81,6 +91,7 @@ def export_review(
     init.set_from_svo_file(str(svo_path))
     init.svo_real_time_mode = False
     init.coordinate_units = sl.UNIT.METER
+    init.coordinate_system = sl.COORDINATE_SYSTEM.IMAGE
     init.depth_mode = sl.DEPTH_MODE.NEURAL if include_depth else sl.DEPTH_MODE.NONE
 
     status = zed.open(init)
@@ -89,6 +100,7 @@ def export_review(
         raise RuntimeError(f"Could not open SVO2 with ZED SDK: {status}")
 
     rows: list[dict[str, object]] = []
+    imu_rows: list[dict[str, object]] = []
     first_timestamp_ns: Optional[int] = None
     frame_index = 0
     image_mat, depth_mat = sl.Mat(), sl.Mat()
@@ -117,11 +129,23 @@ def export_review(
             "cx": float(left.cx),
             "cy": float(left.cy),
             "image_view": "VIEW.LEFT (rectified)",
+            "coordinate_system": "IMAGE (x right, y down, z forward)",
             "coordinate_units": "meter",
             "depth_mode": "NEURAL" if include_depth else "disabled",
             "sample_period_requested_s": sample_period_s,
             "sample_stride_frames": stride,
         }
+        sensors_data = sl.SensorsData() if include_imu else None
+        if include_imu:
+            sensors_config = camera_info.sensors_configuration
+            camera_imu_transform = sensors_config.camera_imu_transform
+            camera_imu_q = np.asarray(
+                camera_imu_transform.get_orientation().get(), dtype=np.float64
+            ).reshape(4)
+            metadata["imu_available"] = True
+            metadata["imu_acceleration_units"] = "m/s^2"
+            metadata["camera_imu_transform_direction"] = "imu_to_left_camera"
+            metadata["camera_imu_rotation_imu_to_left_camera_xyzw"] = camera_imu_q.tolist()
 
         while True:
             status = zed.grab(runtime)
@@ -145,6 +169,30 @@ def export_review(
                 image_path = image_dir / image_name
                 if not cv2.imwrite(str(image_path), bgr, [cv2.IMWRITE_JPEG_QUALITY, 92]):
                     raise RuntimeError(f"Could not write image: {image_path}")
+
+                if include_imu and sensors_data is not None:
+                    sensor_status = zed.get_sensors_data(sensors_data, sl.TIME_REFERENCE.IMAGE)
+                    if sensor_status == sl.ERROR_CODE.SUCCESS:
+                        imu_data = sensors_data.get_imu_data()
+                        acceleration = np.asarray(
+                            imu_data.get_linear_acceleration(), dtype=np.float64
+                        ).reshape(3)
+                        angular_velocity = np.asarray(
+                            imu_data.get_angular_velocity(), dtype=np.float64
+                        ).reshape(3)
+                        if np.isfinite(acceleration).all() and np.isfinite(angular_velocity).all():
+                            imu_rows.append(
+                                {
+                                    "image_timestamp_ns": timestamp_ns,
+                                    "imu_timestamp_ns": _sensor_timestamp_ns(imu_data),
+                                    "accel_x_m_s2": float(acceleration[0]),
+                                    "accel_y_m_s2": float(acceleration[1]),
+                                    "accel_z_m_s2": float(acceleration[2]),
+                                    "gyro_x_deg_s": float(angular_velocity[0]),
+                                    "gyro_y_deg_s": float(angular_velocity[1]),
+                                    "gyro_z_deg_s": float(angular_velocity[2]),
+                                }
+                            )
 
                 depth_name = ""
                 if include_depth:
@@ -172,17 +220,27 @@ def export_review(
 
         if not rows:
             raise RuntimeError("No SVO frames were exported.")
+        if include_imu and not imu_rows:
+            raise RuntimeError(
+                "No valid IMU samples were exported from this SVO. Check that the recording contains sensor data."
+            )
         metadata["total_svo_frames"] = frame_index
         metadata["exported_samples"] = len(rows)
         metadata["first_image_timestamp_ns"] = rows[0]["image_timestamp_ns"]
         metadata["last_image_timestamp_ns"] = rows[-1]["image_timestamp_ns"]
-        (output_dir / "camera.json").write_text(
-            json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-        )
         with (output_dir / "frames.csv").open("w", encoding="utf-8", newline="") as stream:
             writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
             writer.writeheader()
             writer.writerows(rows)
+        if include_imu:
+            metadata["exported_imu_samples"] = len(imu_rows)
+            with (output_dir / "imu.csv").open("w", encoding="utf-8", newline="") as stream:
+                writer = csv.DictWriter(stream, fieldnames=list(imu_rows[0]))
+                writer.writeheader()
+                writer.writerows(imu_rows)
+        (output_dir / "camera.json").write_text(
+            json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
         _write_contact_sheet(rows, output_dir / "contact_sheet.jpg")
         print(f"Exported {len(rows)} samples from {frame_index} SVO frames to {output_dir}")
     finally:
@@ -201,13 +259,17 @@ def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         "--include-depth", action="store_true",
         help="also export metric ZED depth maps (requires GPU depth support)",
     )
+    parser.add_argument(
+        "--include-imu", action="store_true",
+        help="export frame-synchronized IMU acceleration and gyro data to imu.csv",
+    )
     return parser.parse_args(argv)
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     args = _parse_args(argv)
     try:
-        export_review(args.svo, args.output, args.every_seconds, args.include_depth)
+        export_review(args.svo, args.output, args.every_seconds, args.include_depth, args.include_imu)
     except (OSError, RuntimeError, ValueError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1

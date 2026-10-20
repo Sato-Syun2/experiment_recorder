@@ -14,7 +14,8 @@
 - `scripts/record_zed.py`: ZED/LiDAR録画ランチャー。Livoxが使えない場合もZED録画は続ける。
 - `scripts/track_people.py`: LiDAR点群から人物候補を検出し、ID付きCSVと必要に応じRVizマーカーを出力。
 - `scripts/replay_zed_lidar.py`: SVO2とLiDAR rosbag2の再生。
-- `scripts/export_svo_review.py`: Windows上のZED SDKでSVO2から時刻付き画像・深度を出力。
+- `scripts/export_svo_review.py`: Windows上のZED SDKでSVO2から時刻付き画像・深度・要求時のIMUデータを出力。
+- `scripts/calibrate_zed_lidar_aruco.py`: 複数姿勢のArUcoパネル面とZED/Livox IMU重力方向からZED–LiDAR間の6自由度変換候補を作成。
 - `scripts/compare_zed_lidar.py`: ZED画像/深度の前景候補とLiDARトラックを照合し、HTML・CSV・JSONを生成。
 - `tracking/lidar_to_zed_left_eye.json`: LivoxからZED左目座標への外部変換。現在は初期取り付け測定値で、精密校正値ではない。
 - `tracking/corridor_frame_livox_level.json`: 水平化したLiDAR点群から推定した廊下座標系。
@@ -41,9 +42,10 @@
 │   ├── recording.json
 │   └── lidar/                 # metadata.yaml と rosbag2 ファイル
 ├── scripts/                   # 外部PC（Windows/ZED SDK）で実行するスクリプト
-└── recording_001_svo_review/  # 今回の画像・深度書き出し例
+└── recording_001_svo_review/  # 今回の画像・深度・必要時のIMU書き出し例
     ├── camera.json
     ├── frames.csv
+    ├── imu.csv                 # --include-imu 指定時
     ├── frames/
     └── depth/
 ```

@@ -1,0 +1,107 @@
+{
+  "source_csv": "/home/hp-ubuntu/experiment_recorder/tracking/20261013_group001_recording_001_zed_lidar_fusion_plane_calibrated/fused_trajectory.csv",
+  "frame_count": 818,
+  "time_start_s": 9.165817,
+  "time_end_s": 36.500453,
+  "duration_s": 27.334636,
+  "median_frame_interval_ms": 33.37400000000201,
+  "lidar_associated_frames": 577,
+  "lidar_association_percent": 70.53789731051344,
+  "motion_valid_frames": 794,
+  "motion_outlier_frames": 24,
+  "motion_outlier_percent": 2.93398533007335,
+  "motion_segment_count": 18,
+  "horizontal_speed_mps": {
+    "all_valid_median": 0.9168082710835701,
+    "p90": 1.4819404367922682,
+    "p95": 1.6745139225238113,
+    "max": 3.1473174421418575,
+    "frames_at_least_0_4_mps": 581,
+    "moving_median_at_least_0_4_mps": 1.0789800034998442,
+    "moving_p10_at_least_0_4_mps": 0.5586399242250888,
+    "moving_p90_at_least_0_4_mps": 1.5597060091945598,
+    "frames_above_2_mps": 10
+  },
+  "corridor_positions_m": {
+    "x": {
+      "min": 0.6947499103606114,
+      "median": 5.73137401568402,
+      "max": 12.774328799586105
+    },
+    "y": {
+      "min": -0.3401350268703021,
+      "median": 0.012028332225358618,
+      "max": 0.4366932555437515
+    },
+    "z": {
+      "min": 0.5886663851804586,
+      "median": 0.8756200002603354,
+      "max": 1.1134259693449062
+    }
+  },
+  "horizontal_path_lateral_span_m": 0.7768282824140536,
+  "corridor_wall_gap_m": 2.425844961210787,
+  "turnaround": {
+    "time_s": 25.43334,
+    "corridor_x_m": 12.774328799586105
+  },
+  "frame_to_frame_position_change_p95_m": {
+    "x": 0.05544158219423245,
+    "y": 0.016036034332631115,
+    "z": 0.07480074538081494
+  },
+  "one_second_median_speed_abs_acceleration_p95_mps2": 1.565735623862404,
+  "joint_angles": {
+    "left_knee_angle_deg": {
+      "count": 645,
+      "median_deg": 176.7622054405096,
+      "p05_deg": 154.80700117813606,
+      "p95_deg": 179.71212746550586,
+      "min_deg": 147.41441470151457,
+      "max_deg": 179.99932573337773,
+      "distinct_0_001_deg": 621
+    },
+    "right_knee_angle_deg": {
+      "count": 640,
+      "median_deg": 177.3057696657418,
+      "p05_deg": 164.18205072829548,
+      "p95_deg": 179.7839841050234,
+      "min_deg": 154.91363529015968,
+      "max_deg": 179.99788741685853,
+      "distinct_0_001_deg": 609
+    },
+    "left_ankle_angle_deg": {
+      "count": 645,
+      "median_deg": 129.80556908346009,
+      "p05_deg": 129.80548186079383,
+      "p95_deg": 129.80565457232657,
+      "min_deg": 129.8053661899166,
+      "max_deg": 129.80575110974647,
+      "distinct_0_001_deg": 2
+    },
+    "right_ankle_angle_deg": {
+      "count": 640,
+      "median_deg": 129.80556991344784,
+      "p05_deg": 129.8054936904976,
+      "p95_deg": 129.80565029669268,
+      "min_deg": 129.80541417736757,
+      "max_deg": 129.80573854667543,
+      "distinct_0_001_deg": 2
+    },
+    "trunk_lean_from_vertical_deg": {
+      "count": 809,
+      "median_deg": 5.014290594408239,
+      "p05_deg": 1.5164273505261168,
+      "p95_deg": 11.367136564925538,
+      "min_deg": 0.156604470567574,
+      "max_deg": 14.29865734005529,
+      "distinct_0_001_deg": 780
+    }
+  },
+  "notes": {
+    "horizontal_speed": "sqrt(fused_velocity_corridor_x_mps^2 + fused_velocity_corridor_y_mps^2); excludes motion_valid=0 frames.",
+    "one_second_smoothing": "Centered 1.0-second median over valid samples within each continuous motion segment.",
+    "turnaround": "Time and position of the maximum valid fused corridor_x.",
+    "position_smoothing": "Uses the fused CSV positions, which have a within-segment five-sample coordinate median applied by fuse_zed_lidar.py."
+  }
+}

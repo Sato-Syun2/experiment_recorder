@@ -206,20 +206,51 @@ python3 scripts/estimate_corridor_frame.py \
 
 校正ファイルは`config.json`の`tracking.corridor_frame_file`に保存されます。重力水平化が有効な場合は、校正スクリプトも点群を水平化してから壁を推定します。`tracking.output_coordinate_frame`が`corridor`の場合、以後の追跡CSVへ廊下座標が自動的に追加されます。`corridor_x`は廊下方向（録画時の+X側を正）、`corridor_y`は左右壁の中間から高い側の壁方向を正、`corridor_z`は高さです。別の廊下やセンサー設置位置で使う場合は、その環境の録画から校正をやり直してください。
 
-### ZED–LiDAR間の初期外部変換
+### ZED–LiDAR間の床・壁校正
 
-Livox Mid-360Sの点群座標をZEDの左目カメラ座標へ変換する初期値は、`tracking/lidar_to_zed_left_eye.json`に保存します。現在の値はZED SDKの標準`IMAGE`座標系（x右、y下、z前方）で、LiDARの+Y軸がZEDの-X軸、下向き25度の取り付け、およびLiDAR原点のZED左目座標`[+60, -80, +20] mm`に基づきます。変換JSONと追跡CSVはm単位です。ZED SDKの既定単位はmmなので、SDK値を直接比較するときはmへ変換してください。
+`tracking/lidar_to_zed_left_eye.json`はLivox `livox_frame`からZED左目の`IMAGE`座標（x右、y下、z前方）への変換です。`point_zed = R × point_livox + translation`、位置・並進の単位はmです。ZED SDKの既定単位mmを直接比較するときはmへ変換してください。
 
-```text
-point_zed = R × point_livox + translation
+今回の`20261013_group001/recording_001`では、人物が入る前の廊下8.5秒からLiDAR 85フレームとZED深度17フレームを使い、床と左右壁の平面を合わせました。回転は初期値から5.44°補正し、校正後の並進は`[-0.0221, -0.1270, 0.0071] m`です。両側壁の法線、床高、横位置を反映しています。
 
-R = [[0,       -1,       0      ],
-     [0.422618,  0,      -0.906308],
-     [0.906308,  0,       0.422618]]
-translation = [0.060, -0.080, 0.020] m
+```bash
+source /opt/ros/jazzy/setup.bash
+python3 scripts/calibrate_zed_lidar_planes.py \
+  --review-dir /data/experiment_data/recording_001_svo_review \
+  --bag /data/experiment_data/recordings/20261013_group001/recording_001/lidar \
+  --output-dir tracking/20261013_group001_recording_001_plane_calibration
 ```
 
-`track_people.py`で出力するCSVには、従来のLiDAR座標と廊下座標に加えて`zed_x/y/z`、`zed_vx/vy/vz`を出力します。重力水平化中は、設定した水平化変換をZEDへの外部変換へ合成します。ZED変換は初期取り付け値であり、廊下での壁・床などを使ったZED–LiDAR間の精密化はまだ行っていません。校正後はJSONの変換行列と平行移動を更新します。ZED SDKの`getPosition()`は標準で左目基準です。左右レンズの中央を原点にする場合は、実機校正値のステレオ変換から半ベースライン分を補正してください。SDKの座標系や単位を変更した場合は、この変換JSONも同じ設定に合わせます。
+校正プログラムは共有済みのZEDレビュー深度とLiDAR rosbagを読むため、今回のデータについて別PCでの追加解析は不要です。既定では候補だけを別フォルダーへ出力します。確認した候補を有効化するときは、新しい空の出力先を指定して`--apply`を付けます。結果には面ごとの点数・残差・法線角度と、対応する校正JSONが保存されます。
+
+床と平行な側壁だけでは廊下方向の並進は決まりません。現在のJSONはその1自由度を初期取り付け測定値から保持しています。またLiDAR壁間隔は2.387 m、ZED深度からの壁間隔は2.571 mで、約0.184 mの差があります。ZED深度の面形状や平面対応に由来する残差があるため、cm単位の位置精度を保証する値ではありません。完全な6自由度校正が必要な場合は、両センサーに共通して写る廊下端の横断壁、または既知位置の平面ターゲットを追加記録してください。そのSVO深度は既存の共有スクリプト`/data/experiment_data/scripts/export_svo_review.py`で書き出せます。
+
+### ArUcoパネルを使ったZED–LiDAR相対校正
+
+250 × 180 mmの板の中央に、150 mm角のArUco（ID 1、辞書`DICT_4X4_50`）を貼ります。1本の録画の中で板を動かし、**各位置・向きで約1秒止めて**、これを10姿勢ほど繰り返してください。動かし続けず、位置だけでなく傾きも上下・左右に変えます。両センサーから板が見えるようにしてください。カメラの絶対座標は不要です。
+
+ZED SVO2と`/livox/lidar`・`/livox/imu` bagは実験時と同じ設定で同時録画し、校正専用フォルダーへ保存します。`record_zed.py`はグループ・試行を`run_order.json`へ紐付けて進捗も更新するため、校正用に番号を適当に選ばないでください。
+
+ZED SDK対応PCで、SVOからIMU付きレビューを出力します。共有用スクリプトがなければ`export_svo_review.py`を`/data/experiment_data/scripts/`へコピーしてください。
+
+```powershell
+python "\\tsclient\_data_experiment_data\scripts\export_svo_review.py" `
+  "C:\data\calibration.svo2" `
+  --output "\\tsclient\_data_experiment_data\calibration_svo_review" `
+  --every-seconds 0.1 --include-imu
+```
+
+Ubuntu側で、同じ録画のLiDAR bagを指定します。bagに`/livox/lidar`と`/livox/imu`が必要です。時刻差がある場合だけ`--lidar-time-offset-seconds`を調整してください（LiDAR時刻 = ZED時刻 + offset）。
+
+```bash
+source /opt/ros/jazzy/setup.bash
+python3 scripts/calibrate_zed_lidar_aruco.py \
+  --review-dir /data/experiment_data/calibration_svo_review \
+  --bag /data/experiment_data/recordings/<校正録画>/lidar \
+  --output-dir tracking/<校正録画>_aruco_calibration \
+  --lidar-time-offset-seconds 0.0
+```
+
+重力方向でピッチ・ロールを補い、板の複数法線と面位置で残りの回転・並進を推定します。SVOから読んだZED IMU値を固定して使う場合は`--zed-gravity-acceleration-m-s2 X Y Z`（m/s²）を指定します。候補JSONと残差レポートを確認し、適用するときだけ`--apply`を追加してください。OpenCVの`cv2.aruco`が必要です。
 
 結果は既定で `tracking/<bag名>_tracks.csv` に保存されます。現在のLivox録画は`PointCloud2`なので上記のまま動きます。`CustomMsg`形式のbagは次のように指定できます。
 
@@ -295,6 +326,65 @@ CSVのマーカーは点群メッセージのタイムスタンプでbagと対�
 
 これは点群だけを使う汎用的な幾何ベースのベースラインです。人数の上限で候補を削るのではなく、点単位の背景除去、候補クラスタの空間的な滞在率、移動量による確認を組み合わせています。壁や人が密着する、長時間遮蔽される、人物同士が交差する場合はIDの入れ替わりや見失いが起こり得るため、CSVの`status`、`confidence`、`detected`も併せて確認してください。より高い精度が必要になった場合は、この出力を教師データとして、人物検出モデルやセンサー間の座標変換を追加できます。
 
+## ZED SDK骨格解析（別PC）
+
+`scripts/analyze_svo_body_tracking.py`はZED SDK対応PCでSVO2を全フレーム処理し、BODY_34の2D/3Dキーポイント、人物ID、SDKの位置・速度、関節姿勢、人物領域の深度要約を書き出します。SDKによる人物追跡と深度推定を使い、骨格オーバーレイ画像とコンタクトシートも作成します。ZED SDK 5.4、対応する`pyzed`、CUDA、NumPy、OpenCVが必要です。
+
+スクリプトを `/data/experiment_data/scripts/` に置き、Windows側では共有パスを使います。SVO2は外部PCのローカルパスから読み、出力は録画原本と分けた新しいフォルダーに保存してください。
+
+```powershell
+python "\\tsclient\_data_experiment_data\scripts\analyze_svo_body_tracking.py" `
+  "C:\data\recording_001.svo2" `
+  --output "\\tsclient\_data_experiment_data\recording_001_zed_body_tracking"
+```
+
+出力フォルダーには、全フレーム時刻の `frames.csv`、人物ごとの `bodies.csv`、SDK・カメラ情報の `camera.json`、確認画像の `preview_frames/` と `contact_sheet.jpg` が作られます。CSVのキーポイント配列は `camera.json` の `keypoint_names` 順です。人物領域の深度統計に加え、骨盤画像位置の近傍から取った深度値と逆投影座標も保存します。座標はm単位のZED `IMAGE` 座標（右・下・前）です。
+
+## ZED・LiDAR軌道統合
+
+ZED側の出力を共有フォルダーからこのPCへ見せた後、`scripts/fuse_zed_lidar.py`でLiDAR追跡CSVと統合します。各ZED画像時刻とLiDARメッセージ時刻のナノ秒値を直接照合し、確認済み・検出済みLiDARトラックだけを対応付けます。短い連続区間内でのみLiDAR位置を補間し、廊下校正とZED外部変換を使って座標をそろえます。
+
+```bash
+python3 scripts/fuse_zed_lidar.py \
+  --body-dir /data/experiment_data/recording_001_zed_body_tracking \
+  --tracks tracking/20261013_group001_recording_001_plane_calibrated_tracks.csv \
+  --config config.json \
+  --output-dir tracking/20261013_group001_recording_001_zed_lidar_fusion_plane_calibrated
+```
+
+既定の時刻補正は0 msです。今回の録画ではZED先頭画像時刻とrosbag開始時刻の差が約1.675882秒となることを確認できていますが、統合では固定値でなく各サンプルの記録タイムスタンプを使います。時計系が異なる別録画で補正が必要な場合だけ `--timestamp-offset-ms` を明示します。
+
+統合結果は `fused_trajectory.csv`、`summary.json`、`associations.json`、`fused_trajectory.html` に出力されます。CSVにはセンサー別位置、SDK深度を使った骨盤位置、信頼度に応じた統合位置、ZED SDK速度と統合速度、同期差、深度要約、BODY_34から求めた左右の膝・足首・股関節と体幹の角度を含みます。センサー間の位置が合う場合、廊下方向の統合位置にはLiDARを最低0.70の比率で反映し、左右位置・高さは各センサーの品質に応じて統合します。比率は解析用の初期ヒューリスティックで、正解位置による校正値ではありません。SDKの骨格関節は推定点なので、角度は解剖学的な校正値ではありません。位置の不連続が大きいフレームは速度算出から除外し、センサー間の位置差が許容値を超えたフレームでは統合値を作りません。
+
+`summary.json`の位置残差はLiDAR人物クラスタ中心とZEDの骨盤位置推定値の差です。真値に対する測位誤差ではありません。
+
+統合後の廊下軌跡・速度・骨格角度を図と数値要約にまとめるには、次を実行します。出力先には新しいフォルダーを指定してください。入力CSVや録画原本は変更しません。
+
+```bash
+python3 scripts/plot_fused_trajectory.py \
+  --csv tracking/20261013_group001_recording_001_zed_lidar_fusion_plane_calibrated/fused_trajectory.csv \
+  --corridor-frame tracking/corridor_frame_livox_level.json \
+  --output-dir reports/20261013_group001_recording_001_gait_assessment
+```
+
+`index.html`に廊下平面軌跡、廊下座標の位置時系列、水平速度と廊下方向速度、BODY_34の膝角度・体幹傾きをまとめます。SVG図と`metrics.json`も保存します。速度図にはフレームごとの速度と連続区間内の中央1秒中央値を併記し、速度参考線は健康成人研究の集団平均を示す目安として扱います。SDK骨格と位置推定の限界があるため、これだけで歩容の自然さや臨床的な正常性は判定できません。
+
+## 統合位置と関節のRViz表示
+
+LiDAR点群と統合人物位置・ZED骨格を同じRViz画面に表示するには、次のスクリプトを使います。統合CSVの時刻に最も近いZED観測を各LiDAR点群フレームへ対応付け、廊下座標で記録された人物位置と関節を点群の元座標フレームへ戻して配信します。既定では時刻差80 ms以内の観測を表示し、信頼度不足の関節と連続性判定で除外された人物位置は表示しません。
+
+```bash
+source /opt/ros/jazzy/setup.bash
+python3 scripts/replay_fused_trajectory_rviz.py \
+  /data/experiment_data/recordings/20261013_group001/recording_001/lidar \
+  --fused-csv tracking/20261013_group001_recording_001_zed_lidar_fusion_plane_calibrated/fused_trajectory.csv \
+  --config config.json --rate 1.0
+```
+
+RVizには白いLiDAR点群、人物の色付き中心球・短い軌跡・座標ラベル、BODY_34の関節点と骨格線を表示します。ラベルは統合状態と速度を示します。共有タイムスタンプで位置合わせするため、時刻補正が必要な別録画に限り `--timestamp-offset-ms` を指定してください。最後まで再生した時点でRVizを閉じる場合は `--exit-after-playback` を付けます。
+
+今回のLiDAR→ZED変換は床・平行壁で回転と横位置・高さを合わせた部分校正値です。廊下方向の並進は初期取り付け値から保持しています。追跡CSVを校正後に作り直してから融合・RViz再生を行ってください。ZED/LiDAR投影の再確認ページは`tracking/20261013_group001_recording_001_zed_lidar_comparison_plane_calibrated.html`です。解析スクリプトは元SVO2・rosbagを変更せず、出力先が空でない場合は上書きしません。
+
 ## コード構成と回帰確認
 
 | ファイル | 主な役割 |
@@ -302,7 +392,14 @@ CSVのマーカーは点群メッセージのタイムスタンプでbagと対�
 | `scripts/record_zed.py` | 設定読み込み、Livox接続確認、ZEDとrosbag2の録画・保存確認 |
 | `scripts/replay_zed_lidar.py` | ZED・rosbag2・RViz2の同時再生と子プロセス管理 |
 | `scripts/playback_timeline.py` | SVO2とrosbag2の記録時刻を読み、再生開始差を計算 |
+| `scripts/export_svo_review.py` | ZED SDKでSVO2から時刻付き画像、任意の深度・画像同期IMUを書き出し |
 | `scripts/track_people.py` | 点群の前処理、人物候補の検出、ID追跡、CSV・マーカー出力 |
+| `scripts/analyze_svo_body_tracking.py` | 別PCのZED SDKでSVO2全フレームの骨格・人物ID・深度を出力 |
+| `scripts/calibrate_zed_lidar_planes.py` | ZED深度とLiDARから床・平行壁面を合わせ、観測できる外部変換成分を校正 |
+| `scripts/calibrate_zed_lidar_aruco.py` | 複数姿勢のArUcoパネル面を対応付け、ZED–LiDAR間の6自由度変換候補を作成 |
+| `scripts/fuse_zed_lidar.py` | ZED骨格・深度と確定LiDARトラックを時刻・廊下座標で統合 |
+| `scripts/plot_fused_trajectory.py` | 統合CSVから軌跡・位置・速度・姿勢のSVG図と評価レポートを生成 |
+| `scripts/replay_fused_trajectory_rviz.py` | rosbag点群に統合人物位置とZED BODY_34骨格を重ねてRViz再生 |
 | `scripts/corridor_frame.py` / `scripts/estimate_corridor_frame.py` | 廊下座標の推定と校正ファイルの保存 |
 | `scripts/replay_tracks_csv.py` / `scripts/tracking_replay.html` | 追跡CSVの整理と単体HTMLの生成・表示 |
 | `scripts/replay_tracking_rviz.py` / `scripts/convert_livox_custom.py` | RVizでの追跡再生とCustomMsg点群の変換 |

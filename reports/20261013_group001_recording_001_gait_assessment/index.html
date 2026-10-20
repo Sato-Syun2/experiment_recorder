@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>校正後の歩行軌跡・速度の評価</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:1120px;margin:32px auto;padding:0 20px;color:#1f2937;line-height:1.65}
+h1,h2{line-height:1.25}.summary{background:#f0f7fa;border-left:4px solid #155e75;padding:14px 18px}
+table{border-collapse:collapse;width:100%;margin:16px 0}td,th{border-bottom:1px solid #dbe3ea;padding:8px 10px;text-align:left;vertical-align:top}
+img{width:100%;height:auto;border:1px solid #e2e8f0;margin:10px 0 24px}.note{color:#475569;font-size:.94em}
+</style>
+<h1>校正後の歩行軌跡・速度の評価</h1>
+<p>入力: <code>fused_trajectory.csv</code>。ZEDとLiDARは録画内タイムスタンプで対応付け、校正後の廊下座標で統合しています。</p>
+<div class="summary"><b>評価:</b> 水平軌跡と速度の時間変化は、人が廊下を往復歩行した動きとして概ね整合し、粗い動線・速度の評価には使えます。速度は全有効フレーム中央値 0.92 m/s、0.4 m/s以上では 1.08 m/sです。ただし、局所的な速度ピーク、上下位置の揺れ、ZED骨格角の制約があり、歩容・歩行周期の生体力学的な自然さを高信頼で判定できる品質ではありません。</div>
+<h2>主な数値</h2>
+<table><tbody>
+<tr><th>録画内観測</th><td>818 frames / 27.33 s、中央値フレーム間隔 33.4 ms</td></tr>
+<tr><th>センサー統合</th><td>LiDAR対応 577/818 (70.5%)</td></tr>
+<tr><th>連続性判定</th><td>有効 794 frames、除外 24 (2.9%)、18連続区間</td></tr>
+<tr><th>廊下方向 x</th><td>0.69–12.77 m</td></tr>
+<tr><th>横方向 y</th><td>-0.34–0.44 m (幅 0.78 m)</td></tr>
+<tr><th>高さ z</th><td>0.59–1.11 m</td></tr>
+<tr><th>水平速度</th><td>中央値 0.92 m/s、p90 1.48、p95 1.67、最大 3.15。2 m/s超は 10 frames</td></tr>
+<tr><th>折返し</th><td>約 25.4 s、x=12.77 m</td></tr>
+<tr><th>連続点の高さ変化</th><td>フレーム間絶対変化 p95 0.075 m。高周波の上下揺れは実際の身体運動と深度・骨格推定誤差を分離できません。</td></tr>
+</tbody></table>
+<h2>軌跡と速度</h2>
+<img src="trajectory.svg" alt="廊下平面の歩行軌跡"><img src="position_time.svg" alt="廊下座標位置の時系列"><img src="speed.svg" alt="水平速度と進行方向速度">
+<h2>姿勢の補助確認</h2>
+<img src="joint_angles.svg" alt="膝角と体幹傾き">
+<p>膝角度中央値は左 176.8°、右 177.3°で、記録の大半はほぼ伸展側にあります。体幹傾き中央値は 5.0°です。両足首角はそれぞれ 129.805–129.806°、129.805–129.806°とほぼ一定で、歩行中の足首運動を評価する信号としては使えません。</p>
+<h2>自然さ・なめらかさの判定</h2>
+<ul>
+<li><b>動線:</b> 廊下方向へ進んで端で折り返し、戻る連続した往復軌道です。横方向変位は全幅 0.78 mで、廊下幅 2.43 mの中を進んでいます。</li>
+<li><b>速度:</b> 0.4 m/s未満を除くフレームの中央値は 1.08 m/s。研究で報告された健康成人の快適歩行速度の集団平均約1.3–1.4 m/sより少し低めですが、通常歩行としてあり得る範囲です。年齢、歩行指示、靴、折返し・開始停止の影響が不明なため、個人評価の基準にはしません。</li>
+<li><b>なめらかさ:</b> 位置は各連続区間で5フレーム中央値処理済みです。水平軌跡は比較的滑らかですが、除外点 2.9%、2 m/s超の短い速度ピークがあり、速度の瞬時値は中程度の信頼度です。1秒中央値の速度変化 p95 は 1.57 m/s²です。</li>
+<li><b>姿勢:</b> ZED SDKの骨格は歩行周期の足接地・蹴り出しを直接計測しておらず、足首角はほぼ固定です。歩容の周期性、左右対称性、自然さの確定には使えません。</li>
+</ul>
+<p class="note">速度の参考値: 若年成人の快適な地上歩行速度 1.37 ± 0.16 m/s を報告した研究。年齢や条件により変わる集団平均であり、この記録の正常・異常を判定する閾値ではありません。<a href="https://pubmed.ncbi.nlm.nih.gov/28687953/">PubMed: The effect of treadmill and overground walking on preferred walking speed and gait kinematics in healthy, physically active older adults</a></p>
+<p class="note">位置はZED SDKの骨盤付近深度とLiDAR人物クラスタ中心を信頼度加重で統合し、廊下方向はLiDARを最低70%反映した値です。LiDAR対応率は 70.5%で、残りはZED単独です。床・平行壁による外部校正では廊下方向の並進が観測できないため、その成分は初期取り付け測定値を保持しています。廊下方向の絶対原点にはその不確かさが残ります。融合位置のセンサー間残差は真値に対する位置誤差ではありません。フレーム連続性しきい値で除外された点はグラフに赤い×で示します。</p>
+</html>
