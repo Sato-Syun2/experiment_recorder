@@ -1,0 +1,19 @@
+﻿condition_id,trial_type,width,avoidance,speed,pass_side,solo_person,japanese_description
+E01,overtaking,wide,avoid,normal,right,,広い / 避ける / 通常 / 右
+E02,overtaking,wide,avoid,normal,left,,広い / 避ける / 通常 / 左
+E03,overtaking,wide,avoid,slow,right,,広い / 避ける / 遅い / 右
+E04,overtaking,wide,avoid,slow,left,,広い / 避ける / 遅い / 左
+E05,overtaking,wide,no_avoid,normal,right,,広い / 避けない / 通常 / 右
+E06,overtaking,wide,no_avoid,normal,left,,広い / 避けない / 通常 / 左
+E07,overtaking,wide,no_avoid,slow,right,,広い / 避けない / 遅い / 右
+E08,overtaking,wide,no_avoid,slow,left,,広い / 避けない / 遅い / 左
+E09,overtaking,narrow,avoid,normal,right,,狭い / 避ける / 通常 / 右
+E10,overtaking,narrow,avoid,normal,left,,狭い / 避ける / 通常 / 左
+E11,overtaking,narrow,avoid,slow,right,,狭い / 避ける / 遅い / 右
+E12,overtaking,narrow,avoid,slow,left,,狭い / 避ける / 遅い / 左
+E13,overtaking,narrow,no_avoid,normal,right,,狭い / 避けない / 通常 / 右
+E14,overtaking,narrow,no_avoid,normal,left,,狭い / 避けない / 通常 / 左
+E15,overtaking,narrow,no_avoid,slow,right,,狭い / 避けない / 遅い / 右
+E16,overtaking,narrow,no_avoid,slow,left,,狭い / 避けない / 遅い / 左
+E17,solo,wide,,normal,,P1,被験者1が単独歩行
+E18,solo,wide,,normal,,P2,被験者2が単独歩行

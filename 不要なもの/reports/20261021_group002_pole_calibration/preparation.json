@@ -1,0 +1,251 @@
+{
+  "inputs": {
+    "2": {
+      "review_dir": "/data/experiment_data/20261021_group002_recording_002_pole_review",
+      "camera": {
+        "source_svo": "C:\\Users\\sawaragilab2024\\Desktop\\sato_shun\\svo\\recording_002.svo2",
+        "sdk_version": "5.4",
+        "camera_model": "ZED 2i",
+        "serial_number": 35290843,
+        "fps": 30.0,
+        "width": 1280,
+        "height": 720,
+        "fx": 523.9061889648438,
+        "fy": 523.9061889648438,
+        "cx": 646.8890991210938,
+        "cy": 348.150146484375,
+        "image_view": "VIEW.LEFT (rectified)",
+        "coordinate_system": "IMAGE (x right, y down, z forward)",
+        "coordinate_units": "meter",
+        "depth_mode": "NEURAL",
+        "sample_period_requested_s": 0.2,
+        "sample_stride_frames": 6,
+        "imu_available": true,
+        "imu_acceleration_units": "m/s^2",
+        "camera_imu_transform_direction": "imu_to_left_camera",
+        "camera_imu_rotation_imu_to_left_camera_xyzw": [
+          -0.0033304570242762566,
+          -0.001646173419430852,
+          -0.003285263665020466,
+          0.9999876022338867
+        ],
+        "total_svo_frames": 2805,
+        "exported_samples": 468,
+        "first_image_timestamp_ns": 1792563507922632000,
+        "last_image_timestamp_ns": 1792563603126025000,
+        "exported_imu_samples": 468
+      },
+      "zed_up_camera": [
+        0.009688158076119158,
+        -0.9649161767186427,
+        -0.26237932750079435
+      ],
+      "zed_acceleration_std": [
+        0.012626122791978089,
+        0.02208997408646711,
+        0.029422950987266588
+      ],
+      "lidar": {
+        "bag": "/data/experiment_data/recordings/20261021_group002/recording_002/lidar",
+        "condition_label": "追い越し",
+        "note": "Planned metadata does not verify actual behavior. IMU average assumes a stationary rig.",
+        "frames": 972,
+        "first_header_ns": 1792563505991792672,
+        "last_header_ns": 1792563603091408820,
+        "duration_s": 97.099616148,
+        "nonmonotonic": 0,
+        "header_fallback_count": 0,
+        "header_interval_ms_p50_p99": [
+          99.962155,
+          101.2491961
+        ],
+        "bag_minus_header_ms_p50_p99": [
+          102.85439,
+          135.21808898999996
+        ],
+        "imu_first_2000_mean_native": [
+          -0.5654676208496093,
+          -0.021949974417686462,
+          0.8170066843032837
+        ],
+        "imu_up": [
+          -0.5689674774867879,
+          -0.02208582970067546,
+          0.8220633951762809
+        ],
+        "up_difference_from_config_deg": 1.2525781193148418
+      }
+    },
+    "3": {
+      "review_dir": "/data/experiment_data/20261021_group002_recording_003_walk_review",
+      "camera": {
+        "source_svo": "C:\\Users\\sawaragilab2024\\Desktop\\sato_shun\\svo\\recording_003.svo2",
+        "sdk_version": "5.4",
+        "camera_model": "ZED 2i",
+        "serial_number": 35290843,
+        "fps": 30.0,
+        "width": 1280,
+        "height": 720,
+        "fx": 523.8657836914062,
+        "fy": 523.8657836914062,
+        "cx": 646.8920288085938,
+        "cy": 348.15069580078125,
+        "image_view": "VIEW.LEFT (rectified)",
+        "coordinate_system": "IMAGE (x right, y down, z forward)",
+        "coordinate_units": "meter",
+        "depth_mode": "NEURAL",
+        "sample_period_requested_s": 0.1,
+        "sample_stride_frames": 3,
+        "imu_available": true,
+        "imu_acceleration_units": "m/s^2",
+        "camera_imu_transform_direction": "imu_to_left_camera",
+        "camera_imu_rotation_imu_to_left_camera_xyzw": [
+          -0.0033304570242762566,
+          -0.001646173419430852,
+          -0.003285263665020466,
+          0.9999876022338867
+        ],
+        "total_svo_frames": 899,
+        "exported_samples": 300,
+        "first_image_timestamp_ns": 1792563646895296000,
+        "last_image_timestamp_ns": 1792563676863151000,
+        "exported_imu_samples": 300
+      },
+      "zed_up_camera": [
+        0.009795237462164725,
+        -0.965036925318572,
+        -0.2619308803763634
+      ],
+      "zed_acceleration_std": [
+        0.012218520385860257,
+        0.023790015211384064,
+        0.029661857544504695
+      ],
+      "lidar": {
+        "bag": "/data/experiment_data/recordings/20261021_group002/recording_003/lidar",
+        "condition_label": "追い越し",
+        "note": "Planned metadata does not verify actual behavior. IMU average assumes a stationary rig.",
+        "frames": 318,
+        "first_header_ns": 1792563645041812098,
+        "last_header_ns": 1792563676743115174,
+        "duration_s": 31.701303076,
+        "nonmonotonic": 0,
+        "header_fallback_count": 0,
+        "header_interval_ms_p50_p99": [
+          99.978331,
+          101.37612276
+        ],
+        "bag_minus_header_ms_p50_p99": [
+          102.5668455,
+          104.1712648
+        ],
+        "imu_first_2000_mean_native": [
+          -0.5654234313964843,
+          -0.02172890511341393,
+          0.8169092721939087
+        ],
+        "imu_up": [
+          -0.568986035913798,
+          -0.021865814005431614,
+          0.8220564318299456
+        ],
+        "up_difference_from_config_deg": 1.2549016614382775
+      }
+    }
+  },
+  "seed": 20261021,
+  "time_offset_status": "not yet estimated; raw timestamps used for discovery",
+  "floor": {
+    "normal": [
+      -0.5590785359726704,
+      -0.015037855098708919,
+      0.8289783190944657
+    ],
+    "d_m": 2.0506525225917787,
+    "inliers": 4989,
+    "inlier_fraction": 0.08315,
+    "median_residual_m": 0.00425065163169247,
+    "p90_residual_m": 0.010847865088569095,
+    "span_xyz_m": [
+      9.31499981880188,
+      3.743000030517578,
+      6.242999762296677
+    ],
+    "normal_angle_from_prior_deg": 0.8006753828754075
+  },
+  "level_rotation": [
+    [
+      0.8291147029299718,
+      -0.010140143436179583,
+      0.558986571284533
+    ],
+    [
+      0.0,
+      0.9998355066735348,
+      0.018137243309722172
+    ],
+    [
+      -0.5590785359726704,
+      -0.015037855098708919,
+      0.8289783190944657
+    ]
+  ],
+  "level_translation": [
+    0.0,
+    0.0,
+    2.0506525225917787
+  ],
+  "corridor_initial": {
+    "version": 1,
+    "name": "corridor",
+    "source_frame": "livox_level_frame",
+    "coordinate_frame": "corridor",
+    "origin_xy": [
+      0.006984535595800718,
+      -0.13846908033920333
+    ],
+    "longitudinal_xy": [
+      0.9987302690963514,
+      0.050377074058837006
+    ],
+    "lateral_xy": [
+      -0.050377074058837006,
+      0.9987302690963514
+    ],
+    "wall_offsets": [
+      -1.3280703383409256,
+      1.0507800936695795
+    ],
+    "wall_gap": 2.378850432010505,
+    "wall_inlier_counts": [
+      187,
+      175
+    ],
+    "quality": {
+      "wall_residual_rmse_m": [
+        0.019787650769862705,
+        0.018886111229174496
+      ],
+      "wall_spans_m": [
+        16.58906306219345,
+        15.350723802339683
+      ],
+      "parallel_angle_deg": 0.07018991659153492,
+      "seed": 20261021,
+      "longitudinal_origin": "projection of sensor origin onto corridor center; not a fixed laboratory landmark",
+      "accuracy_note": "Wall fit residuals on fitting data, not surveyed corridor accuracy"
+    },
+    "handedness": "right"
+  },
+  "floor_vs_imu_deg": 0.8006753828754075,
+  "installation_up_change_deg": {
+    "lidar": 0.012657026685443145,
+    "zed": 0.027307378097941124
+  },
+  "code_sha256": {
+    "track_people.py": "51433fe9f93e1136d1af83acc86a8844870efa097a34a60a356a1272ed949bb3",
+    "audit_recordings.py": "2c772c0848a24e80fc9f16a11dd90f318c6f05e81b1f265a066f6ac3172050eb",
+    "corridor_frame.py": "56654c995f18463f3b31056555a1e7445c9b74bac30a591e9b6aa04bcc7cf6db",
+    "calibrate_zed_lidar_planes.py": "f209724ea4829dafc316933738a2ed3f0d518c9e84537f27e5d5dc69f653b1d9"
+  }
+}

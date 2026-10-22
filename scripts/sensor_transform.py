@@ -28,7 +28,9 @@ class SensorTransform:
         rotation = np.asarray(self.rotation, dtype=float)
         translation = np.asarray(self.translation, dtype=float).reshape(-1)
         if rotation.shape != (3, 3) or translation.size != 3:
-            raise SensorTransformError("Rotation must be 3x3 and translation must have three values.")
+            raise SensorTransformError(
+                "Rotation must be 3x3 and translation must have three values."
+            )
         if not np.isfinite(rotation).all() or not np.isfinite(translation).all():
             raise SensorTransformError("Sensor transform values must be finite.")
         if not np.allclose(rotation.T @ rotation, np.eye(3), atol=1e-5):
@@ -42,6 +44,7 @@ class SensorTransform:
         value = np.asarray(position, dtype=float).reshape(-1)
         if value.size != 3:
             raise SensorTransformError("A position must contain three values.")
+        # 位置には回転と原点移動を適用する。速度等にはtransform_vectorを使う。
         return self.rotation @ value + self.translation
 
     def transform_vector(self, vector: Sequence[float]) -> np.ndarray:
@@ -60,6 +63,10 @@ class SensorTransform:
             raise SensorTransformError(f"Could not read sensor transform {path}: {exc}") from exc
         if not isinstance(value, dict):
             raise SensorTransformError("Sensor transform JSON must contain an object.")
+        if value.get("units", "m") != "m":
+            raise SensorTransformError("Sensor transform translation must be in meters (units=m).")
+        if value.get("coordinate_system", "IMAGE") != "IMAGE":
+            raise SensorTransformError("ZED transform must use the IMAGE coordinate system.")
         try:
             rotation = np.asarray(value["rotation_source_to_target"], dtype=float)
             translation = np.asarray(value["translation_m"], dtype=float)

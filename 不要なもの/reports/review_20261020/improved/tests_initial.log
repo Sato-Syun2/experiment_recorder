@@ -1,0 +1,10 @@
+test_corridor_coordinates_survive_json_round_trip (test_regression.RefactorRegressionTests.test_corridor_coordinates_survive_json_round_trip) ... ok
+test_csv_replay_interpolates_missing_frame (test_regression.RefactorRegressionTests.test_csv_replay_interpolates_missing_frame) ... ok
+test_playback_uses_recorded_timestamp_offset (test_regression.RefactorRegressionTests.test_playback_uses_recorded_timestamp_offset) ... ok
+test_recording_names_keep_trial_and_avoid_overwrite (test_regression.RefactorRegressionTests.test_recording_names_keep_trial_and_avoid_overwrite) ... ok
+test_tracker_keeps_id_when_detection_is_temporarily_missing (test_regression.RefactorRegressionTests.test_tracker_keeps_id_when_detection_is_temporarily_missing) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.033s
+
+OK

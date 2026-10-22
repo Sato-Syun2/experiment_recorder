@@ -1,0 +1,60 @@
+<!doctype html><html lang="ja"><meta charset="utf-8">
+<title>追跡品質レビュー</title><style>
+body{font:16px system-ui;margin:24px;color:#172b3a}canvas{border:1px solid #bbb;width:100%;max-width:1100px}
+input{width:80%}pre{white-space:pre-wrap;background:#f3f5f7;padding:12px}
+</style><h1>廊下座標の追跡品質</h1>
+<p>実線は確定検出。赤い×は予測のみ、薄い点は低い点数信頼度。0.25秒超の欠測は線で接続しません。
+信頼度は点数の指標で、精度保証ではありません。距離はクラスタ代表点間であり身体表面間ではありません。</p>
+<button id="play">再生 / 停止</button><input id="time" type="range" min="0" value="0" step="1"><span id="label"></span>
+<h2>平面軌跡・現在のID（X: 廊下方向 m、Y: 横方向 m、等縮尺）</h2><canvas id="path" width="1100" height="400"></canvas>
+<h2>横位置 y [m] ／ 時刻 [s]</h2><canvas id="lateral" width="1100" height="220"></canvas>
+<h2>水平速度 [m/s] ／ 時刻 [s]</h2><canvas id="speed" width="1100" height="220"></canvas>
+<h2>現在の検出と品質</h2><pre id="current"></pre><h2>集計</h2><pre>{
+  &quot;evaluated_reference_frames&quot;: 41,
+  &quot;reference_person_samples&quot;: 41,
+  &quot;matched_samples&quot;: 31,
+  &quot;missed_samples&quot;: 10,
+  &quot;false_positive_samples&quot;: 0,
+  &quot;recall&quot;: 0.7560975609756098,
+  &quot;missing_rate&quot;: 0.24390243902439024,
+  &quot;precision&quot;: 1.0,
+  &quot;id_switches&quot;: 0,
+  &quot;id_switch_max_gap_s&quot;: 1.0,
+  &quot;position_mae_m&quot;: 0.0,
+  &quot;position_rmse_m&quot;: 0.0,
+  &quot;velocity_rmse_mps&quot;: 0.02829317997190249,
+  &quot;velocity_reference_samples&quot;: 31,
+  &quot;note&quot;: &quot;Errors conditional on matched samples; always interpret with recall and gate. Sample recall is not time-weighted success. Predicted/tentative tracks excluded.&quot;
+}</pre>
+<script>const data={"rows": [{"t": 0.1, "id": "1", "x": 10.04, "y": 0.007986673331746252, "vx": 0.25999999999999446, "vy": 0.05191337665635063, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 0.2, "id": "1", "x": 10.08, "y": 0.0158935464636049, "vx": 0.3510000000000041, "vy": 0.06956435718680393, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 0.3, "id": "1", "x": 10.12, "y": 0.023641616532907167, "vx": 0.38284999999999586, "vy": 0.07470998046584612, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 0.4, "id": "1", "x": 10.16, "y": 0.031153467384692043, "vx": 0.39399750000000455, "vy": 0.07497552369964783, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 0.5, "id": "1", "x": 10.2, "y": 0.03835404308833624, "vx": 0.397899124999996, "vy": 0.073045175368564, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 0.6, "id": "1", "x": 10.24, "y": 0.04517139787160284, "vx": 0.3992646937500046, "vy": 0.06987861747023032, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 0.7, "id": "1", "x": 10.28, "y": 0.05153741497901529, "vx": 0.39974264281249605, "vy": 0.06583662731276153, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 0.8, "id": "1", "x": 10.32, "y": 0.05738848727196182, "vx": 0.3999099249843796, "vy": 0.06107478946361901, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 0.9, "id": "1", "x": 10.36, "y": 0.06266615277019867, "vx": 0.3999684737445273, "vy": 0.05568100205080617, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 1.0, "id": "1", "x": 10.399996847374451, "y": 0.06823425297527928, "vx": 0.3999684737445273, "vy": 0.05568100205080617, "c": 0.7360000000000001, "status": "predicted", "detected": "0"}, {"t": 1.1, "id": "1", "x": 10.44, "y": 0.07129658880491484, "vx": 0.3999889658105848, "vy": 0.0475372678306097, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 1.2, "id": "1", "x": 10.48, "y": 0.07456312687737811, "vx": 0.3999961380337107, "vy": 0.03787054121172466, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 1.3, "id": "1", "x": 10.519999613803371, "y": 0.07835018099855057, "vx": 0.3999961380337107, "vy": 0.03787054121172466, "c": 0.7360000000000001, "status": "predicted", "detected": "0"}, {"t": 1.4, "id": "1", "x": 10.56, "y": 0.07883597839907683, "vx": 0.399998648311799, "vy": 0.02714145686962447, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 1.5, "id": "1", "x": 10.6, "y": 0.07979959892832436, "vx": 0.3999995269091241, "vy": 0.015763043344477527, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 1.6, "id": "1", "x": 10.639999952690912, "y": 0.08137590326277211, "vx": 0.3999995269091241, "vy": 0.015763043344477527, "c": 0.7360000000000001, "status": "predicted", "detected": "0"}, {"t": 1.7, "id": "1", "x": 10.68, "y": 0.07933318483619749, "vx": 0.39999983441819364, "vy": 0.004001219371154794, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 1.8, "id": "1", "x": 10.72, "y": 0.07790781047025562, "vx": 0.3999999420463738, "vy": -0.00786450659871796, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 1.9, "id": "1", "x": 10.759999994204637, "y": 0.07712135981038383, "vx": 0.3999999420463738, "vy": -0.00786450659871796, "c": 0.7360000000000001, "status": "predicted", "detected": "0"}, {"t": 2.0, "id": "1", "x": 10.8, "y": 0.07274379414605454, "vx": 0.399999979716231, "vy": -0.019535630363204784, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 2.1, "id": "1", "x": 10.84, "y": 0.0690567493319099, "vx": 0.39999999290067534, "vy": -0.03080326191906184, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 2.2, "id": "1", "x": 10.879999999290067, "y": 0.06597642314000372, "vx": 0.39999999290067534, "vy": -0.03080326191906184, "c": 0.7360000000000001, "status": "predicted", "detected": "0"}, {"t": 2.3, "id": "1", "x": 10.92, "y": 0.0596564169741376, "vx": 0.3999999975152366, "vy": -0.04133222183443162, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 2.4, "id": "1", "x": 10.96, "y": 0.05403705444409205, "vx": 0.3999999991303388, "vy": -0.05099213408734715, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 2.5, "id": "1", "x": 10.999999999913035, "y": 0.04893784103535733, "vx": 0.3999999991303388, "vy": -0.05099213408734715, "c": 0.7360000000000001, "status": "predicted", "detected": "0"}, {"t": 2.6, "id": "1", "x": 11.04, "y": 0.04124010974571713, "vx": 0.39999999969561306, "vy": -0.05943731720028998, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 2.7, "id": "1", "x": 11.08, "y": 0.03419039041870638, "vx": 0.39999999989347057, "vy": -0.06662623664567136, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 2.8, "id": "1", "x": 11.119999999989346, "y": 0.027527766754139246, "vx": 0.39999999989347057, "vy": -0.06662623664567136, "c": 0.7360000000000001, "status": "predicted", "detected": "0"}, {"t": 2.9, "id": "1", "x": 11.16, "y": 0.01913994633711856, "vx": 0.39999999996271496, "vy": -0.07223312609114539, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 3.0, "id": "1", "x": 11.2, "y": 0.011289600644789377, "vx": 0.3999999999869447, "vy": -0.07630884113204058, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 3.1, "id": "1", "x": 11.239999999998695, "y": 0.0036587165315853185, "vx": 0.3999999999869447, "vy": -0.07630884113204058, "c": 0.7360000000000001, "status": "predicted", "detected": "0"}, {"t": 3.2, "id": "1", "x": 11.280000000000001, "y": -0.004669931474206407, "vx": 0.3999999999954367, "vy": -0.07857657378295049, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 3.3, "id": "1", "x": 11.32, "y": -0.012619655531459892, "vx": 0.3999999999983973, "vy": -0.07917500719618033, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 3.4, "id": "1", "x": 11.35999999999984, "y": -0.020537156251077923, "vx": 0.3999999999983973, "vy": -0.07917500719618033, "c": 0.7360000000000001, "status": "predicted", "detected": "0"}, {"t": 3.5, "id": "1", "x": 11.4, "y": -0.028062658215169588, "vx": 0.39999999999943925, "vy": -0.07790101124071962, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 3.6, "id": "1", "x": 11.44, "y": -0.035401635463588196, "vx": 0.3999999999997982, "vy": -0.07496870604897282, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 3.7, "id": "1", "x": 11.48, "y": -0.04238689127267947, "vx": 0.39999999999993535, "vy": -0.07164320987623378, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 3.8, "id": "1", "x": 11.52, "y": -0.04894863127541754, "vx": 0.3999999999999718, "vy": -0.06772643347447928, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 3.9, "id": "1", "x": 11.56, "y": -0.05502129273471793, "vx": 0.39999999999999614, "vy": -0.06317655120152028, "c": 0.8, "status": "confirmed", "detected": "1"}, {"t": 4.0, "id": "1", "x": 11.6, "y": -0.06054419962463426, "vx": 0.3999999999999931, "vy": -0.05801068770498824, "c": 0.8, "status": "confirmed", "detected": "1"}], "times": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0]},colors=['#1678aa','#bb6514','#8061b7','#25834f'];
+const slider=document.getElementById('time');slider.max=Math.max(0,data.times.length-1);
+const ids=[...new Set(data.rows.map(r=>r.id))], color=id=>colors[ids.indexOf(id)%colors.length];
+const finite=v=>v!==null&&Number.isFinite(v);
+function draw(){
+const t=data.times[+slider.value]??0;document.getElementById('label').textContent=t.toFixed(2)+' s';
+const current=data.rows.filter(r=>Math.abs(r.t-t)<1e-7);
+document.getElementById('current').textContent=current.length?current.map(r=>`ID ${r.id}: ${r.status}, x=${r.x?.toFixed(3)}, y=${r.y?.toFixed(3)}, confidence=${r.c?.toFixed(2)}`).join('\n'):'検出なし（位置を補間していません）';
+for(const name of ['path','lateral','speed']){
+const c=document.getElementById(name),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);
+const value=r=>name==='speed'?(finite(r.vx)&&finite(r.vy)?Math.hypot(r.vx,r.vy):null):r.y;
+const valid=data.rows.filter(r=>finite(r.x)&&finite(value(r)));
+if(!valid.length){ctx.fillText('有効値なし',30,30);continue;}
+let xs=valid.map(r=>name==='path'?r.x:r.t),ys=valid.map(value);
+let xmin=Math.min(...xs),xmax=Math.max(...xs),ymin=Math.min(...ys),ymax=Math.max(...ys);
+if(xmax-xmin<.01){xmin-=.5;xmax+=.5;}if(ymax-ymin<.01){ymin-=.5;ymax+=.5;}
+if(name==='path'){let scale=Math.max((xmax-xmin)/1000,(ymax-ymin)/(c.height-70));let xm=(xmin+xmax)/2,ym=(ymin+ymax)/2;xmin=xm-scale*500;xmax=xm+scale*500;ymin=ym-scale*(c.height-70)/2;ymax=ym+scale*(c.height-70)/2;}
+const px=x=>65+(x-xmin)/(xmax-xmin)*1000,py=y=>25+(ymax-y)/(ymax-ymin)*(c.height-70);
+ctx.font='13px sans-serif';ctx.fillStyle='#333';
+for(let i=0;i<=4;i++){let x=xmin+(xmax-xmin)*i/4,y=ymin+(ymax-ymin)*i/4;ctx.fillText(x.toFixed(2),px(x)-10,c.height-15);ctx.fillText(y.toFixed(2),5,py(y));ctx.strokeStyle='#ddd';ctx.beginPath();ctx.moveTo(65,py(y));ctx.lineTo(1065,py(y));ctx.stroke();}
+for(const id of ids){let last=null;ctx.strokeStyle=color(id);ctx.fillStyle=color(id);ctx.lineWidth=1.5;
+for(const r of data.rows.filter(r=>r.id===id).sort((a,b)=>a.t-b.t)){if(!finite(r.x)||!finite(value(r))){last=null;continue;}
+let x=px(name==='path'?r.x:r.t),y=py(value(r)),ok=r.status==='confirmed'&&r.detected==='1';
+ctx.globalAlpha=(r.c??0)<.5?.35:1;
+if(ok){if(last&&r.t-last.t<=.25){ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(x,y);ctx.stroke();}ctx.beginPath();ctx.arc(x,y,2,0,7);ctx.fill();last={t:r.t,x,y};}
+else{ctx.strokeStyle='#c33';ctx.beginPath();ctx.moveTo(x-3,y-3);ctx.lineTo(x+3,y+3);ctx.moveTo(x-3,y+3);ctx.lineTo(x+3,y-3);ctx.stroke();ctx.strokeStyle=color(id);last=null;}
+if(name==='path'&&Math.abs(r.t-t)<1e-7){ctx.globalAlpha=1;ctx.beginPath();ctx.arc(x,y,6,0,7);ctx.stroke();ctx.fillText('ID '+id,x+8,y-8);}
+}ctx.globalAlpha=1;}
+if(name!=='path'){ctx.strokeStyle='#111';ctx.beginPath();ctx.moveTo(px(t),20);ctx.lineTo(px(t),c.height-40);ctx.stroke();}
+}}
+slider.oninput=draw;let timer=null;document.getElementById('play').onclick=()=>{if(timer){clearInterval(timer);timer=null;}else timer=setInterval(()=>{slider.value=(+slider.value+1)%Math.max(1,data.times.length);draw();},100);};draw();
+</script></html>

@@ -1,0 +1,12 @@
+{
+  "body_dir": "/data/experiment_data/20261021_group002_recording_003_skeleton_replay/exports/body_20261021_235725_564032",
+  "input_sha256": {
+    "/data/experiment_data/20261021_group002_recording_003_skeleton_replay/exports/body_20261021_235725_564032/camera.json": "89f682f7f33af0186c174fecaf1eed8e172a86caf120aef259b8ae95385a4d9d",
+    "/data/experiment_data/20261021_group002_recording_003_skeleton_replay/exports/body_20261021_235725_564032/frames.csv": "650aaa6cdcf1e61efe4cad17f8d8baa4fd14f568e718afca20e89cdd1242ad4b",
+    "/data/experiment_data/20261021_group002_recording_003_skeleton_replay/exports/body_20261021_235725_564032/bodies.csv": "257ede35178955c43a2d1347b729845fb85834e61c556599f840ea98f2c5e57d",
+    "reports/20261021_group002_recording_003_skeleton_replay/bundle.json": "c671fe677e7dcf71d2a9220ac202431eaeda755fff98b429111a3fd67bcb9849",
+    "/home/hp-ubuntu/experiment_recorder/scripts/assess_skeleton_export.py": "2c901d81a7e3c81cbc60adcfc5d069f291bd6990bd3322c736787ea348282fc1"
+  },
+  "originals_modified": false,
+  "live_devices_started": false
+}

@@ -1,0 +1,19 @@
+{
+  "destination": "/data/experiment_data/20261022_sdk551_body_model_comparison/reviewed_20261022",
+  "source_run": "/data/experiment_data/20261022_sdk551_body_model_comparison/runs/20261022_160153_425608",
+  "files_sha256": {
+    "review_results.py": "9dd3a9e62b697974ca23d7d76dbefcf7af974ad36195fc1d747fba7ea82b1068",
+    "recording003_timeline.jpg": "05ff3268f92554f878dbe65ed964598d0e4de5e0deb197ecfe198692e811e296",
+    "README.md": "23f6c4969e67867800918fadbf2b113c6be2be28d4ee5cf24479d42c72e3e142",
+    "review.log": "a65fbe802d76719bc93421e13f42fdba6e919be2e164454f724c341a5e7b8993",
+    "recording003_full_model_samples.jpg": "3a744517d22bbc7f467124f16740ab4de880197be36a0b6b9ffd3b4fc8f0b02f",
+    "index.html": "692c7436d161d9edc51b03ac0a83149ceeb8abd64e0d381aa6ba3aa805f350b9",
+    "recording002_far_comparison.png": "2e6566a1ae5af3f956b02c53bc898a9c08645a7a4085e9c2ed398b19fe0f3ede",
+    "manifest.json": "fe3f4a3f300d72b1fbdb328b1a749b1503fe964a1ee50740873a08ba0d40c809",
+    "recording003_pole_pass_samples.jpg": "a3c1cef157ec5b643a9f37870b3b660206c1533871a950df9793faaf74bcf708",
+    "source_comparison.json": "9165bfb8cfba1795e4a9d4a1068c1e4a0a69d0b0f96b6c2bdf3d96967d41be39",
+    "recording002_model_samples.jpg": "1bcc45e3f4d9467c7f4679b6656f03702b9729458b019bf83146bfab5fd25be4",
+    "review_metrics.json": "a65fbe802d76719bc93421e13f42fdba6e919be2e164454f724c341a5e7b8993"
+  },
+  "original_outputs_unchanged": true
+}

@@ -1,0 +1,77 @@
+{
+  "required_runtime_sdk": "5.5.1",
+  "depth_mode": "NEURAL",
+  "body_format": "BODY_34",
+  "confidence": 35,
+  "max_depth_m": 30,
+  "configurations": [
+    {
+      "id": "medium_gen2",
+      "body_model": "HUMAN_BODY_MEDIUM",
+      "generation": "GEN_2"
+    },
+    {
+      "id": "accurate_gen2",
+      "body_model": "HUMAN_BODY_ACCURATE",
+      "generation": "GEN_2"
+    },
+    {
+      "id": "medium_gen1",
+      "body_model": "HUMAN_BODY_MEDIUM",
+      "generation": "GEN_1"
+    },
+    {
+      "id": "accurate_gen1",
+      "body_model": "HUMAN_BODY_ACCURATE",
+      "generation": "GEN_1"
+    },
+    {
+      "id": "fast_gen1",
+      "body_model": "HUMAN_BODY_FAST",
+      "generation": "GEN_1"
+    }
+  ],
+  "recordings": {
+    "002": {
+      "scopes": [
+        "approach"
+      ],
+      "geometry_file": "geometry_002.json",
+      "reference_header_ns": [
+        "1792647371880201000",
+        "1792647373880201000"
+      ],
+      "window_note": "Same source frames 216--629 and timestamps as the existing 414-frame fresh approach."
+    },
+    "003": {
+      "scopes": [
+        "full",
+        "approach"
+      ],
+      "geometry_file": null,
+      "reference_header_ns": [
+        "1792647601117476739",
+        "1792647602617476739"
+      ],
+      "approach_start_header_ns": "1792647596917476739",
+      "approach_end_header_ns": "1792647605217476739",
+      "window_note": "Proposed after turn from high-band LiDAR range-time occupancy, LiDAR elapsed 16.8--25.1s. RGB not yet available; verify window later. Raw absolute clocks; no clock offset estimated. RGB review required before calling this a confirmed approach window."
+    }
+  },
+  "historical_baseline": {
+    "body_dir_relative_to_package": "historical/recording002_sdk",
+    "source": "/data/experiment_data/20261022_group003_recording_002_approach_check/sdk_runs/20261022_150530_153836/sdk",
+    "source_sha256": {
+      "camera.json": "07ba81882b1df89d5dea402e89e2d024d043fcecc5a087ca358e591bf168159b",
+      "frames.csv": "f817de22662ccd0ec6848189a38b03282469ac1064b23de81746dff91eb12b35",
+      "bodies.csv": "3f7f88323237c9dcf15c70ab9380cd456542b623d676853d5abc3efab1c7bdcc",
+      "contact_sheet.jpg": "46f1d8d4279e06c8c1b2bce4368c7238b4d46511157660c52f5ecfb58fd9cba2"
+    },
+    "note": "Historical SDK version field is pyzed package version, not verified runtime patch. Generation was not recorded."
+  },
+  "interpretation": "Fresh process per model/window. No absolute joint ground truth. No scale, floor snapping, trajectory fitting or clock correction.",
+  "documentation": [
+    "https://docs.stereolabs.com/docs/development/zed-sdk/modules/body-tracking/using-the-api",
+    "https://docs.stereolabs.com/docs/development/zed-sdk/release-notes/5-x/5-5"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "source_frame": "livox_frame",
+  "target_frame": "zed_left_eye",
+  "coordinate_system": "IMAGE",
+  "units": "m",
+  "calibration_status": "exploratory_door_static_scene_icp_candidate",
+  "translation_m": [
+    0.018431756828945798,
+    0.2810226613819561,
+    0.2676093257500405
+  ],
+  "rotation_source_to_target": [
+    [
+      0.004841467317730639,
+      -0.9999858030253571,
+      0.0022257452561007794
+    ],
+    [
+      0.22696324619325295,
+      -0.001068839433809307,
+      -0.9739027376795366
+    ],
+    [
+      0.9738912901713633,
+      0.005220280643648082,
+      0.22695484925061057
+    ]
+  ],
+  "method": "Point-to-point ICP on empty-hallway LiDAR and ZED metric-depth clouds, initialized from the existing plane calibration; held-out later half not used to fit.",
+  "observable_translation_directions": [
+    "floor normal",
+    "hallway lateral"
+  ],
+  "unobservable_translation_direction_target": [
+    0.02313453509924162,
+    0.22604004773511413,
+    -0.9738432574627446
+  ],
+  "unobservable_translation_kept_from_initial_m": -0.03617199686210953,
+  "notes": "Exploratory candidate only. Static-scene ICP can be biased by ZED depth, sparse LiDAR sampling, and repeated parallel hallway surfaces. It has not been accepted as a metric calibration and was not applied to the active transform."
+}

@@ -13,7 +13,6 @@ from pathlib import Path
 from typing import Any
 from xml.etree import ElementTree as ET
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_INPUT_DIR = PROJECT_ROOT / "inputs"
 DEFAULT_PLAN_PATH = PROJECT_ROOT / "run_order.json"
@@ -77,9 +76,7 @@ def _read_xlsx(path: Path) -> dict[str, list[dict[int, str]]]:
         names = set(archive.namelist())
         try:
             workbook = ET.fromstring(archive.read("xl/workbook.xml"))
-            relationships = ET.fromstring(
-                archive.read("xl/_rels/workbook.xml.rels")
-            )
+            relationships = ET.fromstring(archive.read("xl/_rels/workbook.xml.rels"))
         except (KeyError, ET.ParseError) as exc:
             raise PlanError(f"Excelのブック構造を読めません: {path}") from exc
 
@@ -112,9 +109,7 @@ def _read_xlsx(path: Path) -> dict[str, list[dict[int, str]]]:
             try:
                 root = ET.fromstring(archive.read(sheet_path))
             except (KeyError, ET.ParseError) as exc:
-                raise PlanError(
-                    f"シート {sheet_name} を読めません: {path} ({sheet_path})"
-                ) from exc
+                raise PlanError(f"シート {sheet_name} を読めません: {path} ({sheet_path})") from exc
 
             rows: list[dict[int, str]] = []
             for row in root.findall("main:sheetData/main:row", XML_NS):
@@ -124,8 +119,7 @@ def _read_xlsx(path: Path) -> dict[str, list[dict[int, str]]]:
                     cell_type = cell.attrib.get("t")
                     if cell_type == "inlineStr":
                         content = "".join(
-                            text.text or ""
-                            for text in cell.findall(".//main:t", XML_NS)
+                            text.text or "" for text in cell.findall(".//main:t", XML_NS)
                         )
                     elif value is None:
                         content = ""
@@ -133,9 +127,7 @@ def _read_xlsx(path: Path) -> dict[str, list[dict[int, str]]]:
                         try:
                             content = shared_strings[int(value.text or "0")]
                         except (ValueError, IndexError) as exc:
-                            raise PlanError(
-                                f"共有文字列の参照が壊れています: {path}"
-                            ) from exc
+                            raise PlanError(f"共有文字列の参照が壊れています: {path}") from exc
                     else:
                         content = value.text or ""
                     if content != "":
@@ -202,9 +194,7 @@ def _require_exact(
     differences: list[str], location: str, left_name: str, left: Any, right_name: str, right: Any
 ) -> None:
     if left != right:
-        differences.append(
-            f"{location}: {left_name}={left!r} / {right_name}={right!r}"
-        )
+        differences.append(f"{location}: {left_name}={left!r} / {right_name}={right!r}")
 
 
 def _source_records(
@@ -326,15 +316,12 @@ def _source_records(
                 numbered[paper_trial] = row
             if set(numbered) != set(range(1, 19)):
                 differences.append(
-                    f"{sheet_name}: 用紙内番号は1〜18が必要です。"
-                    f"実際={sorted(numbered)}"
+                    f"{sheet_name}: 用紙内番号は1〜18が必要です。" f"実際={sorted(numbered)}"
                 )
             participant_sheets[subject_number] = numbered
 
             title_values = [
-                value.strip()
-                for row in print_book[sheet_name][:4]
-                for value in row.values()
+                value.strip() for row in print_book[sheet_name][:4] for value in row.values()
             ]
             if not any(value == f"セット {paper_set}" for value in title_values):
                 differences.append(
@@ -366,11 +353,7 @@ def _semantic_instruction_check(
         )
     elif role == "追い越される":
         speed = (
-            "遅い"
-            if "ゆっくり" in instruction
-            else "通常"
-            if "普段どおり" in instruction
-            else None
+            "遅い" if "ゆっくり" in instruction else "通常" if "普段どおり" in instruction else None
         )
         _require_exact(
             differences,
@@ -457,9 +440,7 @@ def _normalize_plan_fields(
             "instruction": instruction,
         }
         if not instruction:
-            differences.append(
-                f"{location}: 被験者{subject_number}の教示文が空欄です"
-            )
+            differences.append(f"{location}: 被験者{subject_number}の教示文が空欄です")
 
     if master_category == "単独歩行":
         solo_target = _optional(row["単独対象"])
@@ -544,7 +525,8 @@ def _build_audit_report(
         "# 実験計画・配布プリント照合",
         "",
         "この表は確認済みExcelから生成した `run_order.json` と同じ計画データを使っています。",
-        "基本試行は各グループ54回、第4セットは別枠の任意追加（最大18回）です。",
+        "各グループは基本54試行と第4セット18試行の合計72試行です。録画ソフトは全72試行を通常の進行対象にします。",
+        "Excel由来の基本・追加区分は照合用に保持しています。54試行で終了する場合はQで中断し、未完了の第4セットは再開対象として残ります。",
         "",
         f"- 計画データ版: {plan['plan_version']}",
         f"- 計画データSHA-256: `{plan['plan_sha256']}`",
@@ -554,7 +536,7 @@ def _build_audit_report(
         "",
         "## グループ別セット順",
         "",
-        "| グループ | 第1セット（01–18） | 第2セット（19–36） | 第3セット（37–54） | 第4セット（55–72・任意） |",
+        "| グループ | 第1セット（01–18） | 第2セット（19–36） | 第3セット（37–54） | 第4セット（55–72） |",
         "|---|---|---|---|---|",
     ]
     for schedule in schedules:
@@ -698,12 +680,22 @@ def build_run_order(
             "basic_sets": basic_sets,
             "optional_set": optional_set,
             "expected_width_changes": _integer(row["幅変更"], f"01_グループ順 {group_name} 幅変更"),
-            "expected_basic_overtaker_1": _integer(row["追越者1"], f"01_グループ順 {group_name} 追越者1"),
-            "expected_basic_overtaker_2": _integer(row["追越者2"], f"01_グループ順 {group_name} 追越者2"),
+            "expected_basic_overtaker_1": _integer(
+                row["追越者1"], f"01_グループ順 {group_name} 追越者1"
+            ),
+            "expected_basic_overtaker_2": _integer(
+                row["追越者2"], f"01_グループ順 {group_name} 追越者2"
+            ),
             "basic_status": row["判定"],
-            "expected_total_after_additional": _integer(row["追加後の計画試行数"], f"01_グループ順 {group_name} 追加後の計画試行数"),
-            "expected_total_overtaker_1": _integer(row["追越者1（計画）"], f"01_グループ順 {group_name} 追越者1（計画）"),
-            "expected_total_overtaker_2": _integer(row["追越者2（計画）"], f"01_グループ順 {group_name} 追越者2（計画）"),
+            "expected_total_after_additional": _integer(
+                row["追加後の計画試行数"], f"01_グループ順 {group_name} 追加後の計画試行数"
+            ),
+            "expected_total_overtaker_1": _integer(
+                row["追越者1（計画）"], f"01_グループ順 {group_name} 追越者1（計画）"
+            ),
+            "expected_total_overtaker_2": _integer(
+                row["追越者2（計画）"], f"01_グループ順 {group_name} 追越者2（計画）"
+            ),
             "additional_status": row["追加後検算"],
         }
     _require_exact(
@@ -783,8 +775,22 @@ def build_run_order(
         (record["group"], record["global_trial_number"]): record
         for record in (common_record(row) for row in additional_ledger_rows if row["全体順"])
     }
-    _require_exact(differences, "03_全972試行", "行数", len(base_master), "期待値", GROUP_COUNT * BASIC_TRIAL_COUNT)
-    _require_exact(differences, "06_追加324試行", "行数", len(additional_ledger), "期待値", GROUP_COUNT * ADDITIONAL_TRIAL_COUNT)
+    _require_exact(
+        differences,
+        "03_全972試行",
+        "行数",
+        len(base_master),
+        "期待値",
+        GROUP_COUNT * BASIC_TRIAL_COUNT,
+    )
+    _require_exact(
+        differences,
+        "06_追加324試行",
+        "行数",
+        len(additional_ledger),
+        "期待値",
+        GROUP_COUNT * ADDITIONAL_TRIAL_COUNT,
+    )
 
     full_plan_records: list[dict[str, Any]] = []
     group_templates: dict[str, list[dict[str, Any]]] = {}
@@ -825,9 +831,13 @@ def build_run_order(
         group_entries: list[dict[str, Any]] = []
         for row in group_rows:
             global_trial = _integer(row["全体順"], f"{group_name} 全体順")
-            set_number = _integer(row["第何セット"], f"{group_name} 全体試行{global_trial} セット番号")
+            set_number = _integer(
+                row["第何セット"], f"{group_name} 全体試行{global_trial} セット番号"
+            )
             paper_set = row["用紙"]
-            paper_trial = _integer(row["用紙内順"], f"{group_name} 全体試行{global_trial} 用紙内番号")
+            paper_trial = _integer(
+                row["用紙内順"], f"{group_name} 全体試行{global_trial} 用紙内番号"
+            )
             is_additional = global_trial > BASIC_TRIAL_COUNT
             expected_set_number = (global_trial - 1) // 18 + 1
             expected_set = (
@@ -835,19 +845,44 @@ def build_run_order(
                 if expected_set_number <= 3
                 else schedule["optional_set"]
             )
-            _require_exact(differences, f"{group_name} 全体試行{global_trial}", "セット番号", set_number, "順番から期待するセット番号", expected_set_number)
-            _require_exact(differences, f"{group_name} 全体試行{global_trial}", "用紙名", paper_set, "グループ順から期待する用紙", expected_set)
-            _require_exact(differences, f"{group_name} 全体試行{global_trial}", "用紙内番号", paper_trial, "順番から期待する番号", (global_trial - 1) % 18 + 1)
+            _require_exact(
+                differences,
+                f"{group_name} 全体試行{global_trial}",
+                "セット番号",
+                set_number,
+                "順番から期待するセット番号",
+                expected_set_number,
+            )
+            _require_exact(
+                differences,
+                f"{group_name} 全体試行{global_trial}",
+                "用紙名",
+                paper_set,
+                "グループ順から期待する用紙",
+                expected_set,
+            )
+            _require_exact(
+                differences,
+                f"{group_name} 全体試行{global_trial}",
+                "用紙内番号",
+                paper_trial,
+                "順番から期待する番号",
+                (global_trial - 1) % 18 + 1,
+            )
 
             condition = conditions.get(row["条件ID"])
             if condition is None:
-                differences.append(f"{group_name} 全体試行{global_trial}: 条件ID {row['条件ID']} が条件マスターにありません")
+                differences.append(
+                    f"{group_name} 全体試行{global_trial}: 条件ID {row['条件ID']} が条件マスターにありません"
+                )
                 continue
             if paper_set not in experimenter_orders:
                 differences.append(f"{group_name} 全体試行{global_trial}: 未知の用紙名 {paper_set}")
                 continue
             if not 1 <= paper_trial <= len(experimenter_orders[paper_set]):
-                differences.append(f"{group_name} 全体試行{global_trial}: 用紙内番号が範囲外です: {paper_trial}")
+                differences.append(
+                    f"{group_name} 全体試行{global_trial}: 用紙内番号が範囲外です: {paper_trial}"
+                )
                 continue
 
             experimenter = experimenter_orders[paper_set][paper_trial - 1]
@@ -908,7 +943,9 @@ def build_run_order(
             audit_source = additional_ledger if is_additional else base_master
             source_label = "06_追加324試行" if is_additional else "03_全972試行"
             if index not in audit_source:
-                differences.append(f"{source_label}: {group_name} 全体試行{global_trial} がありません")
+                differences.append(
+                    f"{source_label}: {group_name} 全体試行{global_trial} がありません"
+                )
             elif audit_source[index] != reference:
                 differences.append(
                     f"{group_name} 全体試行{global_trial}: グループ別表と{source_label}が不一致。"
@@ -926,9 +963,7 @@ def build_run_order(
         group_templates[group_name] = group_entries
         full_plan_records.extend(group_entries)
 
-        basic_entries = [
-            entry for entry in group_entries if entry["trial_type"] == "basic"
-        ]
+        basic_entries = [entry for entry in group_entries if entry["trial_type"] == "basic"]
         width_changes = sum(
             before["corridor_width"] != after["corridor_width"]
             for before, after in zip(basic_entries, basic_entries[1:])
@@ -961,14 +996,9 @@ def build_run_order(
             "期待値",
             "OK",
         )
-        extra_entries = [
-            entry for entry in group_entries if entry["trial_type"] == "additional"
-        ]
+        extra_entries = [entry for entry in group_entries if entry["trial_type"] == "additional"]
         total_overtakers = {
-            subject: sum(
-                entry["overtaker"] == subject
-                for entry in basic_entries + extra_entries
-            )
+            subject: sum(entry["overtaker"] == subject for entry in basic_entries + extra_entries)
             for subject in ("被験者1", "被験者2")
         }
         _require_exact(
@@ -998,13 +1028,14 @@ def build_run_order(
 
     # 追加セット台帳の全行がグループ別シートに存在するか、また追加検算の集計と一致するか。
     group_entry_index = {
-        (entry["group"], entry["global_trial_number"]): entry
-        for entry in full_plan_records
+        (entry["group"], entry["global_trial_number"]): entry for entry in full_plan_records
     }
     for (group_name, trial_number), ledger_record in additional_ledger.items():
         entry = group_entry_index.get((group_name, trial_number))
         if entry is None:
-            differences.append(f"06_追加324試行: {group_name} 全体試行{trial_number} がグループ表にありません")
+            differences.append(
+                f"06_追加324試行: {group_name} 全体試行{trial_number} がグループ表にありません"
+            )
             continue
         plan_record = {
             "group": entry["group"],
@@ -1030,15 +1061,24 @@ def build_run_order(
     extra_checks = _table(
         plan_book,
         "07_追加検算",
-        ("グループ", "追加試行", "追加追越1", "追加追越2", "追加被追越1", "追加被追越2", "追加単独", "判定"),
+        (
+            "グループ",
+            "追加試行",
+            "追加追越1",
+            "追加追越2",
+            "追加被追越1",
+            "追加被追越2",
+            "追加単独",
+            "判定",
+        ),
         workbook_name=PLAN_WORKBOOK_NAME,
     )
     extra_checks = {
-        row["グループ"]: row
-        for row in extra_checks
-        if re.fullmatch(r"G\d{2}", row["グループ"])
+        row["グループ"]: row for row in extra_checks if re.fullmatch(r"G\d{2}", row["グループ"])
     }
-    _require_exact(differences, "07_追加検算", "グループ数", len(extra_checks), "期待値", GROUP_COUNT)
+    _require_exact(
+        differences, "07_追加検算", "グループ数", len(extra_checks), "期待値", GROUP_COUNT
+    )
     for group_name, entries in group_templates.items():
         extra = [entry for entry in entries if entry["trial_type"] == "additional"]
         stats = {
@@ -1062,16 +1102,16 @@ def build_run_order(
                 "Excel検算値",
                 _integer(source[field], f"07_追加検算 {group_name} {field}"),
             )
-        _require_exact(differences, f"07_追加検算 {group_name}", "判定", source["判定"], "期待値", "OK")
+        _require_exact(
+            differences, f"07_追加検算 {group_name}", "判定", source["判定"], "期待値", "OK"
+        )
 
     # 全グループで同一の配布用紙セットの条件順・役割・教示文であることを確認し、
     # 共有テンプレートとしてJSONと監査表に一度だけ格納する。
     set_templates: dict[str, list[dict[str, Any]]] = {}
     for paper_set in PAPER_SETS:
         templates = [
-            entry
-            for entry in group_templates.get("G01", [])
-            if entry["paper_name"] == paper_set
+            entry for entry in group_templates.get("G01", []) if entry["paper_name"] == paper_set
         ]
         templates.sort(key=lambda entry: entry["paper_trial_number"])
         if len(templates) != 18:
@@ -1083,8 +1123,7 @@ def build_run_order(
                 key=lambda entry: entry["paper_trial_number"],
             )
             left = [
-                (entry["condition_id"], entry["subject_1"], entry["subject_2"])
-                for entry in rows
+                (entry["condition_id"], entry["subject_1"], entry["subject_2"]) for entry in rows
             ]
             right = [
                 (entry["condition_id"], entry["subject_1"], entry["subject_2"])
@@ -1160,6 +1199,8 @@ def build_run_order(
 
 
 def _write_atomic(path: Path, content: str) -> None:
+    """一時ファイルへ書いてから置換し、途中で壊れた計画ファイルを残さない。"""
+
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(f".{path.name}.tmp")
@@ -1178,7 +1219,9 @@ def load_run_order(
     try:
         plan = json.loads(plan_path.read_text(encoding="utf-8"))
     except FileNotFoundError as exc:
-        raise PlanError(f"順序データがありません: {plan_path}。先にscripts/build_run_order.pyを実行してください。") from exc
+        raise PlanError(
+            f"順序データがありません: {plan_path}。先にscripts/build_run_order.pyを実行してください。"
+        ) from exc
     except (OSError, json.JSONDecodeError) as exc:
         raise PlanError(f"順序データを読めません: {plan_path}: {exc}") from exc
     if not isinstance(plan, dict) or plan.get("plan_sha256") != canonical_plan_hash(plan):

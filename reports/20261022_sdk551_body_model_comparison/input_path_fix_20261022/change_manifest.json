@@ -1,0 +1,10 @@
+{
+  "reason": "Input validation hid which required recording was missing; support standard/flat layouts and explicit SVO paths.",
+  "before_sha256": "e595270e3de6e3b839153237a290c00f581c52d6d53517491bf90e0364e48fc1",
+  "after_sha256": "cf45ca6f974029a5f76ed2b05d540b023e56c5e7e20ffe24873ad091214b05bb",
+  "changed_shared_files": [
+    "/data/experiment_data/scripts/run_sdk551_body_model_comparison_20261022.py",
+    "/data/experiment_data/20261022_sdk551_body_model_comparison/run_sdk551_body_model_comparison_20261022.py"
+  ],
+  "validation": "Syntax read only; no unit tests or SDK execution."
+}

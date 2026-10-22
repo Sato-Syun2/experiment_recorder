@@ -23,9 +23,11 @@ from typing import Iterable, Iterator, Optional, Sequence
 import numpy as np
 
 try:
+    from .assignment import gated_assignment
     from .corridor_frame import CorridorFrame, CorridorFrameError
     from .sensor_transform import SensorTransform, SensorTransformError
 except ImportError:
+    from assignment import gated_assignment
     from corridor_frame import CorridorFrame, CorridorFrameError
     from sensor_transform import SensorTransform, SensorTransformError
 
@@ -97,6 +99,8 @@ class TrackerSettings:
     max_match_distance: float = 0.55
     max_track_speed: float = 3.0
     max_missed_frames: int = 12
+    max_prediction_seconds: float = 1.2
+    association_prediction: bool = True
     min_hits: int = 2
     min_confirmed_consecutive_hits: int = 5
     min_confirmed_point_count: float = 20.0
@@ -153,7 +157,7 @@ def _number(
 def _integer(value: object, name: str, *, positive: bool = False) -> int:
     if isinstance(value, bool) or not isinstance(value, int):
         raise TrackingError(f"Config value '{name}' must be an integer.")
-    if (value <= 0 if positive else value < 0):
+    if value <= 0 if positive else value < 0:
         qualifier = "positive" if positive else "non-negative"
         raise TrackingError(f"Config value '{name}' must be {qualifier}.")
     return value
@@ -300,9 +304,7 @@ def load_settings(config_path: Path, topic_override: Optional[str] = None) -> Tr
     ).lower()
     if settings.ground_mode not in {"fixed", "auto", "none"}:
         raise TrackingError("tracking.ground_mode must be fixed, auto, or none.")
-    settings.ground_z = _number(
-        tracking.get("ground_z", settings.ground_z), "tracking.ground_z"
-    )
+    settings.ground_z = _number(tracking.get("ground_z", settings.ground_z), "tracking.ground_z")
     settings.ground_clearance = _number(
         tracking.get("ground_clearance", settings.ground_clearance),
         "tracking.ground_clearance",
@@ -330,9 +332,7 @@ def load_settings(config_path: Path, topic_override: Optional[str] = None) -> Tr
         "tracking.gravity_alignment.ground_height_along_up_m",
     )
     if settings.gravity_alignment_enabled:
-        settings.gravity_alignment_rotation = _rotation_from_up_vector(
-            settings.gravity_up_vector
-        )
+        settings.gravity_alignment_rotation = _rotation_from_up_vector(settings.gravity_up_vector)
         settings.gravity_alignment_translation = np.array(
             [0.0, 0.0, -settings.ground_height_along_up], dtype=np.float64
         )
@@ -341,10 +341,11 @@ def load_settings(config_path: Path, topic_override: Optional[str] = None) -> Tr
         raw_to_level = settings.gravity_alignment_rotation
         level_to_raw = raw_to_level.T
         raw_to_zed = settings.lidar_to_zed_frame
+        if raw_to_zed.source_frame != "livox_frame":
+            raise TrackingError("External calibration must map raw livox_frame to zed_left_eye.")
         composed_rotation = raw_to_zed.rotation @ level_to_raw
         composed_translation = (
-            raw_to_zed.translation
-            - composed_rotation @ settings.gravity_alignment_translation
+            raw_to_zed.translation - composed_rotation @ settings.gravity_alignment_translation
         )
         settings.lidar_to_zed_frame = SensorTransform(
             rotation=composed_rotation,
@@ -352,6 +353,31 @@ def load_settings(config_path: Path, topic_override: Optional[str] = None) -> Tr
             source_frame="livox_level_frame",
             target_frame=raw_to_zed.target_frame,
         )
+    expected_frame = "livox_level_frame" if settings.gravity_alignment_enabled else "livox_frame"
+    if (
+        settings.corridor_frame is not None
+        and settings.corridor_frame.source_frame != expected_frame
+    ):
+        raise TrackingError(
+            f"Corridor calibration must use {expected_frame}; recalibrate this installation."
+        )
+    if settings.lidar_to_zed_frame is not None and (
+        settings.lidar_to_zed_frame.source_frame != expected_frame
+        or settings.lidar_to_zed_frame.target_frame != "zed_left_eye"
+    ):
+        raise TrackingError(
+            "External calibration source/target frames do not match processing frames."
+        )
+    settings.max_prediction_seconds = _number(
+        tracking.get("max_prediction_seconds", settings.max_prediction_seconds),
+        "tracking.max_prediction_seconds",
+        positive=True,
+    )
+    settings.association_prediction = _boolean(
+        tracking.get("association_prediction"),
+        "tracking.association_prediction",
+        settings.association_prediction,
+    )
     settings.background_mode = _text(
         tracking.get("background_mode"),
         "tracking.background_mode",
@@ -459,30 +485,20 @@ def load_settings(config_path: Path, topic_override: Optional[str] = None) -> Tr
         positive=True,
     )
     if settings.max_cluster_tolerance < settings.cluster_tolerance:
-        raise TrackingError(
-            "tracking.max_cluster_tolerance must be at least cluster_tolerance."
-        )
+        raise TrackingError("tracking.max_cluster_tolerance must be at least cluster_tolerance.")
     if settings.far_min_cluster_points > settings.min_cluster_points:
-        raise TrackingError(
-            "tracking.far_min_cluster_points must not exceed min_cluster_points."
-        )
+        raise TrackingError("tracking.far_min_cluster_points must not exceed min_cluster_points.")
     settings.cluster_background_voxel_size = _number(
-        tracking.get(
-            "cluster_background_voxel_size", settings.cluster_background_voxel_size
-        ),
+        tracking.get("cluster_background_voxel_size", settings.cluster_background_voxel_size),
         "tracking.cluster_background_voxel_size",
         positive=True,
     )
     settings.cluster_background_min_presence = _number(
-        tracking.get(
-            "cluster_background_min_presence", settings.cluster_background_min_presence
-        ),
+        tracking.get("cluster_background_min_presence", settings.cluster_background_min_presence),
         "tracking.cluster_background_min_presence",
     )
     if not 0 < settings.cluster_background_min_presence <= 1:
-        raise TrackingError(
-            "tracking.cluster_background_min_presence must be in (0, 1]."
-        )
+        raise TrackingError("tracking.cluster_background_min_presence must be in (0, 1].")
     if settings.min_cluster_points > settings.max_cluster_points:
         raise TrackingError("tracking.min_cluster_points must not exceed max_cluster_points.")
 
@@ -504,9 +520,7 @@ def load_settings(config_path: Path, topic_override: Optional[str] = None) -> Tr
         tracking.get("min_hits", settings.min_hits), "tracking.min_hits", positive=True
     )
     settings.min_confirmed_consecutive_hits = _integer(
-        tracking.get(
-            "min_confirmed_consecutive_hits", settings.min_confirmed_consecutive_hits
-        ),
+        tracking.get("min_confirmed_consecutive_hits", settings.min_confirmed_consecutive_hits),
         "tracking.min_confirmed_consecutive_hits",
         positive=True,
     )
@@ -516,9 +530,7 @@ def load_settings(config_path: Path, topic_override: Optional[str] = None) -> Tr
         positive=True,
     )
     settings.far_min_confirmed_point_count = _number(
-        tracking.get(
-            "far_min_confirmed_point_count", settings.far_min_confirmed_point_count
-        ),
+        tracking.get("far_min_confirmed_point_count", settings.far_min_confirmed_point_count),
         "tracking.far_min_confirmed_point_count",
         positive=True,
     )
@@ -594,6 +606,8 @@ class TrackSnapshot:
 
 @dataclasses.dataclass
 class _Track:
+    """観測位置・予測位置・確定条件の履歴を保持する内部状態。"""
+
     track_id: int
     position: np.ndarray
     velocity: np.ndarray
@@ -613,6 +627,8 @@ class _Track:
     point_count_total: int = 0
     detected_observations: int = 1
     consecutive_hits: int = 1
+    last_observed_position: Optional[np.ndarray] = None
+    last_observed_timestamp_ns: Optional[int] = None
 
 
 class BackgroundModel:
@@ -652,6 +668,8 @@ class BackgroundModel:
         if previous_frames < self.learning_frames:
             return points
 
+        # 点数ではなく、各ボクセルが出現したフレーム数の割合で静的背景を判定する。
+        # 学習後も占有回数は更新を続ける。
         threshold = self.min_presence * max(1, previous_frames)
         dynamic_mask = np.fromiter(
             (self.counts[key] < threshold for key in keys), dtype=bool, count=len(keys)
@@ -687,9 +705,11 @@ class PersistentClusterModel:
                 continue
             distances = np.array(
                 [
-                    np.linalg.norm(detection.position - entry[0])
-                    if index not in used_entries
-                    else math.inf
+                    (
+                        np.linalg.norm(detection.position - entry[0])
+                        if index not in used_entries
+                        else math.inf
+                    )
                     for index, entry in enumerate(self.entries)
                 ]
             )
@@ -709,9 +729,7 @@ class PersistentClusterModel:
     def _freeze(self) -> None:
         threshold = self.min_presence * self.learning_frames
         self.prototypes = [
-            position
-            for position, observations, _ in self.entries
-            if observations >= threshold
+            position for position, observations, _ in self.entries if observations >= threshold
         ]
 
     def update(self, detections: Sequence[Detection]) -> list[Detection]:
@@ -734,10 +752,7 @@ class PersistentClusterModel:
         return [
             detection
             for detection in detections
-            if min(
-                np.linalg.norm(detection.position - prototype)
-                for prototype in self.prototypes
-            )
+            if min(np.linalg.norm(detection.position - prototype) for prototype in self.prototypes)
             > self.match_distance
         ]
 
@@ -792,12 +807,13 @@ def _cluster_labels(
     """距離に応じた近傍条件で点を連結成分へまとめる。
 
     遠距離では同じ人体表面の点間隔が広がるため、設定した上限内で
-    水平距離に応じてクラスタ接続距離を少しずつ広げる。
+    点の3D距離に応じてクラスタ接続距離を少しずつ広げる。
     """
 
     if len(points) == 0:
         return np.empty(0, dtype=np.int64)
     union_find = _UnionFind(len(points))
+    # 接続距離の拡張には3D距離を使う。人物候補の遠近判定では水平距離を使う。
     point_ranges = np.linalg.norm(points, axis=1)
     maximum_pair_tolerance = max(tolerance, max_tolerance or tolerance)
 
@@ -819,7 +835,9 @@ def _cluster_labels(
                         candidate_indices = np.asarray(candidates, dtype=np.int64)
                         distances_squared = np.sum((points[candidate_indices] - point) ** 2, axis=1)
                         if adaptive:
-                            pair_ranges = 0.5 * (point_ranges[index] + point_ranges[candidate_indices])
+                            pair_ranges = 0.5 * (
+                                point_ranges[index] + point_ranges[candidate_indices]
+                            )
                             local_tolerances = np.minimum(
                                 maximum_pair_tolerance,
                                 tolerance
@@ -828,9 +846,8 @@ def _cluster_labels(
                             )
                         else:
                             local_tolerances = tolerance
-                        nearby = (
-                            (candidate_indices > index)
-                            & (distances_squared <= local_tolerances * local_tolerances)
+                        nearby = (candidate_indices > index) & (
+                            distances_squared <= local_tolerances * local_tolerances
                         )
                         for candidate in candidate_indices[nearby]:
                             union_find.union(int(index), int(candidate))
@@ -838,8 +855,8 @@ def _cluster_labels(
     all_indices = np.arange(len(points), dtype=np.int64)
     connect(all_indices, tolerance, adaptive=False)
     if maximum_pair_tolerance > tolerance and tolerance_growth_per_meter > 0:
-        # The expanded grid only contains the far field and its boundary band;
-        # close-range cells keep their finer grid and processing cost.
+        # 粗い探索格子は遠距離と境界付近だけに使う。
+        # 近距離は細かい格子を保ち、探索コストの増大を抑える。
         far_indices = all_indices[point_ranges >= range_start - maximum_pair_tolerance]
         if len(far_indices):
             connect(far_indices, maximum_pair_tolerance, adaptive=True)
@@ -873,9 +890,7 @@ def detect_clusters(points: np.ndarray, settings: TrackerSettings) -> list[Detec
         horizontal_range = float(np.linalg.norm(position[:2]))
         # 遠距離では点密度が下がるため、検出条件を少し緩和する。
         far = horizontal_range >= settings.far_detection_start
-        min_points = (
-            settings.far_min_cluster_points if far else settings.min_cluster_points
-        )
+        min_points = settings.far_min_cluster_points if far else settings.min_cluster_points
         min_width = settings.far_min_cluster_width if far else settings.min_cluster_width
         min_depth = settings.far_min_cluster_depth if far else settings.min_cluster_depth
         if count < min_points or count > settings.max_cluster_points:
@@ -901,80 +916,43 @@ def detect_clusters(points: np.ndarray, settings: TrackerSettings) -> list[Detec
         # Zの中央値は人物マーカーの高さとして使う。
         confidence = min(1.0, count / max(1.0, min_points * 4.0))
         detections.append(Detection(position, extent, count, confidence))
-    detections.sort(key=lambda detection: (float(detection.position[0]), float(detection.position[1])))
+    detections.sort(
+        key=lambda detection: (float(detection.position[0]), float(detection.position[1]))
+    )
     return detections
 
 
 def _assignment(
-    tracks: Sequence[_Track], detections: Sequence[Detection], gate: float
+    tracks: Sequence[_Track],
+    detections: Sequence[Detection],
+    gate: float,
+    timestamp_ns: Optional[int] = None,
 ) -> list[tuple[int, int]]:
     """距離ゲート内で、トラックと検出結果を1対1に対応付ける。
 
-    通常の少人数では動的計画法で最小距離の組み合わせを求め、
-    大人数の場合は決定的な貪欲法へ切り替える。
+    等速予測位置でゲートし、有効対応数最大・水平距離の二乗和最小の組を求める。
+    timestamp_ns=None は直前位置による比較用のモード。
     """
 
     if not tracks or not detections:
         return []
-    # 対応付けの距離ゲートには直前に観測した位置を使う。
-    # 一時的なノイズで速度が大きくなっても、ID対応付けが飛ばないようにする。
-    # 速度は見失いフレームの予測には使い、対応付け後に更新する。
-    predictions = np.array([track.position[:2] for track in tracks])
+    # 未観測時間の上限はPeopleTrackerで判定済み。
+    predictions = np.array(
+        [
+            track.position[:2]
+            + track.velocity[:2]
+            * (
+                max(0.0, (timestamp_ns - track.last_timestamp_ns) / 1e9)
+                if timestamp_ns is not None
+                else 0.0
+            )
+            for track in tracks
+        ]
+    )
     measurements = np.array([detection.position[:2] for detection in detections])
     distances = np.linalg.norm(predictions[:, None, :] - measurements[None, :, :], axis=2)
     allowed = distances <= gate
-    track_count = len(tracks)
-    detection_count = len(detections)
-
-    if detection_count > 20 or track_count > 20:
-        candidates = sorted(
-            (float(distances[i, j]), i, j)
-            for i in range(track_count)
-            for j in range(detection_count)
-            if allowed[i, j]
-        )
-        used_tracks: set[int] = set()
-        used_detections: set[int] = set()
-        matches: list[tuple[int, int]] = []
-        for _, track_index, detection_index in candidates:
-            if track_index not in used_tracks and detection_index not in used_detections:
-                used_tracks.add(track_index)
-                used_detections.add(detection_index)
-                matches.append((track_index, detection_index))
-        return matches
-
-    unmatched_cost = gate * gate * 1.000001
-    costs = distances * distances
-    memo: dict[tuple[int, int], tuple[float, tuple[Optional[int], ...]]] = {}
-
-    def solve(track_index: int, used_mask: int) -> tuple[float, tuple[Optional[int], ...]]:
-        key = (track_index, used_mask)
-        if key in memo:
-            return memo[key]
-        if track_index == track_count:
-            return 0.0, ()
-        best_cost, best_tail = solve(track_index + 1, used_mask)
-        best_cost += unmatched_cost
-        best_assignment: tuple[Optional[int], ...] = (None,) + best_tail
-        for detection_index in range(detection_count):
-            if not allowed[track_index, detection_index] or used_mask & (1 << detection_index):
-                continue
-            tail_cost, tail_assignment = solve(
-                track_index + 1, used_mask | (1 << detection_index)
-            )
-            candidate_cost = float(costs[track_index, detection_index]) + tail_cost
-            if candidate_cost < best_cost:
-                best_cost = candidate_cost
-                best_assignment = (detection_index,) + tail_assignment
-        memo[key] = (best_cost, best_assignment)
-        return memo[key]
-
-    _, choices = solve(0, 0)
-    return [
-        (track_index, detection_index)
-        for track_index, detection_index in enumerate(choices)
-        if detection_index is not None
-    ]
+    return gated_assignment(distances**2, allowed)
 
 
 class PeopleTracker:
@@ -988,6 +966,7 @@ class PeopleTracker:
         self.next_id = 1
         self.frame_index = 0
         self.first_timestamp_ns: Optional[int] = None
+        self.last_timestamp_ns: Optional[int] = None
 
     def preprocess(self, points: np.ndarray) -> np.ndarray:
         """ROI、床面、ボクセル、時間背景の順に点群を前処理する。"""
@@ -1051,13 +1030,29 @@ class PeopleTracker:
     def update(self, points: np.ndarray, timestamp_ns: int) -> list[TrackSnapshot]:
         """前処理、検出、ID対応、状態更新の順に1フレームを処理する。"""
 
+        if self.last_timestamp_ns is not None and timestamp_ns <= self.last_timestamp_ns:
+            raise TrackingError(
+                "Point-cloud timestamps must be strictly increasing; check clock resets/duplicates."
+            )
+        self.last_timestamp_ns = timestamp_ns
+        # 途中の点群が記録されていない場合も、最終実観測からの秒数でIDを終了する。
+        self.tracks = [
+            track
+            for track in self.tracks
+            if (timestamp_ns - int(track.last_observed_timestamp_ns)) / 1e9
+            <= self.settings.max_prediction_seconds
+            and track.missed_frames <= self.settings.max_missed_frames
+        ]
         processed = self.preprocess(points)
         # 点群の背景と候補中心の背景を順に除き、設備の誤検出を抑える。
-        detections = self.cluster_background.update(
-            detect_clusters(processed, self.settings)
-        )
+        detections = self.cluster_background.update(detect_clusters(processed, self.settings))
         active_before = list(self.tracks)
-        matches = _assignment(active_before, detections, self.settings.max_match_distance)
+        matches = _assignment(
+            active_before,
+            detections,
+            self.settings.max_match_distance,
+            timestamp_ns if self.settings.association_prediction else None,
+        )
         matched_tracks = {track_index for track_index, _ in matches}
         matched_detections = {detection_index for _, detection_index in matches}
 
@@ -1075,16 +1070,12 @@ class PeopleTracker:
             if detection_index not in matched_detections:
                 self._start_track(detection, timestamp_ns)
         self.tracks = [
-            track
-            for track in self.tracks
-            if track.missed_frames <= self.settings.max_missed_frames
+            track for track in self.tracks if track.missed_frames <= self.settings.max_missed_frames
         ]
         self.frame_index += 1
         return self._snapshots()
 
-    def _update_matched_track(
-        self, track: _Track, detection: Detection, timestamp_ns: int
-    ) -> None:
+    def _update_matched_track(self, track: _Track, detection: Detection, timestamp_ns: int) -> None:
         """対応した候補で位置・速度を更新し、連続歩行なら確定状態へ進める。"""
 
         smoothing = self.settings.velocity_smoothing
@@ -1101,9 +1092,7 @@ class PeopleTracker:
         )
         if len(track.recent_positions) > max_recent_positions:
             del track.recent_positions[:-max_recent_positions]
-        step_distance = float(
-            np.linalg.norm(detection.position[:2] - track.position[:2])
-        )
+        step_distance = float(np.linalg.norm(detection.position[:2] - track.position[:2]))
         # 静的物は計測中心が少し揺れることがあるが、
         # 複数フレームにわたって同じ方向へ歩き続けることはない。
         # 連続して妥当な移動が見えた場合だけ人物の根拠として加算する。
@@ -1113,18 +1102,16 @@ class PeopleTracker:
             track.motion_streak += 1
         else:
             track.motion_streak = 0
-        delta_seconds = max(
-            1e-3, (timestamp_ns - track.last_timestamp_ns) / 1_000_000_000.0
-        )
-        measured_velocity = (detection.position - track.position) / delta_seconds
-        track.velocity = (
-            (1.0 - smoothing) * track.velocity + smoothing * measured_velocity
-        )
+        delta_seconds = (timestamp_ns - int(track.last_observed_timestamp_ns)) / 1e9
+        measured_velocity = (detection.position - track.last_observed_position) / delta_seconds
+        track.velocity = (1.0 - smoothing) * track.velocity + smoothing * measured_velocity
         horizontal_speed = float(np.linalg.norm(track.velocity[:2]))
         if horizontal_speed > self.settings.max_track_speed:
             track.velocity[:2] *= self.settings.max_track_speed / horizontal_speed
         track.velocity[2] = 0.0
         track.position = detection.position.copy()
+        track.last_observed_position = detection.position.copy()
+        track.last_observed_timestamp_ns = timestamp_ns
         displacement = float(np.linalg.norm(track.position[:2] - track.initial_position[:2]))
         track.max_displacement = max(track.max_displacement, displacement)
         track.last_timestamp_ns = timestamp_ns
@@ -1143,49 +1130,37 @@ class PeopleTracker:
             )
             if len(recent) >= 2:
                 recent_steps = np.diff(recent, axis=0)
-                recent_path = float(
-                    np.linalg.norm(recent_steps, axis=1).sum()
-                )
-                recent_displacement = float(
-                    np.linalg.norm(recent[-1] - recent[0])
-                )
+                recent_path = float(np.linalg.norm(recent_steps, axis=1).sum())
+                recent_displacement = float(np.linalg.norm(recent[-1] - recent[0]))
+                # 正味の移動距離／移動経路長。往復する微小な揺れは小さな値になる。
                 motion_consistency = (
-                    recent_displacement / recent_path
-                    if recent_path > 1e-6
-                    else 0.0
+                    recent_displacement / recent_path if recent_path > 1e-6 else 0.0
                 )
             else:
                 motion_consistency = 0.0
-            enough_motion = (
-                self.settings.min_track_displacement <= 0
-                or (
-                    len(track.recent_positions)
-                    >= self.settings.motion_consistency_window
-                    and track.max_displacement >= self.settings.min_track_displacement
-                    and track.motion_observations >= 4
-                    and motion_consistency >= self.settings.min_motion_consistency
-                    and (
-                        track.point_count_total / max(1, track.detected_observations)
-                        >= _confirmation_point_threshold(
-                            float(np.linalg.norm(track.position[:2])), self.settings
-                        )
+            enough_motion = self.settings.min_track_displacement <= 0 or (
+                len(track.recent_positions) >= self.settings.motion_consistency_window
+                and track.max_displacement >= self.settings.min_track_displacement
+                and track.motion_observations >= 4
+                and motion_consistency >= self.settings.min_motion_consistency
+                and (
+                    track.point_count_total / max(1, track.detected_observations)
+                    >= _confirmation_point_threshold(
+                        float(np.linalg.norm(track.position[:2])), self.settings
                     )
                 )
             )
             track.confirmed = (
                 track.hits >= self.settings.min_hits
-                and track.consecutive_hits
-                >= self.settings.min_confirmed_consecutive_hits
+                and track.consecutive_hits >= self.settings.min_confirmed_consecutive_hits
                 and enough_motion
             )
 
     def _predict_missing_track(self, track: _Track, timestamp_ns: int) -> None:
         """遮蔽中のIDを等速で予測し、次フレームで再対応できるようにする。"""
 
-        delta_seconds = max(
-            0.0, (timestamp_ns - track.last_timestamp_ns) / 1_000_000_000.0
-        )
-        track.position = track.position + track.velocity * min(delta_seconds, 1.0)
+        delta_seconds = max(0.0, (timestamp_ns - track.last_timestamp_ns) / 1_000_000_000.0)
+        track.position = track.position + track.velocity * delta_seconds
         track.last_timestamp_ns = timestamp_ns
         track.missed_frames += 1
         track.detected = False
@@ -1200,6 +1175,8 @@ class PeopleTracker:
                 position=detection.position.copy(),
                 velocity=np.zeros(3, dtype=np.float64),
                 last_timestamp_ns=timestamp_ns,
+                last_observed_position=detection.position.copy(),
+                last_observed_timestamp_ns=timestamp_ns,
                 point_count=detection.point_count,
                 extent=detection.extent.copy(),
                 confidence=detection.confidence,
@@ -1235,6 +1212,8 @@ class PeopleTracker:
 
 
 def _pointcloud2_to_numpy(message: object) -> np.ndarray:
+    """PointCloud2のXYZ列を、追跡で扱うN×3配列へ変換する。"""
+
     try:
         from sensor_msgs_py import point_cloud2
     except ImportError as exc:
@@ -1242,9 +1221,7 @@ def _pointcloud2_to_numpy(message: object) -> np.ndarray:
             "sensor_msgs_py is unavailable; source the ROS 2 setup.bash first."
         ) from exc
     try:
-        values = point_cloud2.read_points(
-            message, field_names=("x", "y", "z"), skip_nans=True
-        )
+        values = point_cloud2.read_points(message, field_names=("x", "y", "z"), skip_nans=True)
     except (AttributeError, RuntimeError, ValueError) as exc:
         raise TrackingError(f"PointCloud2 does not contain readable x/y/z fields: {exc}") from exc
     if isinstance(values, np.ndarray) and values.dtype.names:
@@ -1258,6 +1235,8 @@ def _pointcloud2_to_numpy(message: object) -> np.ndarray:
 
 
 def _custom_msg_to_numpy(message: object) -> np.ndarray:
+    """Livox CustomMsgのXYZ値をN×3配列へ取り出す。"""
+
     points = getattr(message, "points", None)
     if points is None:
         raise TrackingError("Livox CustomMsg does not contain a points field.")
@@ -1336,20 +1315,21 @@ class CsvWriter:
             if gravity_alignment_translation is not None
             else np.zeros(3, dtype=np.float64)
         )
-        self.stream = path.open("w", encoding="utf-8", newline="")
+        self.stream = path.open("x", encoding="utf-8", newline="")
         self.writer = csv.DictWriter(self.stream, fieldnames=self.FIELDNAMES)
         self.writer.writeheader()
 
-    def write(self, frame: int, timestamp_ns: int, snapshots: Sequence[TrackSnapshot], start_ns: int) -> None:
+    def write(
+        self, frame: int, timestamp_ns: int, snapshots: Sequence[TrackSnapshot], start_ns: int
+    ) -> None:
         time_sec = (timestamp_ns - start_ns) / 1_000_000_000.0
         for snapshot in snapshots:
             level_position = snapshot.position
             level_velocity = snapshot.velocity
             # x/y/zはPointCloud2の元フレームへ戻し、既存のCSV/RViz用途を保つ。
             raw_position = (
-                (level_position - self.gravity_alignment_translation)
-                @ self.gravity_alignment_rotation
-            )
+                level_position - self.gravity_alignment_translation
+            ) @ self.gravity_alignment_rotation
             raw_velocity = level_velocity @ self.gravity_alignment_rotation
             x, y, z = raw_position
             vx, vy = raw_velocity[:2]
@@ -1397,9 +1377,7 @@ class CsvWriter:
                     "level_vx": f"{level_velocity[0]:.5f}",
                     "level_vy": f"{level_velocity[1]:.5f}",
                     "level_vz": f"{level_velocity[2]:.5f}",
-                    "level_speed_xy": (
-                        f"{math.hypot(level_velocity[0], level_velocity[1]):.5f}"
-                    ),
+                    "level_speed_xy": (f"{math.hypot(level_velocity[0], level_velocity[1]):.5f}"),
                     "zed_x": f"{zed_position[0]:.5f}" if zed_position is not None else "",
                     "zed_y": f"{zed_position[1]:.5f}" if zed_position is not None else "",
                     "zed_z": f"{zed_position[2]:.5f}" if zed_position is not None else "",
@@ -1449,9 +1427,7 @@ def _message_timestamp_ns(message: object, fallback_ns: int) -> int:
     stamp = getattr(header, "stamp", None)
     if stamp is None:
         return fallback_ns
-    timestamp_ns = int(getattr(stamp, "sec", 0)) * 1_000_000_000 + int(
-        getattr(stamp, "nanosec", 0)
-    )
+    timestamp_ns = int(getattr(stamp, "sec", 0)) * 1_000_000_000 + int(getattr(stamp, "nanosec", 0))
     return timestamp_ns or fallback_ns
 
 
@@ -1480,9 +1456,7 @@ def _iter_bag_clouds(
         raise TrackingError(f"rosbag2 directory does not exist: {bag_path}")
     if not (bag_path / "metadata.yaml").is_file():
         raise TrackingError(f"rosbag2 metadata.yaml is missing: {bag_path}")
-    rosbag2_py, deserialize_message, _ = _import_rosbag_types(
-        "sensor_msgs/msg/PointCloud2"
-    )
+    rosbag2_py, deserialize_message, _ = _import_rosbag_types("sensor_msgs/msg/PointCloud2")
     reader = rosbag2_py.SequentialReader()
     try:
         reader.open(
@@ -1505,9 +1479,7 @@ def _iter_bag_clouds(
         else:
             raise TrackingError(f"Unsupported point cloud type on {topic}: {actual_type}")
     expected_type = (
-        "sensor_msgs/msg/PointCloud2"
-        if requested_type == "pointcloud2"
-        else actual_type
+        "sensor_msgs/msg/PointCloud2" if requested_type == "pointcloud2" else actual_type
     )
     if requested_type not in {"pointcloud2", "custom"}:
         raise TrackingError("Message type must be auto, pointcloud2, or custom.")
@@ -1527,15 +1499,17 @@ def _iter_bag_clouds(
 
 
 def _default_output_path(bag_path: Optional[Path]) -> Path:
-    name = "live" if bag_path is None else (
-        bag_path.parent.name if bag_path.name == "lidar" else bag_path.name
+    name = (
+        "live"
+        if bag_path is None
+        else (bag_path.parent.name if bag_path.name == "lidar" else bag_path.name)
     )
     return DEFAULT_OUTPUT_DIR / f"{name}_tracks.csv"
 
 
 def _print_progress(frame: int, snapshots: Sequence[TrackSnapshot], started: float) -> None:
     if frame == 1 or frame % 10 == 0:
-        confirmed = sum(snapshot.detected for snapshot in snapshots)
+        confirmed = sum(snapshot.detected and snapshot.confirmed for snapshot in snapshots)
         elapsed = max(0.001, time.monotonic() - started)
         print(
             f"\rframes={frame} tracks={len(snapshots)} detections={confirmed} "
@@ -1555,6 +1529,13 @@ def process_offline(
     stride: int,
 ) -> int:
     # trackerは検出、writerは元フレーム・水平化・廊下座標をCSVへ出力する。
+    """保存bagを順に解析し、人物追跡CSVと処理したフレームの台帳を保存する。"""
+
+    metadata_path = output_path.with_suffix(".metadata.json")
+    frames_path = output_path.with_suffix(".frames.csv")
+    for path in (output_path, metadata_path, frames_path):
+        if path.exists():
+            raise TrackingError(f"Output already exists; choose a new path: {path}")
     tracker = PeopleTracker(settings)
     writer = CsvWriter(
         output_path,
@@ -1567,6 +1548,8 @@ def process_offline(
     cloud_count = 0
     start_timestamp_ns: Optional[int] = None
     started = time.monotonic()
+    frame_records = []
+    completed = False
     try:
         # bagの点群を録画順に処理し、stride指定時は一定間隔のフレームだけ使う。
         for message, bag_timestamp_ns, actual_type in _iter_bag_clouds(
@@ -1585,11 +1568,66 @@ def process_offline(
             snapshots = tracker.update(points, timestamp_ns)
             frame += 1
             writer.write(frame, timestamp_ns, snapshots, start_timestamp_ns)
+            header_ns = _message_timestamp_ns(message, 0)
+            frame_records.append(
+                {
+                    "frame": frame,
+                    "timestamp_ns": timestamp_ns,
+                    "bag_timestamp_ns": bag_timestamp_ns,
+                    "timestamp_source": "header" if header_ns else "bag_fallback",
+                    "time_sec": (timestamp_ns - start_timestamp_ns) / 1e9,
+                    "confirmed_detections": sum(s.confirmed and s.detected for s in snapshots),
+                    "predicted_tracks": sum(s.confirmed and not s.detected for s in snapshots),
+                }
+            )
             _print_progress(frame, snapshots, started)
             if max_frames is not None and frame >= max_frames:
                 break
+        completed = True
     finally:
         writer.close()
+        if frame_records:
+            with frames_path.open("x", newline="", encoding="utf-8") as stream:
+                frame_writer = csv.DictWriter(stream, fieldnames=list(frame_records[0]))
+                frame_writer.writeheader()
+                frame_writer.writerows(frame_records)
+
+        def json_value(value):
+            if isinstance(value, np.ndarray):
+                return value.tolist()
+            if isinstance(value, Path):
+                return str(value)
+            raise TypeError(type(value).__name__)
+
+        import hashlib
+
+        sources = [
+            Path(__file__),
+            Path(__file__).with_name("assignment.py"),
+            settings.corridor_frame_file,
+            settings.lidar_to_zed_frame_file,
+            bag_path / "metadata.yaml",
+        ]
+        manifest = {
+            "source_script": str(Path(__file__).resolve()),
+            "bag": str(bag_path.resolve()),
+            "settings": dataclasses.asdict(settings),
+            "stride": stride,
+            "max_frames": max_frames,
+            "completed": completed,
+            "frames": frame,
+            "wall_time_s": time.monotonic() - started,
+            "source_sha256": {
+                str(p): hashlib.sha256(p.read_bytes()).hexdigest()
+                for p in sources
+                if p is not None and p.is_file()
+            },
+            "timestamp_policy": "header nanoseconds; bag receive time only when header is absent/zero",
+            "accuracy_note": "Confidence is a point-support heuristic, not a position error probability.",
+        }
+        metadata_path.write_text(
+            json.dumps(manifest, default=json_value, indent=2) + "\n", encoding="utf-8"
+        )
     print()
     print(f"Processed {frame} point-cloud frames from {bag_path}.")
     print(f"Track CSV: {output_path}")
@@ -1622,7 +1660,9 @@ class MarkerPublisher:
         try:
             from visualization_msgs.msg import MarkerArray
         except ImportError as exc:
-            raise TrackingError("visualization_msgs is unavailable in this ROS 2 environment.") from exc
+            raise TrackingError(
+                "visualization_msgs is unavailable in this ROS 2 environment."
+            ) from exc
         self._marker_array_type = MarkerArray
         self.publisher = node.create_publisher(MarkerArray, topic, 10)
         self.include_tentative = include_tentative
@@ -1644,9 +1684,8 @@ class MarkerPublisher:
 
     def _position_in_message_frame(self, position: np.ndarray) -> np.ndarray:
         return (
-            (np.asarray(position, dtype=np.float64) - self.gravity_alignment_translation)
-            @ self.gravity_alignment_rotation
-        )
+            np.asarray(position, dtype=np.float64) - self.gravity_alignment_translation
+        ) @ self.gravity_alignment_rotation
 
     def _vector_in_message_frame(self, vector: np.ndarray) -> np.ndarray:
         return np.asarray(vector, dtype=np.float64) @ self.gravity_alignment_rotation
@@ -1686,7 +1725,7 @@ class MarkerPublisher:
             message_position = self._position_in_message_frame(snapshot.position)
             history.append(tuple(float(value) for value in message_position))
             if len(history) > self.TRAJECTORY_HISTORY_LENGTH:
-                del history[:-self.TRAJECTORY_HISTORY_LENGTH]
+                del history[: -self.TRAJECTORY_HISTORY_LENGTH]
 
         # 静止物候補はCSVには残すが、RVizでは既定で未確定トラックを隠す。
         if not self.include_tentative:
@@ -1711,9 +1750,7 @@ class MarkerPublisher:
                 float((snapshot.track_id * 0.61) % 1.0),
                 float((snapshot.track_id * 0.83) % 1.0),
             )
-            alpha = (0.9 if snapshot.detected else 0.45) * (
-                1.0 if snapshot.confirmed else 0.55
-            )
+            alpha = (0.9 if snapshot.detected else 0.45) * (1.0 if snapshot.confirmed else 0.55)
 
             # 球は点群クラスタの3次元中心を示す。
             center = Marker()
@@ -1824,13 +1861,17 @@ def run_live(
     output_path: Path,
     publish_markers: bool,
 ) -> int:
+    """ROS 2の点群トピックを購読し、追跡CSVと必要なマーカーを出力する。"""
+
     try:
         import rclpy
         from rclpy.node import Node
         from rclpy.qos import qos_profile_sensor_data
         from sensor_msgs.msg import PointCloud2
     except ImportError as exc:
-        raise TrackingError("rclpy/sensor_msgs is unavailable; source ROS 2 setup.bash first.") from exc
+        raise TrackingError(
+            "rclpy/sensor_msgs is unavailable; source ROS 2 setup.bash first."
+        ) from exc
 
     class LiveNode(Node):
         def __init__(self) -> None:
@@ -1862,9 +1903,7 @@ def run_live(
                 self.on_cloud,
                 qos_profile_sensor_data,
             )
-            self.get_logger().info(
-                f"Tracking PointCloud2 {settings.topic}; CSV: {output_path}"
-            )
+            self.get_logger().info(f"Tracking PointCloud2 {settings.topic}; CSV: {output_path}")
 
         def on_cloud(self, message: object) -> None:
             now_ns = self.get_clock().now().nanoseconds
@@ -1917,13 +1956,17 @@ def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         default="auto",
         help="録画メッセージの型（ライブ時はPointCloud2のみ）",
     )
-    parser.add_argument("--storage-id", default="mcap", help="rosbag2のストレージプラグイン（既定値: mcap）")
+    parser.add_argument(
+        "--storage-id", default="mcap", help="rosbag2のストレージプラグイン（既定値: mcap）"
+    )
     parser.add_argument("--max-frames", type=int, default=None)
     parser.add_argument("--stride", type=int, default=1, help="Nフレームごとに1フレームを処理する")
     parser.add_argument("--ground-mode", choices=("fixed", "auto", "none"), default=None)
     parser.add_argument("--ground-z", type=float, default=None)
     parser.add_argument("--no-background", action="store_true", help="時間背景除去を無効にする")
-    parser.add_argument("--publish-markers", action="store_true", help="ライブ時にRViz MarkerArrayを配信する")
+    parser.add_argument(
+        "--publish-markers", action="store_true", help="ライブ時にRViz MarkerArrayを配信する"
+    )
     return parser.parse_args(argv)
 
 

@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "source_frame": "livox_frame",
+  "target_frame": "zed_left_eye",
+  "coordinate_system": "IMAGE",
+  "units": "m",
+  "calibration_status": "pole_image_lidar_gravity_candidate",
+  "rotation_source_to_target": [
+    [
+      0.00172262886057567,
+      -0.9999636118812135,
+      -0.008355086072951656
+    ],
+    [
+      0.3048113579671904,
+      0.008482560349234058,
+      -0.9523749693393453
+    ],
+    [
+      0.9524111867276686,
+      -0.0009061365235553676,
+      0.30481487875855845
+    ]
+  ],
+  "translation_m": [
+    0.03645876594206221,
+    -0.04282098306682087,
+    0.0091070900926369
+  ],
+  "method": "Seven stationary pole tips and vertical image axes, known height 0.863m, LiDAR front-surface radius correction 0.025m, IMU direction prior.",
+  "scope": "20261021_group002 recording_002; validated separately against recording_003",
+  "notes": "Conditional on upright pole, nominal height, manually annotated tip rows and approximate cylinder-axis estimates. No guarantee of absolute positioning accuracy."
+}

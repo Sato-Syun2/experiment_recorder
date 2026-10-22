@@ -1,0 +1,45 @@
+{
+  "baseline": {
+    "confirmed_samples": 171,
+    "max_range_m": 12.924720815592112
+  },
+  "improved": {
+    "confirmed_samples": 171,
+    "max_range_m": 12.924720815592112
+  },
+  "positions_comparison": {
+    "common_observations": 171,
+    "maximum_position_difference_m": 0.0,
+    "note": "Output agreement only, not reference accuracy"
+  },
+  "sync_sensitivity": {
+    "minus100": {
+      "association_coverage": 0.7062423500611995,
+      "position_residual_median_m": 0.25782016675938063,
+      "position_residual_p90_m": 0.605435152967789,
+      "valid_motion_frames": 808,
+      "motion_outlier_frames": 9
+    },
+    "zero": {
+      "association_coverage": 0.7062423500611995,
+      "position_residual_median_m": 0.3102465215336987,
+      "position_residual_p90_m": 0.6013204772339745,
+      "valid_motion_frames": 807,
+      "motion_outlier_frames": 10
+    },
+    "plus100": {
+      "association_coverage": 0.7062423500611995,
+      "position_residual_median_m": 0.3802479028559289,
+      "position_residual_p90_m": 0.6417172990299254,
+      "valid_motion_frames": 805,
+      "motion_outlier_frames": 12
+    },
+    "baseline": {
+      "association_coverage": 0.7053789731051344,
+      "position_residual_median_m": 0.3102465215336987,
+      "position_residual_p90_m": 0.6013204772339745,
+      "valid_motion_frames": 794,
+      "motion_outlier_frames": 24
+    }
+  }
+}

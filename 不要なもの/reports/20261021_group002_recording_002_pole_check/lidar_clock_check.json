@@ -1,0 +1,30 @@
+{
+  "bag": "/data/experiment_data/recordings/20261021_group002/recording_002/lidar",
+  "condition_label": "追い越し",
+  "note": "Planned metadata does not verify actual behavior. IMU average assumes a stationary rig.",
+  "frames": 972,
+  "first_header_ns": 1792563505991792672,
+  "last_header_ns": 1792563603091408820,
+  "duration_s": 97.099616148,
+  "nonmonotonic": 0,
+  "header_fallback_count": 0,
+  "header_interval_ms_p50_p99": [
+    99.962155,
+    101.2491961
+  ],
+  "bag_minus_header_ms_p50_p99": [
+    102.85439,
+    135.21808898999996
+  ],
+  "imu_first_2000_mean_native": [
+    -0.5654676208496093,
+    -0.021949974417686462,
+    0.8170066843032837
+  ],
+  "imu_up": [
+    -0.5689674774867879,
+    -0.02208582970067546,
+    0.8220633951762809
+  ],
+  "up_difference_from_config_deg": 1.2525781193148418
+}

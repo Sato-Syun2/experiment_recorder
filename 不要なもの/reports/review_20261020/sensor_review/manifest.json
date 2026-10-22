@@ -1,0 +1,59 @@
+{
+  "parameters": {
+    "bag": "/data/experiment_data/recordings/20261013_group001/recording_001/lidar",
+    "review_dir": "/data/experiment_data/recording_001_svo_review",
+    "tracks": "reports/review_20261020/improved/tracks.csv",
+    "config": "config.json",
+    "timestamp_offset_ms": 0.0,
+    "sync_note": "Exploratory same-clock hypothesis; clock offset is not independently established.",
+    "times_s": [
+      17.0,
+      23.0,
+      27.0,
+      33.0
+    ],
+    "max_time_gap_ms": 60,
+    "output_dir": "reports/review_20261020/sensor_review"
+  },
+  "records": [
+    {
+      "file": "sample_00.jpg",
+      "source_image": "/data/experiment_data/recording_001_svo_review/frames/frame_0034_f000510.jpg",
+      "cloud_timestamp_ns": 1791863428521933597,
+      "image_timestamp_ns": 1791863428480069000,
+      "sync_residual_ms": 41.864597,
+      "tracks": 1
+    },
+    {
+      "file": "sample_01.jpg",
+      "source_image": "/data/experiment_data/recording_001_svo_review/frames/frame_0046_f000690.jpg",
+      "cloud_timestamp_ns": 1791863434522938483,
+      "image_timestamp_ns": 1791863434480598000,
+      "sync_residual_ms": 42.340483,
+      "tracks": 1
+    },
+    {
+      "file": "sample_02.jpg",
+      "source_image": "/data/experiment_data/recording_001_svo_review/frames/frame_0054_f000810.jpg",
+      "cloud_timestamp_ns": 1791863438522875244,
+      "image_timestamp_ns": 1791863438480788000,
+      "sync_residual_ms": 42.087244,
+      "tracks": 1
+    },
+    {
+      "file": "sample_03.jpg",
+      "source_image": "/data/experiment_data/recording_001_svo_review/frames/frame_0066_f000990.jpg",
+      "cloud_timestamp_ns": 1791863444522897655,
+      "image_timestamp_ns": 1791863444514489000,
+      "sync_residual_ms": 8.408655,
+      "tracks": 1
+    }
+  ],
+  "source_sha256": {
+    "config.json": "8452a52a21fd80af5441b39dfd0dcaa24b034c184871166f558788768f7f14bc",
+    "reports/review_20261020/improved/tracks.csv": "f7cad690b13aa65d68f1a4dcc9bbc1e2761bcedb978bcf5067e12678a22366b5",
+    "/home/hp-ubuntu/experiment_recorder/tracking/corridor_frame_livox_level.json": "4fa91d5c1e4a6d6dc4483e3e0df157ff11525f25517c504c1b8949ef50ae4fe7",
+    "/home/hp-ubuntu/experiment_recorder/tracking/lidar_to_zed_left_eye.json": "834a73336d94745f89d65afcce0747ea3ff48d4f4e3c4af25856ed755d38b111",
+    "/home/hp-ubuntu/experiment_recorder/scripts/render_sensor_review.py": "37a0ab7e235a482e46bc4139038cb981afde5c0cabd12779c8cbbda8fe3ae98e"
+  }
+}

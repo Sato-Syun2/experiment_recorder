@@ -1,0 +1,482 @@
+{
+  "observations": [
+    {
+      "nominal_distance_m": 3,
+      "sample_index": 50,
+      "elapsed_s": 9.998901,
+      "window_s": [
+        8.498901,
+        11.498901
+      ],
+      "points": 319,
+      "lidar_xy_iqr_m": [
+        0.00933218002319336,
+        0.03139636479318142
+      ],
+      "corridor_before_origin": [
+        2.902338743209839,
+        0.044280942529439926
+      ],
+      "foot_raw": [
+        3.5537335286935354,
+        0.053354871457278366,
+        -0.07603822664008342
+      ],
+      "top_raw": [
+        3.0627145956224373,
+        0.03429480042559545,
+        0.633402483397047
+      ],
+      "tip_pixel": [
+        647.6302672193168,
+        396.5
+      ],
+      "lower_line_pixel": [
+        645.3706168528569,
+        469
+      ]
+    },
+    {
+      "nominal_distance_m": 5,
+      "sample_index": 100,
+      "elapsed_s": 19.999651,
+      "window_s": [
+        18.499651,
+        21.499651
+      ],
+      "points": 140,
+      "lidar_xy_iqr_m": [
+        0.012478232383728027,
+        0.039556942880153656
+      ],
+      "corridor_before_origin": [
+        4.864856719970703,
+        0.029934551566839218
+      ],
+      "foot_raw": [
+        5.1794192175703015,
+        0.11799642967213037,
+        1.02152732401101
+      ],
+      "top_raw": [
+        4.688400284499203,
+        0.09893635864044745,
+        1.7309680340481406
+      ],
+      "tip_pixel": [
+        639.8815478171201,
+        321
+      ],
+      "lower_line_pixel": [
+        638.8548321124457,
+        365
+      ]
+    },
+    {
+      "nominal_distance_m": 7,
+      "sample_index": 150,
+      "elapsed_s": 30.000167,
+      "window_s": [
+        28.500167,
+        31.500167
+      ],
+      "points": 99,
+      "lidar_xy_iqr_m": [
+        0.01640462875366211,
+        0.047601974569261074
+      ],
+      "corridor_before_origin": [
+        6.846399784088135,
+        -0.004517299123108387
+      ],
+      "foot_raw": [
+        6.8216986297265505,
+        0.1633166876284828,
+        2.129933500281406
+      ],
+      "top_raw": [
+        6.330679696655452,
+        0.1442566165967999,
+        2.839374210318536
+      ],
+      "tip_pixel": [
+        637.5790952688498,
+        286
+      ],
+      "lower_line_pixel": [
+        637.4332858101309,
+        317
+      ]
+    },
+    {
+      "nominal_distance_m": 9,
+      "sample_index": 200,
+      "elapsed_s": 40.067366,
+      "window_s": [
+        38.567366,
+        41.567366
+      ],
+      "points": 70,
+      "lidar_xy_iqr_m": [
+        0.016377925872802734,
+        0.062450823141261935
+      ],
+      "corridor_before_origin": [
+        8.929332733154297,
+        0.047037385404109955
+      ],
+      "foot_raw": [
+        8.544342794735567,
+        0.29864416389243625,
+        3.2941719254893096
+      ],
+      "top_raw": [
+        8.053323861664468,
+        0.2795840928607533,
+        4.00361263552644
+      ],
+      "tip_pixel": [
+        632.1056547133486,
+        266
+      ],
+      "lower_line_pixel": [
+        631.9452651079636,
+        290
+      ]
+    },
+    {
+      "nominal_distance_m": 11,
+      "sample_index": 257,
+      "elapsed_s": 52.967808,
+      "window_s": [
+        51.467808,
+        54.467808
+      ],
+      "points": 39,
+      "lidar_xy_iqr_m": [
+        0.03654003143310547,
+        0.061045873910188675
+      ],
+      "corridor_before_origin": [
+        10.895819664001465,
+        0.1129736676812172
+      ],
+      "foot_raw": [
+        10.169961746849285,
+        0.44365399636053426,
+        4.393150366374074
+      ],
+      "top_raw": [
+        9.678942813778187,
+        0.4245939253288513,
+        5.102591076411204
+      ],
+      "tip_pixel": [
+        629.2888002646932,
+        253
+      ],
+      "lower_line_pixel": [
+        629.2552689297781,
+        273
+      ]
+    },
+    {
+      "nominal_distance_m": 13,
+      "sample_index": 306,
+      "elapsed_s": 62.9017,
+      "window_s": [
+        61.4017,
+        64.4017
+      ],
+      "points": 17,
+      "lidar_xy_iqr_m": [
+        0.023993492126464844,
+        0.04981796001084149
+      ],
+      "corridor_before_origin": [
+        12.873092651367188,
+        -0.013055592775344849
+      ],
+      "foot_raw": [
+        11.812530310312818,
+        0.39730955303016463,
+        5.500088733199954
+      ],
+      "top_raw": [
+        11.32151137724172,
+        0.3782494819984817,
+        6.209529443237084
+      ],
+      "tip_pixel": [
+        630.9325580004188,
+        245
+      ],
+      "lower_line_pixel": [
+        630.96205463737,
+        261
+      ]
+    },
+    {
+      "nominal_distance_m": 15,
+      "sample_index": 356,
+      "elapsed_s": 72.902415,
+      "window_s": [
+        71.402415,
+        74.402415
+      ],
+      "points": 24,
+      "lidar_xy_iqr_m": [
+        0.020186662673950195,
+        0.07050816155970097
+      ],
+      "corridor_before_origin": [
+        14.914956092834473,
+        -0.0785900205373764
+      ],
+      "foot_raw": [
+        13.506057000450886,
+        0.4140033124935459,
+        6.642537744319356
+      ],
+      "top_raw": [
+        13.015038067379788,
+        0.39494324146186294,
+        7.351978454356487
+      ],
+      "tip_pixel": [
+        631.1511046269278,
+        238
+      ],
+      "lower_line_pixel": [
+        631.2442971920815,
+        252
+      ]
+    }
+  ],
+  "candidate": {
+    "version": 1,
+    "source_frame": "livox_frame",
+    "target_frame": "zed_left_eye",
+    "coordinate_system": "IMAGE",
+    "units": "m",
+    "calibration_status": "pole_image_lidar_gravity_candidate",
+    "rotation_source_to_target": [
+      [
+        0.00172262886057567,
+        -0.9999636118812135,
+        -0.008355086072951656
+      ],
+      [
+        0.3048113579671904,
+        0.008482560349234058,
+        -0.9523749693393453
+      ],
+      [
+        0.9524111867276686,
+        -0.0009061365235553676,
+        0.30481487875855845
+      ]
+    ],
+    "translation_m": [
+      0.03645876594206221,
+      -0.04282098306682087,
+      0.0091070900926369
+    ],
+    "method": "Seven stationary pole tips and vertical image axes, known height 0.863m, LiDAR front-surface radius correction 0.025m, IMU direction prior.",
+    "scope": "20261021_group002 recording_002; validated separately against recording_003",
+    "notes": "Conditional on upright pole, nominal height, manually annotated tip rows and approximate cylinder-axis estimates. No guarantee of absolute positioning accuracy."
+  },
+  "initial_transform": {
+    "version": 1,
+    "source_frame": "livox_frame",
+    "target_frame": "zed_left_eye",
+    "coordinate_system": "IMAGE",
+    "units": "m",
+    "calibration_status": "plane_calibrated_partial_translation",
+    "translation_m": [
+      -0.022068616968160815,
+      -0.1270289112022909,
+      0.007134442286394614
+    ],
+    "rotation_source_to_target": [
+      [
+        0.012593075525401972,
+        -0.999741745581038,
+        0.0189170978585454
+      ],
+      [
+        0.3375434509530445,
+        -0.013557796487234512,
+        -0.9412123059507456
+      ],
+      [
+        0.9412257078764478,
+        0.01823810014746531,
+        0.33728554451012216
+      ]
+    ],
+    "method": "RANSAC floor and parallel side-wall plane alignment using timestamped LiDAR and ZED depth",
+    "observable_translation_directions": [
+      "floor normal",
+      "hallway lateral"
+    ],
+    "unobservable_translation_direction_target": [
+      0.02313453509924162,
+      0.22604004773511413,
+      -0.9738432574627446
+    ],
+    "unobservable_translation_kept_from_initial_m": -0.03617199686210953,
+    "notes": "Parallel floor and hallway walls do not observe translation along the hallway. That component is retained from the initial mount measurement; obtain a shared transverse wall or known target for full translation calibration."
+  },
+  "optimizer_success": true,
+  "tip_errors_px": [
+    0.38039257960010947,
+    0.3100971285366509,
+    0.27128083934007485,
+    0.7071207400616587,
+    2.563252354406008,
+    0.5453457804142824,
+    1.5296147503122022
+  ],
+  "initial_tip_errors_px": [
+    4.349795495561238,
+    9.673914656364856,
+    13.701706166597685,
+    14.985245950995946,
+    15.97987700947912,
+    17.889457154823795,
+    19.547341754094447
+  ],
+  "leave_one_position_out": [
+    {
+      "heldout_distance_m": 3,
+      "error_px": 1.0023956108901986,
+      "translation_m": [
+        0.03745456347482598,
+        -0.04375376216654557,
+        -0.03870463375893936
+      ]
+    },
+    {
+      "heldout_distance_m": 5,
+      "error_px": 0.5427736819998431,
+      "translation_m": [
+        0.035009481299218,
+        -0.04829843230378228,
+        -0.01803621929699423
+      ]
+    },
+    {
+      "heldout_distance_m": 7,
+      "error_px": 0.38571959074463086,
+      "translation_m": [
+        0.036765831734718764,
+        -0.0404582759691212,
+        0.023457694213261802
+      ]
+    },
+    {
+      "heldout_distance_m": 9,
+      "error_px": 0.9380410027178573,
+      "translation_m": [
+        0.03843095234420253,
+        -0.043915438559816056,
+        0.0006190021015449869
+      ]
+    },
+    {
+      "heldout_distance_m": 11,
+      "error_px": 2.9728837783202633,
+      "translation_m": [
+        0.03993960520788722,
+        -0.04550116381631534,
+        -0.00024047127129730672
+      ]
+    },
+    {
+      "heldout_distance_m": 13,
+      "error_px": 0.891287568092482,
+      "translation_m": [
+        0.03285962947617752,
+        -0.041920348713336185,
+        0.009963687714840266
+      ]
+    },
+    {
+      "heldout_distance_m": 15,
+      "error_px": 2.18603991788554,
+      "translation_m": [
+        0.029940842202844025,
+        -0.049801720604935484,
+        -0.02398134151337229
+      ]
+    }
+  ],
+  "sensitivity": [
+    {
+      "kind": "all_tip_rows_-1px",
+      "translation_m": [
+        0.03642455934710303,
+        -0.04347175844420644,
+        0.006817688834043641
+      ],
+      "rotation_change_deg": 0.1005095267513493
+    },
+    {
+      "kind": "all_tip_rows_+1px",
+      "translation_m": [
+        0.03648944886896254,
+        -0.04216333494263842,
+        0.011424966954981368
+      ],
+      "rotation_change_deg": 0.10054666360404581
+    },
+    {
+      "kind": "gravity_sigma_0.2deg",
+      "translation_m": [
+        0.031077163483452734,
+        -0.054710415865948395,
+        -0.05089154038972721
+      ],
+      "rotation_change_deg": 0.24399932603510013
+    },
+    {
+      "kind": "gravity_sigma_1.0deg",
+      "translation_m": [
+        0.044175523927563846,
+        -0.03933763963863946,
+        0.02904269366369576
+      ],
+      "rotation_change_deg": 0.3158931718831861
+    }
+  ],
+  "gravity_residual_deg": 1.7446294134355347,
+  "tip_rmse_px": 1.1965341446692832,
+  "initial_tip_rmse_px": 14.551815841051674,
+  "jacobian_singular_values": [
+    1380.429892630041,
+    1208.6306809067628,
+    210.06154001643867,
+    115.41910939645638,
+    61.09554502234951,
+    9.863046321087145
+  ],
+  "corridor_longitudinal_origin_offset_m": -0.10418033599853516,
+  "pole_distance_residual_m": [
+    0.0065190792083740234,
+    -0.03096294403076172,
+    -0.04941987991333008,
+    0.03351306915283203,
+    0.0,
+    -0.022727012634277344,
+    0.019136428833007812
+  ],
+  "settings": {
+    "pole_height_m": 0.863,
+    "pole_radius_m": 0.025,
+    "gravity_sigma_deg": 0.5,
+    "tip_sigma_px": 1.0,
+    "pose_window_half_s": 1.5
+  },
+  "timestamp_note": "Static ±1.5s windows use raw absolute timestamps. Clock offset has not been estimated; membership stability must be checked."
+}

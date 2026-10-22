@@ -1,5 +1,6 @@
 # Python environment and generated files
 .venv/
+.venv_lidar_models/
 venv/
 __pycache__/
 *.py[cod]

@@ -1,0 +1,9 @@
+{
+  "source_sha256": {
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_003_pole_walk_check/build_preliminary.py": "d6a2739ec46d3bbee41fc990103ae740bf8ca2402fb3290c9c74fd653f702894",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_003_pole_walk_check/tracks.csv": "9117fc2d4f21d5dabae4c638b835a84c01d48aa920c858cebf04a71825d36dd9",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_003_pole_walk_check/tracks.frames.csv": "69bee5615db4f209ebc6775369cab969758d8ca66354eedec8887c710d8ae9aa",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_003_pole_walk_check/geometry.json": "d561309131a4c4a32f3f8db63367373f0ad7b51225936e86c89ff2dc618e1f90",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_003_pole_walk_check/analysis_config.json": "bb53e312674037db00124582aa46b51a90ebf80e85e93f17dbd8f35f6c74b641"
+  }
+}

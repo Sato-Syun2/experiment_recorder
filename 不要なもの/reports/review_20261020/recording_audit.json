@@ -1,0 +1,182 @@
+[
+  {
+    "bag": "/data/experiment_data/recordings/20261005_group001/recording_001/lidar",
+    "condition_label": null,
+    "note": "Planned metadata does not verify actual behavior. IMU average assumes a stationary rig.",
+    "frames": 234,
+    "first_header_ns": 1791185027966758143,
+    "last_header_ns": 1791185051266006070,
+    "duration_s": 23.299247927,
+    "nonmonotonic": 0,
+    "header_fallback_count": 0,
+    "header_interval_ms_p50_p99": [
+      99.980136,
+      100.56843760000001
+    ],
+    "bag_minus_header_ms_p50_p99": [
+      132.758108,
+      135.33848224
+    ],
+    "imu_first_2000_mean_native": [
+      -0.3175423278808594,
+      -0.05421742880344391,
+      0.9401857614517212
+    ],
+    "imu_up": [
+      -0.3195098689053752,
+      -0.05455336831779604,
+      0.9460112968021327
+    ],
+    "up_difference_from_config_deg": 14.869072952526146
+  },
+  {
+    "bag": "/data/experiment_data/recordings/20261005_group001/recording_002/lidar",
+    "condition_label": null,
+    "note": "Planned metadata does not verify actual behavior. IMU average assumes a stationary rig.",
+    "frames": 166,
+    "first_header_ns": 1791185065102959586,
+    "last_header_ns": 1791185081602827958,
+    "duration_s": 16.499868372,
+    "nonmonotonic": 0,
+    "header_fallback_count": 0,
+    "header_interval_ms_p50_p99": [
+      99.971888,
+      103.7353481199999
+    ],
+    "bag_minus_header_ms_p50_p99": [
+      132.378108,
+      172.91864579999995
+    ],
+    "imu_first_2000_mean_native": [
+      -0.3175240173339844,
+      -0.05410793173313141,
+      0.9397612009048462
+    ],
+    "imu_up": [
+      -0.31962441308176315,
+      -0.054465851334576335,
+      0.9459776454021196
+    ],
+    "up_difference_from_config_deg": 14.861720484063628
+  },
+  {
+    "bag": "/data/experiment_data/recordings/20261013_group001/recording_001/lidar",
+    "condition_label": "追い越し",
+    "note": "Planned metadata does not verify actual behavior. IMU average assumes a stationary rig.",
+    "frames": 408,
+    "first_header_ns": 1791863409622150326,
+    "last_header_ns": 1791863450322908229,
+    "duration_s": 40.700757903,
+    "nonmonotonic": 0,
+    "header_fallback_count": 0,
+    "header_interval_ms_p50_p99": [
+      99.975448,
+      101.1398368
+    ],
+    "bag_minus_header_ms_p50_p99": [
+      102.256789,
+      104.12206523
+    ],
+    "imu_first_2000_mean_native": [
+      -0.5475133972167969,
+      -0.02397902691271156,
+      0.8293042917251587
+    ],
+    "imu_up": [
+      -0.5508028312461163,
+      -0.024123091747503912,
+      0.8342867118298144
+    ],
+    "up_difference_from_config_deg": 0.007351033341605839
+  },
+  {
+    "bag": "/data/experiment_data/recordings/20261019_group001/aruco/lidar",
+    "condition_label": "追い越し",
+    "note": "Planned metadata does not verify actual behavior. IMU average assumes a stationary rig.",
+    "frames": 1364,
+    "first_header_ns": 1792398452714198212,
+    "last_header_ns": 1792398589014640533,
+    "duration_s": 136.300442321,
+    "nonmonotonic": 0,
+    "header_fallback_count": 0,
+    "header_interval_ms_p50_p99": [
+      99.988721,
+      101.30798569999999
+    ],
+    "bag_minus_header_ms_p50_p99": [
+      102.4887965,
+      104.0231763
+    ],
+    "imu_first_2000_mean_native": [
+      -0.6235259704589844,
+      -0.03156911429017782,
+      0.7734903268814087
+    ],
+    "imu_up": [
+      -0.6272793823656931,
+      -0.03175914950133956,
+      0.7781464726398662
+    ],
+    "up_difference_from_config_deg": 5.448214411180997
+  },
+  {
+    "bag": "/data/experiment_data/recordings/20261019_group001/recording_001/lidar",
+    "condition_label": "追い越し",
+    "note": "Planned metadata does not verify actual behavior. IMU average assumes a stationary rig.",
+    "frames": 1432,
+    "first_header_ns": 1792398283071824274,
+    "last_header_ns": 1792398426172746086,
+    "duration_s": 143.100921812,
+    "nonmonotonic": 0,
+    "header_fallback_count": 0,
+    "header_interval_ms_p50_p99": [
+      99.970993,
+      101.0426911
+    ],
+    "bag_minus_header_ms_p50_p99": [
+      102.324087,
+      103.90096418
+    ],
+    "imu_first_2000_mean_native": [
+      -0.6235591735839844,
+      -0.03206606250535697,
+      0.7747216501235962
+    ],
+    "imu_up": [
+      -0.6266853856430102,
+      -0.03222682561419482,
+      0.7786057148084028
+    ],
+    "up_difference_from_config_deg": 5.407546386915808
+  },
+  {
+    "bag": "/data/experiment_data/recordings/20261019_group001/recording_003/lidar",
+    "condition_label": "追い越し",
+    "note": "Planned metadata does not verify actual behavior. IMU average assumes a stationary rig.",
+    "frames": 359,
+    "first_header_ns": 1792398650213778169,
+    "last_header_ns": 1792398686013619168,
+    "duration_s": 35.799840999,
+    "nonmonotonic": 0,
+    "header_fallback_count": 0,
+    "header_interval_ms_p50_p99": [
+      99.967214,
+      101.15522977
+    ],
+    "bag_minus_header_ms_p50_p99": [
+      102.231466,
+      104.14499852
+    ],
+    "imu_first_2000_mean_native": [
+      -0.6235414733886718,
+      -0.03119655571691692,
+      0.7732531442642212
+    ],
+    "imu_up": [
+      -0.6274127520058973,
+      -0.031390240602737984,
+      0.7780539129233197
+    ],
+    "up_difference_from_config_deg": 5.455831458661191
+  }
+]

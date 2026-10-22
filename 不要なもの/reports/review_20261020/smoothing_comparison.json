@@ -1,0 +1,14 @@
+{
+  "before": {
+    "constant_speed_mps": 1,
+    "rate_hz": 30,
+    "interior_position_bias_m": -0.06666666666666667,
+    "interior_position_rmse_m": 0.06666666666666667
+  },
+  "after": {
+    "constant_speed_mps": 1,
+    "rate_hz": 30,
+    "interior_position_bias_m": 0.0,
+    "interior_position_rmse_m": 0.0
+  }
+}

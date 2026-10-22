@@ -1,0 +1,125 @@
+{
+  "window_zed_s": [
+    7.2,
+    21.0
+  ],
+  "processed_approach_clouds": 138,
+  "selected_ids": [
+    9,
+    53
+  ],
+  "selected_observed": 85,
+  "confirmed_observed": 33,
+  "confirmed_frame_coverage": 0.2391304347826087,
+  "candidate_inclusive_frame_coverage": 0.6159420289855072,
+  "coverage_note": "Broad chosen interval, not an exhaustive person-presence or surveyed distance gate. Candidates are not confirmed detections.",
+  "selected_x_m": {
+    "n": 85,
+    "min": 1.25326,
+    "median": 6.33418,
+    "p90": 13.636716000000002,
+    "max": 14.97887
+  },
+  "selected_y_m": {
+    "n": 85,
+    "min": -0.23031,
+    "median": -0.03937,
+    "p90": 0.035104,
+    "max": 0.16655
+  },
+  "selected_z_m": {
+    "n": 85,
+    "min": 0.22992,
+    "median": 0.91791,
+    "p90": 1.0552800000000002,
+    "max": 1.24727
+  },
+  "confirmed_x_m": {
+    "n": 33,
+    "min": 1.25326,
+    "median": 3.06783,
+    "p90": 4.684772,
+    "max": 5.04121
+  },
+  "first_observed": {
+    "t_s": 7.665151,
+    "x_m": 14.97071
+  },
+  "last_observed": {
+    "t_s": 19.769239,
+    "x_m": 1.25326
+  },
+  "adjacent_observation_pairs": 75,
+  "approaching_pair_fraction": 0.9866666666666667,
+  "observed_time_intervals_s": {
+    "n": 84,
+    "min": 0.09905700000000017,
+    "median": 0.10005299999999906,
+    "p90": 0.2701038000000009,
+    "max": 1.200011
+  },
+  "maximum_interval_s": 1.200011,
+  "gaps_over_250ms": [
+    {
+      "start_s": 7.764778,
+      "end_s": 8.064782,
+      "interval_s": 0.3000039999999995
+    },
+    {
+      "start_s": 8.064782,
+      "end_s": 8.664926,
+      "interval_s": 0.6001440000000002
+    },
+    {
+      "start_s": 8.763984,
+      "end_s": 9.065041,
+      "interval_s": 0.30105700000000013
+    },
+    {
+      "start_s": 9.065041,
+      "end_s": 9.464785,
+      "interval_s": 0.3997439999999983
+    },
+    {
+      "start_s": 10.064902,
+      "end_s": 10.465001,
+      "interval_s": 0.40009900000000087
+    },
+    {
+      "start_s": 10.564115,
+      "end_s": 10.864999,
+      "interval_s": 0.30088399999999993
+    },
+    {
+      "start_s": 10.964816,
+      "end_s": 11.264816,
+      "interval_s": 0.29999999999999893
+    },
+    {
+      "start_s": 12.064895,
+      "end_s": 12.364769,
+      "interval_s": 0.29987400000000086
+    },
+    {
+      "start_s": 13.464938,
+      "end_s": 14.664949,
+      "interval_s": 1.200011
+    }
+  ],
+  "lateral_linear_fit": {
+    "slope_m_per_m": -0.0036806452002392616,
+    "intercept_m": -0.015911008951540958,
+    "residual_abs_m": {
+      "n": 85,
+      "min": 0.0003261388181278052,
+      "median": 0.045037253433511365,
+      "p90": 0.09924684031800857,
+      "max": 0.2375628808572149
+    },
+    "note": "Describes this actual walking path; not a position-error estimate and not used to fit geometry."
+  },
+  "clock_offset_status": "unestimated; raw absolute timestamps used",
+  "absolute_longitudinal_origin": "sensor projection, not surveyed corridor end",
+  "zed_body_status": "not exported; review RGB/depth is not body tracking",
+  "ground_truth_error_m": null
+}

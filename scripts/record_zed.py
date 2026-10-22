@@ -26,7 +26,6 @@ from typing import Optional, Union
 from experiment_plan import DEFAULT_PLAN_PATH, PlanError, load_run_order
 from recording_progress import ProgressError, RecordingProgress
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT_DIR = Path("/data/experiment_data/recordings")
 DEFAULT_CONFIG_PATH = PROJECT_ROOT / "config.json"
@@ -149,28 +148,24 @@ def load_livox_config(raw_config: dict, base_dir: Path) -> LivoxSettings:
     settings.detection_topic = _text_setting(
         livox_raw, "detection_topic", settings.detection_topic
     ).strip()
-    settings.sensor_ip = _text_setting(
-        livox_raw, "sensor_ip", settings.sensor_ip
-    ).strip()
+    settings.sensor_ip = _text_setting(livox_raw, "sensor_ip", settings.sensor_ip).strip()
     settings.ros2_executable = _text_setting(
         livox_raw, "ros2_executable", settings.ros2_executable
     ).strip()
-    settings.start_driver = _bool_setting(
-        livox_raw, "start_driver", settings.start_driver
-    )
+    settings.start_driver = _bool_setting(livox_raw, "start_driver", settings.start_driver)
     settings.driver_package = _text_setting(
         livox_raw, "driver_package", settings.driver_package
     ).strip()
     settings.driver_launch_file = _text_setting(
         livox_raw, "driver_launch_file", settings.driver_launch_file
     ).strip()
-    settings.storage = _text_setting(
-        livox_raw, "storage", settings.storage
-    ).strip()
+    settings.storage = _text_setting(livox_raw, "storage", settings.storage).strip()
 
     topics = livox_raw.get("topics", settings.topics)
-    if not isinstance(topics, list) or not topics or not all(
-        isinstance(topic, str) and topic.strip() for topic in topics
+    if (
+        not isinstance(topics, list)
+        or not topics
+        or not all(isinstance(topic, str) and topic.strip() for topic in topics)
     ):
         raise RecorderError("Config value 'livox.topics' must be a non-empty list of topics.")
     settings.topics = [topic.strip() for topic in topics]
@@ -182,30 +177,18 @@ def load_livox_config(raw_config: dict, base_dir: Path) -> LivoxSettings:
         raise RecorderError("Config value 'livox.setup_files' must be a list of paths.")
     settings.setup_files = [_resolve_path(path, base_dir) for path in setup_files]
 
-    timeout = livox_raw.get(
-        "connection_timeout_seconds", settings.connection_timeout_seconds
-    )
+    timeout = livox_raw.get("connection_timeout_seconds", settings.connection_timeout_seconds)
     if isinstance(timeout, bool) or not isinstance(timeout, (int, float)):
-        raise RecorderError(
-            "Config value 'livox.connection_timeout_seconds' must be a number."
-        )
+        raise RecorderError("Config value 'livox.connection_timeout_seconds' must be a number.")
     if timeout < 0:
-        raise RecorderError(
-            "Config value 'livox.connection_timeout_seconds' must not be negative."
-        )
+        raise RecorderError("Config value 'livox.connection_timeout_seconds' must not be negative.")
     settings.connection_timeout_seconds = float(timeout)
 
-    ping_timeout = livox_raw.get(
-        "ping_timeout_seconds", settings.ping_timeout_seconds
-    )
+    ping_timeout = livox_raw.get("ping_timeout_seconds", settings.ping_timeout_seconds)
     if isinstance(ping_timeout, bool) or not isinstance(ping_timeout, (int, float)):
-        raise RecorderError(
-            "Config value 'livox.ping_timeout_seconds' must be a number."
-        )
+        raise RecorderError("Config value 'livox.ping_timeout_seconds' must be a number.")
     if ping_timeout <= 0:
-        raise RecorderError(
-            "Config value 'livox.ping_timeout_seconds' must be positive."
-        )
+        raise RecorderError("Config value 'livox.ping_timeout_seconds' must be positive.")
     settings.ping_timeout_seconds = float(ping_timeout)
 
     if not settings.detection_topic:
@@ -229,9 +212,7 @@ def load_config(config_path: Path) -> RecorderSettings:
     except FileNotFoundError as exc:
         raise RecorderError(f"Config file not found: {config_path}") from exc
     except json.JSONDecodeError as exc:
-        raise RecorderError(
-            f"Invalid JSON in config file {config_path}: {exc.msg}"
-        ) from exc
+        raise RecorderError(f"Invalid JSON in config file {config_path}: {exc.msg}") from exc
     except OSError as exc:
         raise RecorderError(f"Could not read config file {config_path}: {exc}") from exc
 
@@ -244,25 +225,19 @@ def load_config(config_path: Path) -> RecorderSettings:
         raw_config.get("output_dir", os.fspath(DEFAULT_OUTPUT_DIR)), config_path.parent
     )
     settings.group_number = raw_config.get("group_number", DEFAULT_GROUP_NUMBER)
-    settings.compression_mode = raw_config.get(
-        "compression_mode", settings.compression_mode
+    settings.compression_mode = raw_config.get("compression_mode", settings.compression_mode)
+    settings.resolution = (
+        _text_setting(raw_config, "resolution", settings.resolution).strip().upper()
     )
-    settings.resolution = _text_setting(
-        raw_config, "resolution", settings.resolution
-    ).strip().upper()
     settings.fps = raw_config.get("fps", settings.fps)
-    settings.zed_explorer = _text_setting(
-        raw_config, "zed_explorer", settings.zed_explorer
-    ).strip()
+    settings.zed_explorer = _text_setting(raw_config, "zed_explorer", settings.zed_explorer).strip()
     settings.livox = load_livox_config(raw_config, config_path.parent)
 
     if not isinstance(settings.trial, int) or isinstance(settings.trial, bool):
         raise RecorderError("Config value 'trial' must be an integer.")
     if settings.trial < 1:
         raise RecorderError("Config value 'trial' must be a positive integer.")
-    if not isinstance(settings.group_number, int) or isinstance(
-        settings.group_number, bool
-    ):
+    if not isinstance(settings.group_number, int) or isinstance(settings.group_number, bool):
         raise RecorderError("Config value 'group_number' must be an integer.")
     if settings.group_number < 1:
         raise RecorderError("Config value 'group_number' must be a positive integer.")
@@ -320,8 +295,7 @@ def _render_output_name(
         ).strip()
     except (IndexError, KeyError, ValueError) as exc:
         raise RecorderError(
-            f"Invalid {setting_name}. Use {{condition}}, {{trial}}, "
-            "and {timestamp}."
+            f"Invalid {setting_name}. Use {{condition}}, {{trial}}, " "and {timestamp}."
         ) from exc
     if not name:
         raise RecorderError(f"{setting_name} produced an empty name.")
@@ -360,9 +334,7 @@ def generate_filename(
     candidate = base_path
     suffix_number = 1
     while candidate.exists() or candidate.is_symlink():
-        candidate = output_dir / (
-            f"{base_path.stem}_{suffix_number:02d}{base_path.suffix}"
-        )
+        candidate = output_dir / (f"{base_path.stem}_{suffix_number:02d}{base_path.suffix}")
         suffix_number += 1
     return candidate
 
@@ -402,16 +374,10 @@ def recording_directory(
 ) -> Path:
     """日付・グループ配下に録画IDフォルダを選び、必要なら確保する。"""
 
-    if (
-        not isinstance(group_number, int)
-        or isinstance(group_number, bool)
-        or group_number < 1
-    ):
+    if not isinstance(group_number, int) or isinstance(group_number, bool) or group_number < 1:
         raise ValueError("group_number must be a positive integer")
     timestamp = timestamp or dt.datetime.now()
-    group_dir = Path(output_root) / (
-        f"{timestamp:%Y%m%d}_group{group_number:03d}"
-    )
+    group_dir = Path(output_root) / (f"{timestamp:%Y%m%d}_group{group_number:03d}")
     existing_numbers = []
     if group_dir.is_dir():
         for child in group_dir.iterdir():
@@ -502,8 +468,7 @@ def build_ros_environment(settings: LivoxSettings) -> dict[str, str]:
         return environment
 
     shell_script = (
-        'set -e\nfor setup_file in "$@"; do '
-        'source "$setup_file" >/dev/null; done\nenv -0'
+        'set -e\nfor setup_file in "$@"; do ' 'source "$setup_file" >/dev/null; done\nenv -0'
     )
     try:
         result = subprocess.run(
@@ -583,9 +548,7 @@ def ros_topic_has_publisher(
             check=False,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
-        raise RecorderError(
-            f"Could not inspect ROS 2 topic publishers: {exc}"
-        ) from exc
+        raise RecorderError(f"Could not inspect ROS 2 topic publishers: {exc}") from exc
     if result.returncode != 0:
         return False
 
@@ -600,9 +563,7 @@ def _start_livox_driver(session: LivoxSession, started_at: dt.datetime) -> None:
     assert session.environment is not None
     logs_dir = PROJECT_ROOT / "logs"
     logs_dir.mkdir(parents=True, exist_ok=True)
-    session.driver_log_path = logs_dir / (
-        f"livox_driver_{started_at:%Y%m%d_%H%M%S}.log"
-    )
+    session.driver_log_path = logs_dir / (f"livox_driver_{started_at:%Y%m%d_%H%M%S}.log")
     session.driver_log = session.driver_log_path.open("a", encoding="utf-8")
     command = [
         session.ros2_executable,
@@ -708,13 +669,10 @@ def prepare_livox_session(
         last_error = ""
         while True:
             if session.driver_process.poll() is not None:
-                session.reason = (
-                    "Livox driver exited during startup"
-                    + (
-                        f"; see {_relative_display_path(session.driver_log_path)}"
-                        if session.driver_log_path
-                        else ""
-                    )
+                session.reason = "Livox driver exited during startup" + (
+                    f"; see {_relative_display_path(session.driver_log_path)}"
+                    if session.driver_log_path
+                    else ""
                 )
                 return session
             try:
@@ -1003,20 +961,13 @@ def _trial_entry(run_order: dict, group_number: int, trial: int) -> dict:
     try:
         return run_order["groups"][group_name]["trials"][trial - 1]
     except (KeyError, IndexError) as exc:
-        raise RecorderError(
-            f"計画にグループ{group_name}の試行{trial}がありません。"
-        ) from exc
+        raise RecorderError(f"計画にグループ{group_name}の試行{trial}がありません。") from exc
 
 
-def _available_trial_numbers(
-    group_plan: dict, progress: RecordingProgress
-) -> list[int]:
-    maximum = (
-        group_plan["basic_trial_count"] + group_plan["additional_trial_count"]
-        if progress.additional_enabled
-        else group_plan["basic_trial_count"]
-    )
-    return list(range(1, maximum + 1))
+def _available_trial_numbers(group_plan: dict) -> list[int]:
+    """第4セットを含む全計画行を、計画に記載された順番で選択可能にする。"""
+
+    return [entry["global_trial_number"] for entry in group_plan["trials"]]
 
 
 def _trial_entry_for_group(group_plan: dict, trial: int) -> dict:
@@ -1061,9 +1012,14 @@ def _print_ready(
     print("=" * 54)
     print(f"録画前確認  |  グループ {trial_entry['group']}（{group_number}/18）")
     print(
-        f"試行 {trial:02d}  [{trial_entry['trial_type_label']}]  |  "
+        f"試行 {trial:02d}/{len(group_plan['trials'])}  "
+        f"[{trial_entry['trial_type_label'].removesuffix('（任意）')}]  |  "
         f"通路幅: {trial_entry['corridor_width'] or '—'}  |  "
         f"Take: {progress.next_take_number(trial)}"
+    )
+    print(
+        f"第{trial_entry['set_number']}セット / 用紙 {trial_entry['paper_name']} / "
+        f"用紙内 {trial_entry['paper_trial_number']:02d} / 条件 {trial_entry['condition_id']}"
     )
     for subject_number in (1, 2):
         participant = trial_entry[f"subject_{subject_number}"]
@@ -1094,7 +1050,8 @@ def _print_recording(
     trial = trial_entry["global_trial_number"]
     print(
         f"グループ {trial_entry['group']}  |  試行 {trial:02d} "
-        f"[{trial_entry['trial_type_label']}]  |  通路幅: {trial_entry['corridor_width'] or '—'}  "
+        f"[{trial_entry['trial_type_label'].removesuffix('（任意）')}]  |  "
+        f"通路幅: {trial_entry['corridor_width'] or '—'}  "
         f"|  Take: {take_number}"
     )
     for subject_number in (1, 2):
@@ -1228,21 +1185,8 @@ def wait_for_recording_start(
             group_plan = run_order["groups"][group_name]
         except KeyError as exc:
             raise RecorderError(f"計画にグループ{group_name}がありません。") from exc
-        progress = RecordingProgress.open(
-            output_root, group_name, run_order["plan_sha256"]
-        )
-        if (
-            progress.additional_decision == "pending"
-            and progress.completed_count(list(range(1, group_plan["basic_trial_count"] + 1)))
-            == group_plan["basic_trial_count"]
-            and not any(
-                trial_number <= group_plan["basic_trial_count"]
-                for trial_number in progress.rerecord_trials()
-            )
-        ):
-            if _ask_optional_additional_set(group_plan, progress):
-                trial = group_plan["basic_trial_count"] + 1
-        available_trials = _available_trial_numbers(group_plan, progress)
+        progress = RecordingProgress.open(output_root, group_name, run_order["plan_sha256"])
+        available_trials = _available_trial_numbers(group_plan)
         trial = max(1, min(trial, available_trials[-1]))
         entry = _trial_entry(run_order, group_number, trial)
         _print_ready(
@@ -1292,10 +1236,14 @@ def wait_for_recording_start(
                         if key in {"q", "Q"}:
                             return False, trial, group_number, progress
                 else:
-                    command = _read_command_line(
-                        "矢印キー（↑は試行-1、↓は試行+1。left/rightでグループ）で変更、"
-                        "Enterで開始、qで終了: "
-                    ).strip().lower()
+                    command = (
+                        _read_command_line(
+                            "矢印キー（↑は試行-1、↓は試行+1。left/rightでグループ）で変更、"
+                            "Enterで開始、qで終了: "
+                        )
+                        .strip()
+                        .lower()
+                    )
                     if command in {"left", "right", "up", "down"}:
                         confirmed_completed_trial = None
                         if command == "left":
@@ -1487,47 +1435,9 @@ def _apply_cli_overrides(settings: RecorderSettings, args: argparse.Namespace) -
         raise RecorderError("fps must be positive.")
 
 
-def _ask_optional_additional_set(
-    group_plan: dict, progress: RecordingProgress
-) -> bool:
-    """基本54試行の完了後に、第4セットを明示的に選んでもらう。"""
-
-    basic_trials = list(range(1, group_plan["basic_trial_count"] + 1))
-    if progress.additional_enabled or progress.additional_decision == "declined":
-        return False
-    if progress.completed_count(basic_trials) != len(basic_trials):
-        return False
-    if any(trial in basic_trials for trial in progress.rerecord_trials()):
-        return False
-    print("\n" + "!" * 72)
-    print(f"【{group_plan['group']} 基本54試行が完了しました】")
-    print(
-        f"任意の第4セット {group_plan['optional_set']}（18試行）を追加で実施しますか？"
-    )
-    print("ここではまだ録画を開始しません。Yで追加セットを選択可能にします。")
-    print("!" * 72)
-    while True:
-        try:
-            answer = unicodedata.normalize(
-                "NFKC", _read_command_line("第4セットを実施しますか [y/N]: ")
-            ).strip().lower()
-        except EOFError:
-            return False
-        if answer in {"y", "yes", "はい"}:
-            progress.enable_additional()
-            print(
-                f"第4セット {group_plan['optional_set']} を選択しました。"
-                "録画開始前画面で内容を確認し、Enterを押してください。"
-            )
-            return True
-        if answer in {"", "n", "no", "いいえ", "q"}:
-            progress.decline_additional()
-            print("第4セットは実施しません。")
-            return False
-        print("YまたはNで回答してください。")
-
-
 def main(argv: Optional[list[str]] = None) -> int:
+    """計画と設定を読み、試行選択・録画開始・正常停止・保存確認・進捗記録を進める。"""
+
     args = _parse_args(argv)
     try:
         config_path = _resolve_path(args.config, Path.cwd())
@@ -1538,12 +1448,10 @@ def main(argv: Optional[list[str]] = None) -> int:
         group_name = f"G{settings.group_number:02d}"
         if group_name not in run_order["groups"]:
             raise RecorderError(f"計画にグループ{group_name}がありません。")
-        progress = RecordingProgress.open(
-            settings.output_dir, group_name, run_order["plan_sha256"]
-        )
-        if settings.trial > run_order["basic_trial_count"] and not progress.additional_enabled:
+        progress = RecordingProgress.open(settings.output_dir, group_name, run_order["plan_sha256"])
+        if settings.trial > len(run_order["groups"][group_name]["trials"]):
             raise RecorderError(
-                "第4セットは基本54試行の完了後に画面で選択してください。"
+                f"試行番号は1〜{len(run_order['groups'][group_name]['trials'])}で指定してください。"
             )
         settings.output_dir.mkdir(parents=True, exist_ok=True)
         zed_explorer = check_zed_explorer(settings.zed_explorer)
@@ -1552,7 +1460,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         return 1
 
     if args.trial is None:
-        available = _available_trial_numbers(run_order["groups"][group_name], progress)
+        available = _available_trial_numbers(run_order["groups"][group_name])
         retry_pending = any(
             trial_number in available for trial_number in progress.rerecord_trials()
         )
@@ -1591,9 +1499,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         print("\nChecking Livox LiDAR connection...")
         livox_check_started_at = dt.datetime.now()
         try:
-            livox_session = prepare_livox_session(
-                settings.livox, livox_check_started_at
-            )
+            livox_session = prepare_livox_session(settings.livox, livox_check_started_at)
         except KeyboardInterrupt:
             print("\nInterrupted while checking Livox. No recording was started.")
             return 130
@@ -1726,13 +1632,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         ok, validation_error = validate_recording(output_path, return_code)
         if stop_reason == "process-exited":
             ok = False
-            unexpected_exit = (
-                "ZED_Explorer exited before the stop command was received"
-            )
+            unexpected_exit = "ZED_Explorer exited before the stop command was received"
             validation_error = (
-                f"{unexpected_exit}; {validation_error}"
-                if validation_error
-                else unexpected_exit
+                f"{unexpected_exit}; {validation_error}" if validation_error else unexpected_exit
             )
         livox_validation_ok: Optional[bool] = None
         livox_error = ""
@@ -1744,9 +1646,7 @@ def main(argv: Optional[list[str]] = None) -> int:
                 if livox_exited_early:
                     livox_validation_ok = False
                     early_error = "Livox rosbag2 exited before the stop command"
-                    livox_error = (
-                        f"{early_error}; {livox_error}" if livox_error else early_error
-                    )
+                    livox_error = f"{early_error}; {livox_error}" if livox_error else early_error
             else:
                 livox_validation_ok = False
                 livox_error = "Livox rosbag2 did not return a validation result"
@@ -1776,10 +1676,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             print(f"\nZED Size:\n{size_mb:.2f} MB")
         else:
             print(f"\nZED recording failed: {validation_error}", file=sys.stderr)
-        print(
-            f"Recording labels:\n"
-            f"{_relative_display_path(recording_dir / 'recording.json')}"
-        )
+        print(f"Recording labels:\n" f"{_relative_display_path(recording_dir / 'recording.json')}")
 
         if livox_recording_started and livox_bag_path is not None:
             if livox_validation_ok:
@@ -1792,9 +1689,7 @@ def main(argv: Optional[list[str]] = None) -> int:
                     file=sys.stderr,
                 )
         elif settings.livox.enabled:
-            print(
-                "\nLivox状態: 未接続または録画開始失敗。点群は保存されていません。"
-            )
+            print("\nLivox状態: 未接続または録画開始失敗。点群は保存されていません。")
             print(f"理由: {livox_session.reason}")
         if ok and not trial_recording_ok:
             print(
@@ -1811,22 +1706,8 @@ def main(argv: Optional[list[str]] = None) -> int:
             )
             return 1
 
-        if trial == run_order["basic_trial_count"]:
-            try:
-                selected_additional = _ask_optional_additional_set(
-                    run_order["groups"][f"G{settings.group_number:02d}"], progress
-                )
-            except KeyboardInterrupt:
-                print("\n追加セットの選択を中断しました。")
-                return 130
-            if selected_additional:
-                trial = run_order["basic_trial_count"] + 1
-                continue
-            if progress.additional_decision == "declined":
-                return 0
-
         group_plan = run_order["groups"][f"G{settings.group_number:02d}"]
-        available = _available_trial_numbers(group_plan, progress)
+        available = _available_trial_numbers(group_plan)
         if trial == available[-1] and progress.completed_count(available) == len(available):
             print(f"\n{group_plan['group']}の計画試行をすべて録画しました。")
             return 0
@@ -1835,9 +1716,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         print("操作      : ENTER = 次の候補を表示 / Q = 終了")
         while True:
             try:
-                command = unicodedata.normalize(
-                    "NFKC", _read_command_line()
-                ).strip().lower()
+                command = unicodedata.normalize("NFKC", _read_command_line()).strip().lower()
             except KeyboardInterrupt:
                 print("\nExiting.")
                 return 130

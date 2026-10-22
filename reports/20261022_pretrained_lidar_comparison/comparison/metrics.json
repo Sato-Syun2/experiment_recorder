@@ -1,0 +1,123 @@
+{
+  "recording": "20261021_group002/recording_003",
+  "source_frames": 318,
+  "baseline_identical_to_archived_csv": true,
+  "coverage_window_note": "Broad ZED 2.0--29.8 s window incl. entry/exit, not person recall",
+  "baseline_confirmed_coverage": {
+    "frames": 93,
+    "denominator": 278,
+    "fraction": 0.3345323741007194
+  },
+  "baseline_reviewed_candidates_coverage": {
+    "frames": 185,
+    "denominator": 278,
+    "fraction": 0.6654676258992805
+  },
+  "pointpillars_person_output_coverage": {
+    "frames": 157,
+    "denominator": 278,
+    "fraction": 0.564748201438849
+  },
+  "model_class_counts": {
+    "Car": 195,
+    "Pedestrian": 175,
+    "Cyclist": 1
+  },
+  "model_person_boxes_all": 175,
+  "model_person_boxes_in_corridor": 157,
+  "model_person_associated_ids": 2,
+  "model_multiple_person_output_frames": 0,
+  "model_associated_track_summaries": [
+    {
+      "track_id": "2",
+      "rows": 80,
+      "start_s": 2.946826047,
+      "end_s": 11.746726477,
+      "x_min": 1.1285978277167097,
+      "x_max": 12.234711984026697,
+      "y_min": -0.08994639463380841,
+      "y_max": 0.10697739888097246,
+      "motion": {
+        "observations": 80,
+        "max_observation_interval_s": 0.3989649859999993,
+        "adjacent_speed_mps": {
+          "n": 76,
+          "median": 1.1006696396056357,
+          "p90": 2.2580983572385964,
+          "max": 2.7284475946334896
+        },
+        "local_linear_residual_m": {
+          "n": 70,
+          "median": 0.03163751579027192,
+          "p90": 0.07588497602987061,
+          "max": 0.10440379724221177
+        },
+        "note": "Internal plausibility only, not true position/velocity error"
+      }
+    },
+    {
+      "track_id": "13",
+      "rows": 77,
+      "start_s": 20.246804404,
+      "end_s": 28.146713102,
+      "x_min": 1.3149978488659821,
+      "x_max": 10.977791613491638,
+      "y_min": -0.006769368506527318,
+      "y_max": 0.2187995089430057,
+      "motion": {
+        "observations": 77,
+        "max_observation_interval_s": 0.2999430220000008,
+        "adjacent_speed_mps": {
+          "n": 75,
+          "median": 1.3381045871199155,
+          "p90": 2.1056132137745,
+          "max": 2.537704655028365
+        },
+        "local_linear_residual_m": {
+          "n": 72,
+          "median": 0.036694618159015764,
+          "p90": 0.0752810629553984,
+          "max": 0.11675023188441729
+        },
+        "note": "Internal plausibility only, not true position/velocity error"
+      }
+    }
+  ],
+  "model_two_consecutive_output_coverage": {
+    "frames": 149,
+    "denominator": 278,
+    "fraction": 0.5359712230215827
+  },
+  "model_association_note": "Descriptive IDs, not verified people; two outputs is not equivalent to legacy motion-confirmation",
+  "inference_seconds": {
+    "n": 318,
+    "median": 0.8814321679999466,
+    "p90": 1.1852117299001292,
+    "max": 1.7220754360000683
+  },
+  "model_raw_intensity_max": {
+    "n": 318,
+    "median": 150.0,
+    "p90": 151.0,
+    "max": 156.0
+  },
+  "baseline_reviewed_path": {
+    "observations": 185,
+    "max_observation_interval_s": 0.6988694409999994,
+    "adjacent_speed_mps": {
+      "n": 170,
+      "median": 1.2390572497565948,
+      "p90": 1.709851823632866,
+      "max": 2.5956705038271224
+    },
+    "local_linear_residual_m": {
+      "n": 150,
+      "median": 0.02085378464748546,
+      "p90": 0.050842427041134584,
+      "max": 0.09773836868674245
+    },
+    "note": "Internal plausibility only, not true position/velocity error"
+  },
+  "metric_accuracy": null,
+  "metric_accuracy_note": "No independent metric trajectory or joint ground truth"
+}

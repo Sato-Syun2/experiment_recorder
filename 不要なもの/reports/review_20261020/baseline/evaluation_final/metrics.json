@@ -1,0 +1,48 @@
+{
+  "all_frames": 408,
+  "all_candidate_ids": 182,
+  "confirmed_ids": 1,
+  "confirmed_observations": 171,
+  "frames_with_confirmed_detections": 171,
+  "predicted_rows": 41,
+  "tracks": [
+    {
+      "track_id": "45",
+      "confirmed_observations": 171,
+      "first_timestamp_ns": 1791863426622916075,
+      "last_timestamp_ns": 1791863446522817035,
+      "gaps_over_0_25s": 2,
+      "max_observed_gap_s": 0.300830414,
+      "lateral_range_m": 0.62193
+    }
+  ],
+  "accuracy": {
+    "position_rmse_m": null,
+    "id_switches": null,
+    "missing_rate": null,
+    "note": "Unevaluated without independent reference labels; IDs/gaps are descriptive only."
+  },
+  "reference_note": null,
+  "parameters": {
+    "tracks": "reports/review_20261020/baseline/tracks.csv",
+    "frames": "reports/review_20261020/final/tracks.frames.csv",
+    "labels": null,
+    "reference_note": null,
+    "roles": null,
+    "recording_json": null,
+    "run_order": null,
+    "gate_m": 0.75,
+    "time_tolerance_s": 0.049,
+    "id_switch_max_gap_s": 1.0,
+    "output_dir": "reports/review_20261020/baseline/evaluation_final"
+  },
+  "source_sha256": {
+    "/home/hp-ubuntu/experiment_recorder/reports/review_20261020/baseline/tracks.csv": "1df18d7e5c17d28f8c53eb26a7a4e44767c860e4c3e7fe3889aa58711d237744",
+    "/home/hp-ubuntu/experiment_recorder/reports/review_20261020/final/tracks.frames.csv": "dcdc93abdac0467466c99bd798b50639ce7fa1c86923b9148e1a85710a10e18e",
+    "/home/hp-ubuntu/experiment_recorder/scripts/evaluate_tracking.py": "927aaf2bf35404dea8d1d038f6d231136ee59b20b78b8663720eb5281f596360"
+  },
+  "minimum_observed_pair_distance_m": null,
+  "pair_note": "Simultaneously confirmed cluster representatives only; no interpolation. Minimum across observed samples is not the continuous-time closest approach or body clearance.",
+  "roles": {},
+  "derivative_note": "kinematics.csv contains unsmoothed raw three-point derivatives on contiguous detections only. Acceleration amplifies noise; uncertainty and behavioral onset are not validated."
+}

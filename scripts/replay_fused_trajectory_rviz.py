@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Replay a LiDAR bag and overlay fused person positions and ZED BODY_34 joints in RViz2."""
+"""LiDAR bagと融合位置・ZED BODY_34骨格をRViz2で再生する。
+
+融合CSVの廊下座標を元の点群座標へ戻して重ねる。表示のために骨格を融合位置へ
+平行移動して合わせる処理は行わない。ROS 2とRViz2を起動する表示プログラム。
+"""
 
 from __future__ import annotations
 
@@ -21,20 +25,51 @@ import numpy as np
 
 from track_people import TrackingError, _iter_bag_clouds, _message_timestamp_ns, load_settings
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = PROJECT_ROOT / "config.json"
-DEFAULT_FUSED_CSV = PROJECT_ROOT / "tracking/20261013_group001_recording_001_zed_lidar_fusion/fused_trajectory.csv"
+DEFAULT_FUSED_CSV = (
+    PROJECT_ROOT / "tracking/20261013_group001_recording_001_zed_lidar_fusion/fused_trajectory.csv"
+)
 DEFAULT_POINT_TOPIC = "/tracking/points"
 DEFAULT_MARKER_TOPIC = "/people/fused_skeleton"
 
-# Stereolabs BODY_34 index order. Only edges with two valid joints are drawn.
+# BODY_34の関節番号順。両端に有効な関節がある骨だけを描く。
 BODY_34_BONES = [
-    (0, 1), (1, 2), (2, 4), (4, 5), (5, 6), (6, 7), (7, 8), (8, 9),
-    (7, 10), (2, 11), (11, 12), (12, 13), (13, 14), (14, 15), (15, 16),
-    (14, 17), (0, 18), (18, 19), (19, 20), (20, 21), (0, 22), (22, 23),
-    (23, 24), (24, 25), (2, 3), (3, 26), (26, 27), (27, 28), (28, 29),
-    (27, 30), (30, 31), (20, 32), (24, 33), (32, 21), (33, 25),
+    (0, 1),
+    (1, 2),
+    (2, 4),
+    (4, 5),
+    (5, 6),
+    (6, 7),
+    (7, 8),
+    (8, 9),
+    (7, 10),
+    (2, 11),
+    (11, 12),
+    (12, 13),
+    (13, 14),
+    (14, 15),
+    (15, 16),
+    (14, 17),
+    (0, 18),
+    (18, 19),
+    (19, 20),
+    (20, 21),
+    (0, 22),
+    (22, 23),
+    (23, 24),
+    (24, 25),
+    (2, 3),
+    (3, 26),
+    (26, 27),
+    (27, 28),
+    (28, 29),
+    (27, 30),
+    (30, 31),
+    (20, 32),
+    (24, 33),
+    (32, 21),
+    (33, 25),
 ]
 
 MARKER_NAMESPACES = (
@@ -64,12 +99,17 @@ def _parse_point(value: Any) -> Optional[np.ndarray]:
 
 
 def load_fused_rows(path: Path) -> tuple[list[int], dict[int, list[dict[str, Any]]]]:
-    """Load fused observations keyed by their original ZED image timestamp."""
+    """元のZED画像時刻をキーにして、融合CSVの観測をまとめる。"""
 
     grouped: dict[int, list[dict[str, Any]]] = {}
     required = {
-        "timestamp_ns", "zed_body_id", "motion_valid", "fused_position_corridor_x_m",
-        "fused_position_corridor_y_m", "fused_position_corridor_z_m", "keypoints_corridor_json",
+        "timestamp_ns",
+        "zed_body_id",
+        "motion_valid",
+        "fused_position_corridor_x_m",
+        "fused_position_corridor_y_m",
+        "fused_position_corridor_z_m",
+        "keypoints_corridor_json",
     }
     try:
         stream = path.expanduser().resolve().open("r", encoding="utf-8-sig", newline="")
@@ -79,7 +119,9 @@ def load_fused_rows(path: Path) -> tuple[list[int], dict[int, list[dict[str, Any
         reader = csv.DictReader(stream)
         missing = required - set(reader.fieldnames or [])
         if missing:
-            raise TrackingError("Fused trajectory CSV is missing columns: " + ", ".join(sorted(missing)))
+            raise TrackingError(
+                "Fused trajectory CSV is missing columns: " + ", ".join(sorted(missing))
+            )
         for line, row in enumerate(reader, start=2):
             try:
                 timestamp_ns = int(row["timestamp_ns"])
@@ -96,11 +138,13 @@ def load_fused_rows(path: Path) -> tuple[list[int], dict[int, list[dict[str, Any
             joints.extend([None] * (34 - len(joints)))
             position = None
             if row.get("motion_valid") == "1":
-                position = _parse_point([
-                    row.get("fused_position_corridor_x_m"),
-                    row.get("fused_position_corridor_y_m"),
-                    row.get("fused_position_corridor_z_m"),
-                ])
+                position = _parse_point(
+                    [
+                        row.get("fused_position_corridor_x_m"),
+                        row.get("fused_position_corridor_y_m"),
+                        row.get("fused_position_corridor_z_m"),
+                    ]
+                )
             if position is None and not any(point is not None for point in joints):
                 continue
             observation = {
@@ -114,18 +158,22 @@ def load_fused_rows(path: Path) -> tuple[list[int], dict[int, list[dict[str, Any
             }
             grouped.setdefault(timestamp_ns, []).append(observation)
     if not grouped:
-        raise TrackingError(f"Fused trajectory CSV has no displayable position or joint data: {path}")
+        raise TrackingError(
+            f"Fused trajectory CSV has no displayable position or joint data: {path}"
+        )
     timestamps = sorted(grouped)
     return timestamps, grouped
 
 
 class CorridorToCloudFrame:
-    """Convert calibrated corridor points and vectors back to the raw bag frame."""
+    """廊下座標の位置・ベクトルを、bagの元点群座標へ戻す。"""
 
     def __init__(self, settings: Any) -> None:
         corridor = settings.corridor_frame
         if corridor is None:
-            raise TrackingError("A corridor calibration is required to overlay the fused trajectory.")
+            raise TrackingError(
+                "A corridor calibration is required to overlay the fused trajectory."
+            )
         self.corridor = corridor
         source = str(corridor.source_frame)
         if source not in {"livox_level_frame", "livox_frame"}:
@@ -139,34 +187,50 @@ class CorridorToCloudFrame:
     def _level_to_cloud(self, level_point: np.ndarray) -> np.ndarray:
         if not self.level_source:
             return level_point
-        # level = R * raw + translation. Use the row-vector form of the inverse.
+        # level = R * raw + translationの逆変換を、行ベクトルの式で適用する。
         return (level_point - self.translation) @ self.rotation
 
     def point(self, corridor_point: np.ndarray) -> np.ndarray:
         frame = self.corridor
-        level = np.array([
-            frame.origin_xy[0] + frame.longitudinal_xy[0] * corridor_point[0] + frame.lateral_xy[0] * corridor_point[1],
-            frame.origin_xy[1] + frame.longitudinal_xy[1] * corridor_point[0] + frame.lateral_xy[1] * corridor_point[1],
-            corridor_point[2],
-        ], dtype=np.float64)
+        level = np.array(
+            [
+                frame.origin_xy[0]
+                + frame.longitudinal_xy[0] * corridor_point[0]
+                + frame.lateral_xy[0] * corridor_point[1],
+                frame.origin_xy[1]
+                + frame.longitudinal_xy[1] * corridor_point[0]
+                + frame.lateral_xy[1] * corridor_point[1],
+                corridor_point[2],
+            ],
+            dtype=np.float64,
+        )
         return self._level_to_cloud(level)
 
     def vector(self, corridor_vector: np.ndarray) -> np.ndarray:
         frame = self.corridor
-        level = np.array([
-            frame.longitudinal_xy[0] * corridor_vector[0] + frame.lateral_xy[0] * corridor_vector[1],
-            frame.longitudinal_xy[1] * corridor_vector[0] + frame.lateral_xy[1] * corridor_vector[1],
-            corridor_vector[2],
-        ], dtype=np.float64)
+        level = np.array(
+            [
+                frame.longitudinal_xy[0] * corridor_vector[0]
+                + frame.lateral_xy[0] * corridor_vector[1],
+                frame.longitudinal_xy[1] * corridor_vector[0]
+                + frame.lateral_xy[1] * corridor_vector[1],
+                corridor_vector[2],
+            ],
+            dtype=np.float64,
+        )
         return level @ self.rotation if self.level_source else level
 
 
 class FusedMarkerPublisher:
+    """融合中心・速度・実際のSDK関節を、点群と同じ座標でRVizへ配信する。"""
+
     def __init__(self, node: Any, topic: str, transform: CorridorToCloudFrame) -> None:
         try:
             from visualization_msgs.msg import Marker, MarkerArray
         except ImportError as exc:
-            raise TrackingError("visualization_msgs is unavailable; source the ROS 2 setup first.") from exc
+            raise TrackingError(
+                "visualization_msgs is unavailable; source the ROS 2 setup first."
+            ) from exc
         from geometry_msgs.msg import Point
 
         self.Marker = Marker
@@ -219,7 +283,9 @@ class FusedMarkerPublisher:
             body_id = int(observation["body_id"])
             color = self._color(body_id)
             position_corridor = observation["position_corridor"]
-            position = self.transform.point(position_corridor) if position_corridor is not None else None
+            position = (
+                self.transform.point(position_corridor) if position_corridor is not None else None
+            )
             emitted_namespaces: set[str] = set()
             joints = [
                 self.transform.point(point) if point is not None else None
@@ -229,7 +295,9 @@ class FusedMarkerPublisher:
 
             if position is not None:
                 center = self._marker(frame_id, stamp, "fused_people", body_id, self.Marker.SPHERE)
-                center.pose.position.x, center.pose.position.y, center.pose.position.z = (float(v) for v in position)
+                center.pose.position.x, center.pose.position.y, center.pose.position.z = (
+                    float(v) for v in position
+                )
                 center.scale.x = center.scale.y = center.scale.z = 0.24
                 self._set_color(center, color, 0.95)
                 array.markers.append(center)
@@ -244,38 +312,55 @@ class FusedMarkerPublisher:
                     path.append((timestamp_ns, segment_id, tuple(float(v) for v in position)))
                 if len(path) > 60:
                     del path[:-60]
-                trail = self._marker(frame_id, stamp, "fused_trajectory", body_id, self.Marker.LINE_STRIP)
+                trail = self._marker(
+                    frame_id, stamp, "fused_trajectory", body_id, self.Marker.LINE_STRIP
+                )
                 trail.scale.x = 0.035
                 self._set_color(trail, color, 0.75)
                 trail.points = [self._point(np.asarray(item[2])) for item in path]
                 array.markers.append(trail)
                 emitted_namespaces.add("fused_trajectory")
             else:
-                # Do not leave a stale location or connect the trail across a rejected frame.
+                # 除外フレームでは古い位置を残さず、欠測をまたいで軌跡をつながない。
                 self.trajectory.pop(body_id, None)
 
             if valid_joints:
-                bones = self._marker(frame_id, stamp, "fused_skeleton_bones", body_id, self.Marker.LINE_LIST)
+                bones = self._marker(
+                    frame_id, stamp, "fused_skeleton_bones", body_id, self.Marker.LINE_LIST
+                )
                 bones.scale.x = 0.035
                 self._set_color(bones, color, 0.95)
                 for first, second in BODY_34_BONES:
-                    if first < len(joints) and second < len(joints) and joints[first] is not None and joints[second] is not None:
-                        bones.points.extend([self._point(joints[first]), self._point(joints[second])])
+                    if (
+                        first < len(joints)
+                        and second < len(joints)
+                        and joints[first] is not None
+                        and joints[second] is not None
+                    ):
+                        bones.points.extend(
+                            [self._point(joints[first]), self._point(joints[second])]
+                        )
                 array.markers.append(bones)
                 emitted_namespaces.add("fused_skeleton_bones")
 
-                joint_marker = self._marker(frame_id, stamp, "fused_skeleton_joints", body_id, self.Marker.SPHERE_LIST)
+                joint_marker = self._marker(
+                    frame_id, stamp, "fused_skeleton_joints", body_id, self.Marker.SPHERE_LIST
+                )
                 joint_marker.scale.x = joint_marker.scale.y = joint_marker.scale.z = 0.075
                 self._set_color(joint_marker, (1.0, 0.78, 0.12), 0.98)
                 joint_marker.points = [self._point(point) for point in valid_joints]
                 array.markers.append(joint_marker)
                 emitted_namespaces.add("fused_skeleton_joints")
 
-            anchor = position if position is not None else next(
-                (point for point in joints if point is not None), None
+            anchor = (
+                position
+                if position is not None
+                else next((point for point in joints if point is not None), None)
             )
             if anchor is not None:
-                label = self._marker(frame_id, stamp, "fused_labels", body_id, self.Marker.TEXT_VIEW_FACING)
+                label = self._marker(
+                    frame_id, stamp, "fused_labels", body_id, self.Marker.TEXT_VIEW_FACING
+                )
                 up = self.transform.vector(np.asarray([0.0, 0.0, 0.45]))
                 label.pose.position.x = float(anchor[0] + up[0])
                 label.pose.position.y = float(anchor[1] + up[1])
@@ -378,7 +463,12 @@ Window Geometry:
 def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("bag", type=Path, help="rosbag2 directory containing the LiDAR point cloud")
-    parser.add_argument("--fused-csv", type=Path, default=DEFAULT_FUSED_CSV, help="fused_trajectory.csv from fuse_zed_lidar.py")
+    parser.add_argument(
+        "--fused-csv",
+        type=Path,
+        default=DEFAULT_FUSED_CSV,
+        help="fused_trajectory.csv from fuse_zed_lidar.py",
+    )
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--topic", default=None, help="PointCloud2 topic; defaults to config.json")
     parser.add_argument("--point-topic", default=DEFAULT_POINT_TOPIC)
@@ -386,13 +476,27 @@ def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser.add_argument("--fixed-frame", default="livox_frame")
     parser.add_argument("--rate", type=float, default=1.0, help="recorded-time playback rate")
     parser.add_argument("--stride", type=int, default=1, help="publish every Nth point cloud")
-    parser.add_argument("--max-zed-delta-ms", type=float, default=80.0, help="maximum nearest ZED observation age for a LiDAR frame")
-    parser.add_argument("--timestamp-offset-ms", type=float, default=0.0, help="add this correction to the ZED timestamp when matching the LiDAR cloud")
+    parser.add_argument(
+        "--max-zed-delta-ms",
+        type=float,
+        default=80.0,
+        help="maximum nearest ZED observation age for a LiDAR frame",
+    )
+    parser.add_argument(
+        "--timestamp-offset-ms",
+        type=float,
+        default=0.0,
+        help="add this correction to the ZED timestamp when matching the LiDAR cloud",
+    )
     parser.add_argument("--storage-id", default="mcap")
     parser.add_argument("--rviz-executable", default="rviz2")
     parser.add_argument("--rviz-config", type=Path, default=None)
-    parser.add_argument("--no-rviz", action="store_true", help="publish topics without launching RViz2")
-    parser.add_argument("--exit-after-playback", action="store_true", help="close RViz2 when the bag ends")
+    parser.add_argument(
+        "--no-rviz", action="store_true", help="publish topics without launching RViz2"
+    )
+    parser.add_argument(
+        "--exit-after-playback", action="store_true", help="close RViz2 when the bag ends"
+    )
     args = parser.parse_args(argv)
     if not math.isfinite(args.rate) or args.rate <= 0:
         parser.error("--rate must be positive and finite")
@@ -411,7 +515,9 @@ def _start_rviz(args: argparse.Namespace) -> tuple[Optional[subprocess.Popen], O
     config_path = args.rviz_config.expanduser().resolve() if args.rviz_config else None
     temporary_path: Optional[Path] = None
     if config_path is None:
-        handle = tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", suffix=".rviz", prefix="fused_", delete=False)
+        handle = tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", suffix=".rviz", prefix="fused_", delete=False
+        )
         try:
             handle.write(build_rviz_config(args.point_topic, args.markers_topic, args.fixed_frame))
         finally:
@@ -421,7 +527,9 @@ def _start_rviz(args: argparse.Namespace) -> tuple[Optional[subprocess.Popen], O
     elif not config_path.is_file():
         raise TrackingError(f"RViz2 config file does not exist: {config_path}")
     try:
-        process = subprocess.Popen([args.rviz_executable, "-d", os.fspath(config_path)], stdin=subprocess.DEVNULL)
+        process = subprocess.Popen(
+            [args.rviz_executable, "-d", os.fspath(config_path)], stdin=subprocess.DEVNULL
+        )
     except OSError as exc:
         if temporary_path is not None:
             temporary_path.unlink(missing_ok=True)
@@ -447,10 +555,12 @@ def _nearest_observations(
     max_delta_ns: int,
     timestamp_offset_ns: int,
 ) -> list[dict[str, Any]]:
-    # A positive offset is added to each ZED timestamp, matching fuse_zed_lidar.py semantics.
+    # 融合処理と同じ符号規約を使う。ZED時刻へ足すoffsetをLiDAR時刻から引く。
+    """LiDAR時刻からoffsetを戻し、時間ゲート内で最も近いZED観測を選ぶ。"""
+
     target = timestamp_ns - timestamp_offset_ns
     index = bisect.bisect_left(timestamps, target)
-    candidates = timestamps[max(0, index - 1):min(len(timestamps), index + 1)]
+    candidates = timestamps[max(0, index - 1) : min(len(timestamps), index + 1)]
     if not candidates:
         return []
     nearest = min(candidates, key=lambda value: abs(value - target))
@@ -458,6 +568,8 @@ def _nearest_observations(
 
 
 def replay(args: argparse.Namespace) -> None:
+    """保存bagの点群と近傍の融合観測を、記録時刻に沿ってROS 2へ配信する。"""
+
     bag_path = args.bag.expanduser().resolve()
     if not bag_path.is_dir() or not (bag_path / "metadata.yaml").is_file():
         raise TrackingError(f"rosbag2 directory or metadata.yaml is missing: {bag_path}")
@@ -472,7 +584,9 @@ def replay(args: argparse.Namespace) -> None:
         from rclpy.node import Node
         from sensor_msgs.msg import PointCloud2
     except ImportError as exc:
-        raise TrackingError("rclpy/sensor_msgs is unavailable; source /opt/ros/jazzy/setup.bash first.") from exc
+        raise TrackingError(
+            "rclpy/sensor_msgs is unavailable; source /opt/ros/jazzy/setup.bash first."
+        ) from exc
 
     rclpy.init(args=None)
     node = Node("replay_fused_trajectory_rviz")
@@ -485,20 +599,26 @@ def replay(args: argparse.Namespace) -> None:
         if rviz_process is not None:
             deadline = time.monotonic() + 10.0
             while (
-                (point_publisher.get_subscription_count() == 0
-                 or marker_publisher.publisher.get_subscription_count() == 0)
+                (
+                    point_publisher.get_subscription_count() == 0
+                    or marker_publisher.publisher.get_subscription_count() == 0
+                )
                 and rviz_process.poll() is None
                 and time.monotonic() < deadline
             ):
                 time.sleep(0.1)
-            if (point_publisher.get_subscription_count() == 0
-                    or marker_publisher.publisher.get_subscription_count() == 0):
+            if (
+                point_publisher.get_subscription_count() == 0
+                or marker_publisher.publisher.get_subscription_count() == 0
+            ):
                 print("Warning: RViz2 has not subscribed to both display topics yet.")
 
         print(f"Point cloud: {bag_path} [{topic}]")
         print(f"Fused CSV: {fused_path}")
         print(f"Topics: {args.point_topic}, {args.markers_topic}; fixed frame: {args.fixed_frame}")
-        print(f"Timestamp correction: {args.timestamp_offset_ms:.3f} ms; nearest-frame limit: {args.max_zed_delta_ms:.1f} ms")
+        print(
+            f"Timestamp correction: {args.timestamp_offset_ms:.3f} ms; nearest-frame limit: {args.max_zed_delta_ms:.1f} ms"
+        )
 
         previous_timestamp_ns: Optional[int] = None
         processed = 0
@@ -506,7 +626,9 @@ def replay(args: argparse.Namespace) -> None:
         skeleton_clouds = 0
         max_delta_ns = int(round(args.max_zed_delta_ms * 1_000_000))
         offset_ns = int(round(args.timestamp_offset_ms * 1_000_000))
-        for message, bag_timestamp_ns, actual_type in _iter_bag_clouds(bag_path, topic, "pointcloud2", args.storage_id):
+        for message, bag_timestamp_ns, actual_type in _iter_bag_clouds(
+            bag_path, topic, "pointcloud2", args.storage_id
+        ):
             if actual_type != "pointcloud2":
                 raise TrackingError(f"{topic} is not a PointCloud2 topic.")
             if processed % args.stride:
@@ -519,24 +641,41 @@ def replay(args: argparse.Namespace) -> None:
                     time.sleep(delay_s)
             previous_timestamp_ns = timestamp_ns
 
-            observations = _nearest_observations(timestamp_ns, timestamps, grouped, max_delta_ns, offset_ns)
+            observations = _nearest_observations(
+                timestamp_ns, timestamps, grouped, max_delta_ns, offset_ns
+            )
             header = getattr(message, "header", None)
-            frame_id = (getattr(header, "frame_id", "") or args.fixed_frame) if header is not None else args.fixed_frame
+            frame_id = (
+                (getattr(header, "frame_id", "") or args.fixed_frame)
+                if header is not None
+                else args.fixed_frame
+            )
             stamp = getattr(header, "stamp", None) if header is not None else None
             point_publisher.publish(message)
             marker_publisher.publish(observations, frame_id, stamp)
             if observations:
                 matched_clouds += 1
-                if any(any(point is not None for point in item["joints_corridor"]) for item in observations):
+                if any(
+                    any(point is not None for point in item["joints_corridor"])
+                    for item in observations
+                ):
                     skeleton_clouds += 1
             processed += 1
             rclpy.spin_once(node, timeout_sec=0.0)
             if processed == 1 or processed % 20 == 0:
-                print(f"\r  clouds={processed} overlays={matched_clouds} skeletons={skeleton_clouds}", end="", flush=True)
+                print(
+                    f"\r  clouds={processed} overlays={matched_clouds} skeletons={skeleton_clouds}",
+                    end="",
+                    flush=True,
+                )
         print()
-        print(f"Finished: {processed} point clouds; person overlay={matched_clouds}; skeleton overlay={skeleton_clouds}")
+        print(
+            f"Finished: {processed} point clouds; person overlay={matched_clouds}; skeleton overlay={skeleton_clouds}"
+        )
         if matched_clouds == 0:
-            print("Warning: no ZED rows were close enough to the LiDAR cloud timestamps; check the clock offset or --max-zed-delta-ms.")
+            print(
+                "Warning: no ZED rows were close enough to the LiDAR cloud timestamps; check the clock offset or --max-zed-delta-ms."
+            )
         if rviz_process is not None and not args.exit_after_playback:
             print("RViz2を確認後、EnterまたはCtrl+Cで終了します。")
             try:

@@ -1,0 +1,157 @@
+{
+  "schema_version": "1.0",
+  "source_print_file": "追い越し実験_配布用_A4横_全シート統一(1).xlsx",
+  "source_print_file_sha256": "ba5bcf67b666b758a16eb5ba4342a8324c88a2d9f5dbddb2e0bd331e27dc30d3",
+  "definition": "18 conditions × 4 sets; 4th set is unused C1/C2",
+  "groups": 18,
+  "trials_per_group": 72,
+  "total_trials": 1296,
+  "per_group": {
+    "overtaking": 64,
+    "solo": 8,
+    "P1_overtaking": 32,
+    "P2_overtaking": 32,
+    "P1_solo": 4,
+    "P2_solo": 4
+  },
+  "coding": {
+    "trial_type": [
+      "overtaking",
+      "solo"
+    ],
+    "width": [
+      "wide",
+      "narrow"
+    ],
+    "avoidance": [
+      "avoid",
+      "no_avoid",
+      ""
+    ],
+    "speed": [
+      "normal",
+      "slow"
+    ],
+    "pass_side": [
+      "right",
+      "left",
+      ""
+    ],
+    "person": [
+      "P1",
+      "P2",
+      ""
+    ],
+    "optional": "1 if fourth set; else 0"
+  },
+  "group_order": {
+    "G01": [
+      "A",
+      "B",
+      "C1",
+      "C2"
+    ],
+    "G02": [
+      "A",
+      "B",
+      "C2",
+      "C1"
+    ],
+    "G03": [
+      "A",
+      "B",
+      "C1",
+      "C2"
+    ],
+    "G04": [
+      "A",
+      "C2",
+      "B",
+      "C1"
+    ],
+    "G05": [
+      "A",
+      "C1",
+      "B",
+      "C2"
+    ],
+    "G06": [
+      "A",
+      "C2",
+      "B",
+      "C1"
+    ],
+    "G07": [
+      "B",
+      "A",
+      "C1",
+      "C2"
+    ],
+    "G08": [
+      "B",
+      "A",
+      "C2",
+      "C1"
+    ],
+    "G09": [
+      "B",
+      "A",
+      "C1",
+      "C2"
+    ],
+    "G10": [
+      "B",
+      "C2",
+      "A",
+      "C1"
+    ],
+    "G11": [
+      "B",
+      "C1",
+      "A",
+      "C2"
+    ],
+    "G12": [
+      "B",
+      "C2",
+      "A",
+      "C1"
+    ],
+    "G13": [
+      "C1",
+      "A",
+      "B",
+      "C2"
+    ],
+    "G14": [
+      "C2",
+      "A",
+      "B",
+      "C1"
+    ],
+    "G15": [
+      "C1",
+      "A",
+      "B",
+      "C2"
+    ],
+    "G16": [
+      "C2",
+      "B",
+      "A",
+      "C1"
+    ],
+    "G17": [
+      "C1",
+      "B",
+      "A",
+      "C2"
+    ],
+    "G18": [
+      "C2",
+      "B",
+      "A",
+      "C1"
+    ]
+  }
+}

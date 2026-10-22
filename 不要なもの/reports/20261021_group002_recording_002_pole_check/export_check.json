@@ -1,0 +1,215 @@
+{
+  "input": "/data/experiment_data/20261021_group002_recording_002_pole_review",
+  "script": "/home/hp-ubuntu/experiment_recorder/reports/20261021_group002_recording_002_pole_check/check_export.py",
+  "camera": {
+    "source_svo": "C:\\Users\\sawaragilab2024\\Desktop\\sato_shun\\svo\\recording_002.svo2",
+    "sdk_version": "5.4",
+    "camera_model": "ZED 2i",
+    "serial_number": 35290843,
+    "fps": 30.0,
+    "width": 1280,
+    "height": 720,
+    "fx": 523.9061889648438,
+    "fy": 523.9061889648438,
+    "cx": 646.8890991210938,
+    "cy": 348.150146484375,
+    "image_view": "VIEW.LEFT (rectified)",
+    "coordinate_system": "IMAGE (x right, y down, z forward)",
+    "coordinate_units": "meter",
+    "depth_mode": "NEURAL",
+    "sample_period_requested_s": 0.2,
+    "sample_stride_frames": 6,
+    "imu_available": true,
+    "imu_acceleration_units": "m/s^2",
+    "camera_imu_transform_direction": "imu_to_left_camera",
+    "camera_imu_rotation_imu_to_left_camera_xyzw": [
+      -0.0033304570242762566,
+      -0.001646173419430852,
+      -0.003285263665020466,
+      0.9999876022338867
+    ],
+    "total_svo_frames": 2805,
+    "exported_samples": 468,
+    "first_image_timestamp_ns": 1792563507922632000,
+    "last_image_timestamp_ns": 1792563603126025000,
+    "exported_imu_samples": 468
+  },
+  "metadata_sha256": {
+    "camera.json": "47d7bd37ab57e8c7ba8871eae5d0fc21860d86f1555ecc050ed1cc70d408f792",
+    "frames.csv": "b8324b929aa90082a36f888370e3d1f2ad1f01d0089cc7330abff086a5cced0d",
+    "imu.csv": "b957d86a051edc2107589f4c4473f68b1e58fc752685a5e3dd2e0758e9a4b853"
+  },
+  "image_rows": 468,
+  "imu_rows": 468,
+  "errors": [],
+  "distinct_image_files": 468,
+  "distinct_depth_files": 468,
+  "total_image_files": 468,
+  "total_depth_files": 468,
+  "imu_missing_image_timestamps": [],
+  "timestamp_nonmonotonic_count": 0,
+  "sample_interval_s_min_median_max": [
+    0.198429,
+    0.2,
+    0.733377
+  ],
+  "gaps_over_0_3s": [
+    {
+      "after_sample": 232,
+      "elapsed_s": 46.467662,
+      "gap_s": 0.500104
+    },
+    {
+      "after_sample": 233,
+      "elapsed_s": 46.967766,
+      "gap_s": 0.700324
+    },
+    {
+      "after_sample": 234,
+      "elapsed_s": 47.66809,
+      "gap_s": 0.733377
+    },
+    {
+      "after_sample": 235,
+      "elapsed_s": 48.401467,
+      "gap_s": 0.366188
+    }
+  ],
+  "image_imu_lag_ms_min_median_max": [
+    -4.590933,
+    -0.34862899999999997,
+    3.675275
+  ],
+  "imu_acceleration_finite": true,
+  "mean_imu_acceleration_native_m_s2": [
+    0.14794119269165218,
+    -9.405870184939133,
+    -2.625664853132688
+  ],
+  "manual_stem_roi_diagnostics": [
+    {
+      "sample_index": 50,
+      "elapsed_s": 9.998901,
+      "roi_xyxy": [
+        645,
+        445,
+        648,
+        456
+      ],
+      "valid_pixels": 33,
+      "total_pixels": 33,
+      "depth_m_p10_p50_p90": [
+        3.078125,
+        3.1015625,
+        3.110546875
+      ]
+    },
+    {
+      "sample_index": 100,
+      "elapsed_s": 19.999651,
+      "roi_xyxy": [
+        637,
+        355,
+        640,
+        366
+      ],
+      "valid_pixels": 33,
+      "total_pixels": 33,
+      "depth_m_p10_p50_p90": [
+        6.69765625,
+        6.86328125,
+        7.01875
+      ]
+    },
+    {
+      "sample_index": 150,
+      "elapsed_s": 30.000167,
+      "roi_xyxy": [
+        637,
+        305,
+        640,
+        316
+      ],
+      "valid_pixels": 33,
+      "total_pixels": 33,
+      "depth_m_p10_p50_p90": [
+        7.50703125,
+        7.625,
+        7.73828125
+      ]
+    },
+    {
+      "sample_index": 200,
+      "elapsed_s": 40.067366,
+      "roi_xyxy": [
+        632,
+        280,
+        635,
+        291
+      ],
+      "valid_pixels": 33,
+      "total_pixels": 33,
+      "depth_m_p10_p50_p90": [
+        10.8390625,
+        11.34375,
+        11.846875
+      ]
+    },
+    {
+      "sample_index": 257,
+      "elapsed_s": 52.967808,
+      "roi_xyxy": [
+        629,
+        265,
+        632,
+        276
+      ],
+      "valid_pixels": 33,
+      "total_pixels": 33,
+      "depth_m_p10_p50_p90": [
+        11.81875,
+        12.9765625,
+        14.2171875
+      ]
+    },
+    {
+      "sample_index": 306,
+      "elapsed_s": 62.9017,
+      "roi_xyxy": [
+        630,
+        255,
+        633,
+        266
+      ],
+      "valid_pixels": 33,
+      "total_pixels": 33,
+      "depth_m_p10_p50_p90": [
+        13.9265625,
+        14.3125,
+        14.7265625
+      ]
+    },
+    {
+      "sample_index": 356,
+      "elapsed_s": 72.902415,
+      "roi_xyxy": [
+        630,
+        245,
+        633,
+        256
+      ],
+      "valid_pixels": 27,
+      "total_pixels": 33,
+      "depth_m_p10_p50_p90": [
+        17.325,
+        18.515625,
+        19.7
+      ]
+    }
+  ],
+  "limitations": [
+    "ROI depths are optical-axis depths, not measured corridor distances.",
+    "Manual small ROIs can include background; no pole segmentation or calibration fitted.",
+    "No LiDAR clock offset assumed or estimated by this script."
+  ]
+}

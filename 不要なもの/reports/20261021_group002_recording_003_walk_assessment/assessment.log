@@ -1,0 +1,246 @@
+{
+  "recording": "20261021_group002_recording_003",
+  "processed_clouds": 318,
+  "review_images": 300,
+  "image_duration_s": 29.967855,
+  "selected_ids": [
+    17,
+    60
+  ],
+  "selection_note": "One walker, offline visual correspondence review; tentative status is not promoted.",
+  "visible_window_s": [
+    2.0,
+    29.8
+  ],
+  "visibility_note": "Image-review window, not independently surveyed 3--15m gate.",
+  "visible_clouds": 278,
+  "confirmed_frames_in_visible_window": 93,
+  "confirmed_coverage": 0.3345323741007194,
+  "selected_candidate_observed_frames_in_visible_window": 185,
+  "candidate_observation_coverage": 0.6654676258992805,
+  "confirmed_rows": 93,
+  "selected_observed_rows": 185,
+  "confirmed_x_range_m": [
+    1.84423,
+    14.84397
+  ],
+  "all_selected_x_range_m": [
+    1.83381,
+    15.01819
+  ],
+  "selected_y_range_m": [
+    -0.1023,
+    0.23186
+  ],
+  "observed_turn_time_s": 15.64661218,
+  "observed_turn_x_m": 15.01819,
+  "confirmed_observation_gaps_over_250ms": [
+    {
+      "last_observation_s": 11.946822708,
+      "next_observation_s": 12.24783441,
+      "observation_interval_s": 0.30101170200000027
+    },
+    {
+      "last_observation_s": 12.547761163,
+      "next_observation_s": 12.847758778,
+      "observation_interval_s": 0.2999976149999988
+    },
+    {
+      "last_observation_s": 12.947816181,
+      "next_observation_s": 13.247792789,
+      "observation_interval_s": 0.2999766079999997
+    },
+    {
+      "last_observation_s": 13.646642936,
+      "next_observation_s": 14.04780018,
+      "observation_interval_s": 0.4011572440000002
+    },
+    {
+      "last_observation_s": 14.24786697,
+      "next_observation_s": 25.646429692,
+      "observation_interval_s": 11.398562722000001
+    }
+  ],
+  "selected_observation_intervals_s": {
+    "n": 184,
+    "median": 0.10009635049999943,
+    "p10": 0.09899887660000015,
+    "p90": 0.20068505180000074,
+    "min": 0.09866010500000044,
+    "max": 0.6988694409999994
+  },
+  "selected_gaps_over_250ms": [
+    {
+      "start_s": 11.946822708,
+      "end_s": 12.24783441,
+      "interval_s": 0.30101170200000027
+    },
+    {
+      "start_s": 12.547761163,
+      "end_s": 12.847758778,
+      "interval_s": 0.2999976149999988
+    },
+    {
+      "start_s": 12.947816181,
+      "end_s": 13.247792789,
+      "interval_s": 0.2999766079999997
+    },
+    {
+      "start_s": 13.646642936,
+      "end_s": 14.04780018,
+      "interval_s": 0.4011572440000002
+    },
+    {
+      "start_s": 14.24786697,
+      "end_s": 14.946736411,
+      "interval_s": 0.6988694409999994
+    },
+    {
+      "start_s": 15.046599655,
+      "end_s": 15.346680711,
+      "interval_s": 0.3000810559999998
+    },
+    {
+      "start_s": 15.346680711,
+      "end_s": 15.64661218,
+      "interval_s": 0.29993146900000056
+    },
+    {
+      "start_s": 15.7469186,
+      "end_s": 16.046925018,
+      "interval_s": 0.30000641799999883
+    },
+    {
+      "start_s": 16.046925018,
+      "end_s": 16.347786861,
+      "interval_s": 0.30086184299999985
+    },
+    {
+      "start_s": 16.347786861,
+      "end_s": 16.647968649,
+      "interval_s": 0.3001817879999997
+    },
+    {
+      "start_s": 16.746810261,
+      "end_s": 17.046703601,
+      "interval_s": 0.29989334000000056
+    },
+    {
+      "start_s": 17.046703601,
+      "end_s": 17.347788572,
+      "interval_s": 0.3010849709999981
+    },
+    {
+      "start_s": 17.446448677,
+      "end_s": 17.746582567,
+      "interval_s": 0.30013389000000146
+    },
+    {
+      "start_s": 18.047010575,
+      "end_s": 18.346636922,
+      "interval_s": 0.2996263469999967
+    }
+  ],
+  "selected_adjacent_speed_mps": {
+    "n": 170,
+    "median": 1.2390572497565948,
+    "p10": 0.8336854625007997,
+    "p90": 1.709851823632866,
+    "min": 0.08827361476716404,
+    "max": 2.5956705038271224
+  },
+  "local_linear_residual_m": {
+    "n": 150,
+    "median": 0.02085378464748546,
+    "p10": 0.008644088168288223,
+    "p90": 0.050842427041134584,
+    "min": 0.0008220426631098803,
+    "max": 0.09773836868674245
+  },
+  "local_residual_note": "5 consecutive observed samples, <=250ms gaps; internal smoothness, NOT true position error.",
+  "pole_distance_residual_m": [
+    0.0065190792083740234,
+    -0.03096294403076172,
+    -0.04941987991333008,
+    0.03351306915283203,
+    0.0,
+    -0.022727012634277344,
+    0.019136428833007812
+  ],
+  "calibration_note": "Frozen recording_002 floor, wall axes, nominal-pole origin offset; same installation assumed. No scale tuning on walk.",
+  "installation_up_change_deg": {
+    "lidar": 0.012657026685443145,
+    "zed": 0.027307378097941124
+  },
+  "clock_note": "Raw absolute timestamps only. Nearest-frame residual is NOT synchronization accuracy.",
+  "nearest_image_cloud_residual_ms": {
+    "n": 300,
+    "median": 12.787560500000001,
+    "p10": -20.9967366,
+    "p90": 47.029298999999995,
+    "min": -120.035826,
+    "max": 48.266764
+  },
+  "zed_lidar_depth_difference_m": {
+    "n": 185,
+    "median": -0.2731587499999999,
+    "p10": -0.8263569999999998,
+    "p90": 0.04529274999999975,
+    "min": -1.5635399999999997,
+    "max": 0.35068500000000036
+  },
+  "comparison_note": "Independent RGB foreground/depth median vs LiDAR cluster median; different body surfaces, extrinsic candidate, unverified sync. Not ground truth.",
+  "absolute_position_error_m": null,
+  "absolute_error_note": "No independent time-series position reference. Endpoint declaration is not a surveyed body-center time series.",
+  "range_counts": [
+    {
+      "lo_m": 3,
+      "hi_m": 5,
+      "selected_observed": 32,
+      "confirmed": 21,
+      "note": "Counts of selected observations, not a distance-specific detection rate."
+    },
+    {
+      "lo_m": 5,
+      "hi_m": 7,
+      "selected_observed": 31,
+      "confirmed": 16,
+      "note": "Counts of selected observations, not a distance-specific detection rate."
+    },
+    {
+      "lo_m": 7,
+      "hi_m": 9,
+      "selected_observed": 25,
+      "confirmed": 12,
+      "note": "Counts of selected observations, not a distance-specific detection rate."
+    },
+    {
+      "lo_m": 9,
+      "hi_m": 11,
+      "selected_observed": 25,
+      "confirmed": 13,
+      "note": "Counts of selected observations, not a distance-specific detection rate."
+    },
+    {
+      "lo_m": 11,
+      "hi_m": 13,
+      "selected_observed": 23,
+      "confirmed": 10,
+      "note": "Counts of selected observations, not a distance-specific detection rate."
+    },
+    {
+      "lo_m": 13,
+      "hi_m": 15,
+      "selected_observed": 23,
+      "confirmed": 10,
+      "note": "Counts of selected observations, not a distance-specific detection rate."
+    },
+    {
+      "lo_m": 15,
+      "hi_m": 17,
+      "selected_observed": 5,
+      "confirmed": 0,
+      "note": "Counts of selected observations, not a distance-specific detection rate."
+    }
+  ]
+}

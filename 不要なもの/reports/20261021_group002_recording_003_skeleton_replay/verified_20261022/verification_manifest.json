@@ -1,0 +1,21 @@
+{
+  "confirmed_date_jst": "2026-10-22",
+  "original_export_input_hashes_unchanged": {
+    "camera.json": true,
+    "frames.csv": true,
+    "bodies.csv": true
+  },
+  "original_export_html_preserved": true,
+  "input_body_dir": "/data/experiment_data/20261021_group002_recording_003_skeleton_replay/exports/body_20261021_235725_564032",
+  "code_and_artifact_sha256": {
+    "reports/20261021_group002_recording_003_skeleton_replay/verified_20261022/README.md": "83ed7bc9c343ae60948d2edba38e6035125accd07a6f11389689943c8e66718f",
+    "reports/20261021_group002_recording_003_skeleton_replay/verified_20261022/metrics.json": "641a10969f142c1f14d4662a44247e1d8b9a397313c2d37b3067e0f982684c79",
+    "reports/20261021_group002_recording_003_skeleton_replay/verified_20261022/quality.json": "55280f4e351399974ffb2de83f276d95bb9991ec9980f2a3ec78f04ab049ba84",
+    "reports/20261021_group002_recording_003_skeleton_replay/verified_20261022/index.html": "74ffbc5b245300fdd85856e5fc0556ac2b40993a33a2bbce08ca7f975baaa6fb",
+    "reports/20261021_group002_recording_003_skeleton_replay/verified_20261022/browser_review.json": "4304b0ade28344e2bfd68a8f9248923d85b3078aab79cef14da1c9ef20d118d8",
+    "reports/20261021_group002_recording_003_skeleton_replay/verified_20261022/source/walk_skeleton_replay_template.html": "17ba2147d51bcc914a1f8d7387258b8bd0acf9ecaf8b7f62d1b512c2fbfd9bc4",
+    "reports/20261021_group002_recording_003_skeleton_replay/verified_20261022/source/build_walk_skeleton_replay.py": "7533e86d89ae2eda09a3caed92e490f9c2e0b77ae39674f0535db85bbada78b1",
+    "reports/20261021_group002_recording_003_skeleton_replay/verified_20261022/source/assess_skeleton_export.py": "2c901d81a7e3c81cbc60adcfc5d069f291bd6990bd3322c736787ea348282fc1"
+  },
+  "execution": "Saved data only; no ZED/Livox/ROS nodes/RViz or unit tests started."
+}

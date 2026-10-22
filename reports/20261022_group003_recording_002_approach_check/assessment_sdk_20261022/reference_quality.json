@@ -1,0 +1,38 @@
+{
+  "reference": {
+    "segments": {
+      "torso": [
+        0,
+        3
+      ],
+      "left_thigh": [
+        18,
+        19
+      ],
+      "left_shin": [
+        19,
+        20
+      ],
+      "right_thigh": [
+        22,
+        23
+      ],
+      "right_shin": [
+        23,
+        24
+      ]
+    },
+    "reference_segment_m": {
+      "torso": 0.5032673341017277,
+      "left_thigh": 0.3770699011187507,
+      "left_shin": 0.3351732706634064,
+      "right_thigh": 0.3770699276425395,
+      "right_shin": 0.33517323034914337
+    },
+    "source_interval_s": [
+      17.0,
+      19.0
+    ],
+    "note": "Same current subject, selected near-camera interval. Relative shape consistency only; not measured body dimensions. Never changes original joints."
+  }
+}

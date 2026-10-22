@@ -82,9 +82,7 @@ def _read_json_object(config_path: Path) -> dict:
     except FileNotFoundError as exc:
         raise ReplayError(f"Config file not found: {config_path}") from exc
     except json.JSONDecodeError as exc:
-        raise ReplayError(
-            f"Invalid JSON in config file {config_path}: {exc.msg}"
-        ) from exc
+        raise ReplayError(f"Invalid JSON in config file {config_path}: {exc.msg}") from exc
     except OSError as exc:
         raise ReplayError(f"Could not read config file {config_path}: {exc}") from exc
     if not isinstance(raw_config, dict):
@@ -106,9 +104,7 @@ def _config_bool(raw: dict, key: str, default: bool) -> bool:
     return value
 
 
-def _config_number(
-    raw: dict, key: str, default: float, positive: bool = False
-) -> float:
+def _config_number(raw: dict, key: str, default: float, positive: bool = False) -> float:
     value = raw.get(key, default)
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         raise ReplayError(f"Config value 'replay.{key}' must be a number.")
@@ -130,9 +126,7 @@ def load_replay_settings(config_path: Path, livox_topic: str) -> ReplaySettings:
         raise ReplayError("Config value 'replay' must be a JSON object.")
 
     settings = ReplaySettings()
-    settings.point_cloud_topic = _config_string(
-        replay_raw, "point_cloud_topic", livox_topic
-    )
+    settings.point_cloud_topic = _config_string(replay_raw, "point_cloud_topic", livox_topic)
     settings.point_cloud_type = _config_string(
         replay_raw, "point_cloud_type", settings.point_cloud_type
     ).lower()
@@ -145,18 +139,12 @@ def load_replay_settings(config_path: Path, livox_topic: str) -> ReplaySettings:
         "converted_point_cloud_topic",
         settings.converted_point_cloud_topic,
     )
-    settings.fixed_frame = _config_string(
-        replay_raw, "fixed_frame", settings.fixed_frame
-    )
-    settings.rviz_enabled = _config_bool(
-        replay_raw, "rviz_enabled", settings.rviz_enabled
-    )
+    settings.fixed_frame = _config_string(replay_raw, "fixed_frame", settings.fixed_frame)
+    settings.rviz_enabled = _config_bool(replay_raw, "rviz_enabled", settings.rviz_enabled)
     settings.rviz_executable = _config_string(
         replay_raw, "rviz_executable", settings.rviz_executable
     )
-    settings.bag_rate = _config_number(
-        replay_raw, "bag_rate", settings.bag_rate, positive=True
-    )
+    settings.bag_rate = _config_number(replay_raw, "bag_rate", settings.bag_rate, positive=True)
     settings.bag_delay_seconds = _config_number(
         replay_raw, "bag_delay_seconds", settings.bag_delay_seconds
     )
@@ -165,9 +153,7 @@ def load_replay_settings(config_path: Path, livox_topic: str) -> ReplaySettings:
     rviz_config = replay_raw.get("rviz_config")
     if rviz_config is not None:
         if not isinstance(rviz_config, str) or not rviz_config.strip():
-            raise ReplayError(
-                "Config value 'replay.rviz_config' must be a path or null."
-            )
+            raise ReplayError("Config value 'replay.rviz_config' must be a path or null.")
         settings.rviz_config = _resolve_path(rviz_config, config_path.parent)
     return settings
 
@@ -176,9 +162,7 @@ def validate_svo_path(svo_path: Path) -> None:
     if not svo_path.is_file():
         raise ReplayError(f"SVO file does not exist: {svo_path}")
     if svo_path.suffix.lower() not in {".svo", ".svo2"}:
-        raise ReplayError(
-            f"SVO input must have a .svo or .svo2 extension: {svo_path}"
-        )
+        raise ReplayError(f"SVO input must have a .svo or .svo2 extension: {svo_path}")
     if svo_path.stat().st_size <= 0:
         raise ReplayError(f"SVO file is empty (0 bytes): {svo_path}")
 
@@ -215,9 +199,7 @@ def infer_bag_path(svo_path: Path, bag_dir: Path) -> Path:
         return direct_candidate
 
     candidates = sorted(
-        candidate
-        for candidate in bag_dir.glob(f"{svo_path.stem}*")
-        if candidate.is_dir()
+        candidate for candidate in bag_dir.glob(f"{svo_path.stem}*") if candidate.is_dir()
     )
     if len(candidates) == 1:
         return candidates[0]
@@ -228,8 +210,7 @@ def infer_bag_path(svo_path: Path, bag_dir: Path) -> Path:
         )
     names = ", ".join(candidate.name for candidate in candidates)
     raise ReplayError(
-        f"Multiple LiDAR bags match {svo_path.stem}: {names}. "
-        "Pass the intended one with --bag."
+        f"Multiple LiDAR bags match {svo_path.stem}: {names}. " "Pass the intended one with --bag."
     )
 
 
@@ -311,9 +292,7 @@ def detect_point_cloud_type(
 
     # ROS 2 Jazzyのトピック型は次の1行形式から読み取る:
     # Topic: /livox/lidar | Type: livox_ros_driver2/msg/CustomMsg | Count: ...
-    topic_pattern = re.compile(
-        r"Topic:\s*(\S+)\s*\|\s*Type:\s*(\S+)", re.IGNORECASE
-    )
+    topic_pattern = re.compile(r"Topic:\s*(\S+)\s*\|\s*Type:\s*(\S+)", re.IGNORECASE)
     for match in topic_pattern.finditer(result.stdout):
         if match.group(1) != topic:
             continue
@@ -422,16 +401,12 @@ class ReplayRunner:
         return process
 
     def forget(self, process: subprocess.Popen) -> None:
-        self.processes = [
-            managed for managed in self.processes if managed.process is not process
-        ]
+        self.processes = [managed for managed in self.processes if managed.process is not process]
 
     def stop_all(self) -> None:
         """各再生プロセスへ正常終了を要求し、待機後は停止を完了させる。"""
 
-        active = [
-            managed for managed in self.processes if managed.process.poll() is None
-        ]
+        active = [managed for managed in self.processes if managed.process.poll() is None]
         for managed in active:
             try:
                 managed.process.send_signal(signal.SIGINT)
@@ -472,9 +447,7 @@ def _unique_log_path(svo_path: Path) -> Path:
     return candidate
 
 
-def _check_executable(
-    executable: str, display_name: str, search_path: Optional[str] = None
-) -> str:
+def _check_executable(executable: str, display_name: str, search_path: Optional[str] = None) -> str:
     resolved = shutil.which(executable, path=search_path)
     if not resolved:
         raise ReplayError(f"{display_name} was not found in PATH: {executable}")
@@ -642,24 +615,22 @@ def _parse_args(argv: Optional[list[str]]) -> argparse.Namespace:
 
 
 def main(argv: Optional[list[str]] = None) -> int:
+    """再生設定と保存時刻を確認し、ZED・bag・必要な表示プロセスを管理する。"""
+
     args = _parse_args(argv)
     runner: Optional[ReplayRunner] = None
     temporary_rviz_config: Optional[Path] = None
     try:
         config_path = _resolve_path(args.config, Path.cwd())
         recorder_settings = load_config(config_path)
-        replay_settings = load_replay_settings(
-            config_path, recorder_settings.livox.detection_topic
-        )
+        replay_settings = load_replay_settings(config_path, recorder_settings.livox.detection_topic)
 
         if args.point_cloud_topic is not None:
             replay_settings.point_cloud_topic = args.point_cloud_topic.strip()
         if args.point_cloud_type is not None:
             replay_settings.point_cloud_type = args.point_cloud_type
         if args.converted_point_cloud_topic is not None:
-            replay_settings.converted_point_cloud_topic = (
-                args.converted_point_cloud_topic.strip()
-            )
+            replay_settings.converted_point_cloud_topic = args.converted_point_cloud_topic.strip()
         if args.fixed_frame is not None:
             replay_settings.fixed_frame = args.fixed_frame.strip()
         if args.rate is not None:
@@ -680,9 +651,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         if not replay_settings.point_cloud_topic:
             raise ReplayError("LiDAR point cloud topic must not be empty.")
         if replay_settings.point_cloud_type not in {"auto", "pointcloud2", "custom"}:
-            raise ReplayError(
-                "LiDAR point cloud type must be auto, pointcloud2, or custom."
-            )
+            raise ReplayError("LiDAR point cloud type must be auto, pointcloud2, or custom.")
         if not replay_settings.converted_point_cloud_topic:
             raise ReplayError("Converted PointCloud2 topic must not be empty.")
         if not replay_settings.fixed_frame:
@@ -711,9 +680,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             svo_launch_delay_seconds = timeline.svo_start_delay_seconds
             bag_timeline_delay_seconds = timeline.bag_start_delay_seconds
 
-        effective_bag_delay_seconds = (
-            replay_settings.bag_delay_seconds + bag_timeline_delay_seconds
-        )
+        effective_bag_delay_seconds = replay_settings.bag_delay_seconds + bag_timeline_delay_seconds
         command_settings = replace(
             replay_settings,
             bag_delay_seconds=effective_bag_delay_seconds,
@@ -762,8 +729,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             )
         else:
             print(
-                "Recorded timestamp alignment unavailable; "
-                "using process-start synchronization."
+                "Recorded timestamp alignment unavailable; " "using process-start synchronization."
             )
         print()
         _print_command("ZED", zed_command)
@@ -777,9 +743,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             print("\nDry run: no playback process was started.")
             return 0
 
-        zed_explorer = _check_executable(
-            recorder_settings.zed_explorer, "ZED_Explorer"
-        )
+        zed_explorer = _check_executable(recorder_settings.zed_explorer, "ZED_Explorer")
         ros_environment = build_ros_environment(recorder_settings.livox)
         ros2_executable = _check_executable(
             recorder_settings.livox.ros2_executable,
@@ -815,10 +779,7 @@ def main(argv: Optional[list[str]] = None) -> int:
                 replay_settings.converted_point_cloud_topic,
             )
             display_topic = replay_settings.converted_point_cloud_topic
-            print(
-                "Livox CustomMsg detected; converting to "
-                f"PointCloud2 on {display_topic}."
-            )
+            print("Livox CustomMsg detected; converting to " f"PointCloud2 on {display_topic}.")
 
         if replay_settings.rviz_enabled:
             rviz_executable = _check_executable(
@@ -861,8 +822,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         runner.log_file.write(
             "Replay commands:\n"
             + "\n".join(
-                " ".join(_shell_quote(argument) for argument in command)
-                for command in command_list
+                " ".join(_shell_quote(argument) for argument in command) for command in command_list
             )
             + "\n"
         )
@@ -870,9 +830,7 @@ def main(argv: Optional[list[str]] = None) -> int:
 
         # 点群の先頭を受信できるよう、RVizを先に起動して購読を準備する。
         if rviz_command is not None:
-            rviz_process = runner.start(
-                "RViz2", rviz_command, ros_environment, capture_output=True
-            )
+            rviz_process = runner.start("RViz2", rviz_command, ros_environment, capture_output=True)
             time.sleep(0.2)
             if rviz_process.poll() is not None:
                 print(
@@ -898,8 +856,7 @@ def main(argv: Optional[list[str]] = None) -> int:
                 "rosbag2", ros2_command, ros_environment, capture_output=True
             )
             print(
-                f"Waiting {svo_launch_delay_seconds:.3f}s for the recorded "
-                "SVO start offset..."
+                f"Waiting {svo_launch_delay_seconds:.3f}s for the recorded " "SVO start offset..."
             )
             _wait_before_start(svo_launch_delay_seconds)
             zed_process = runner.start("ZED_Explorer", zed_command)
@@ -913,9 +870,7 @@ def main(argv: Optional[list[str]] = None) -> int:
 
         print("\nPlayback started. Press ENTER or Ctrl+C to stop both streams.")
         print(f"Replay log: {log_path}")
-        stop_reason = wait_for_replay(
-            runner, zed_process, bag_process, converter_process
-        )
+        stop_reason = wait_for_replay(runner, zed_process, bag_process, converter_process)
         if stop_reason == "process-exited":
             print("Stopping the remaining playback process...")
         return 0

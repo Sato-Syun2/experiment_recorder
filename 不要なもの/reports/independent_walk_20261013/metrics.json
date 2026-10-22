@@ -1,0 +1,145 @@
+{
+  "recording": "20261013_group001/recording_001",
+  "scope": "LiDAR-only corridor track and ZED-only body-tracking output; no LiDAR-to-ZED transform or fused trajectory is used.",
+  "lidar": {
+    "track_id": "44",
+    "source_rows": "/home/hp-ubuntu/experiment_recorder/reports/review_20261020/final/tracks.csv",
+    "confirmed_detected_observations": 171,
+    "duration_s": 19.899901151657104,
+    "median_observation_interval_ms": 100.0136137008667,
+    "gaps_over_0_25s": 2,
+    "maximum_observation_gap_s": 0.3008303642272949,
+    "corridor_x_m_min_median_max": [
+      1.82773,
+      7.54562,
+      12.92467
+    ],
+    "corridor_y_m_min_median_max": [
+      -0.38819,
+      -0.07234,
+      0.23374
+    ],
+    "corridor_z_m_min_median_max": [
+      0.25063,
+      0.89226,
+      1.27241
+    ],
+    "horizontal_speed_mps": {
+      "0": 0.19919725652680662,
+      "10": 0.5929751774068927,
+      "50": 1.160131698400256,
+      "90": 1.6293478748155978,
+      "95": 1.9124713280843382,
+      "100": 2.2432483591878856
+    },
+    "horizontal_speed_samples_over_2mps": 5,
+    "speed_sample_count_used": 168,
+    "xy_path_length_m": 22.840536265626675,
+    "xy_start_to_end_displacement_m": 0.8171047434692812,
+    "turnaround": {
+      "time_from_first_confirmed_s": 10.199991941452026,
+      "corridor_x_m": 12.92467,
+      "outbound_positive_x_fraction": 0.9886363636363636,
+      "return_negative_x_fraction": 0.9878048780487805
+    },
+    "cluster_point_count_median_p10": [
+      24.0,
+      10.0
+    ]
+  },
+  "zed": {
+    "source_rows": "/data/experiment_data/recording_001_zed_body_tracking/bodies.csv",
+    "sdk_version": "5.4",
+    "body_tracking_model": "HUMAN_BODY_ACCURATE",
+    "body_format": "BODY_34",
+    "body_fitting": true,
+    "body_segmentation": true,
+    "depth_mode": "NEURAL",
+    "confidence_threshold": 35,
+    "ok_body_observations": 817,
+    "tracking_ids": [
+      "0"
+    ],
+    "tracking_state_counts": {
+      "OK": 817,
+      "TERMINATE": 1
+    },
+    "elapsed_span_s": 27.301538944244385,
+    "median_body_detector_confidence": 91.6182861328125,
+    "p05_body_detector_confidence": 41.657996368408206,
+    "camera_depth_m_min_median_max": [
+      0.9079917073249817,
+      5.918187618255615,
+      12.35091495513916
+    ],
+    "keypoint_confidence": {
+      "PELVIS": {
+        "median": 90.48704528808594,
+        "p10": 58.44308166503907,
+        "fraction_at_least_50": 0.9706242350061199,
+        "fraction_at_least_80": 0.7307221542227662,
+        "median_by_distance_m": {
+          "0-3": 95.27297973632812,
+          "3-6": 95.00459289550781,
+          "6-9": 87.44728088378906,
+          "9-100": 74.59475708007812
+        }
+      },
+      "LEFT_KNEE": {
+        "median": 77.184326171875,
+        "p10": 30.579207229614262,
+        "fraction_at_least_50": 0.7747858017135862,
+        "fraction_at_least_80": 0.47123623011015914,
+        "median_by_distance_m": {
+          "0-3": 86.4952163696289,
+          "3-6": 87.82205963134766,
+          "6-9": 76.2629165649414,
+          "9-100": 53.22088050842285
+        }
+      },
+      "RIGHT_KNEE": {
+        "median": 75.22142791748047,
+        "p10": 30.876731872558594,
+        "fraction_at_least_50": 0.7858017135862914,
+        "fraction_at_least_80": 0.42105263157894735,
+        "median_by_distance_m": {
+          "0-3": 78.33770751953125,
+          "3-6": 88.56562805175781,
+          "6-9": 78.46373748779297,
+          "9-100": 55.826805114746094
+        }
+      },
+      "LEFT_ANKLE": {
+        "median": 59.0108757019043,
+        "p10": 12.692021560668946,
+        "fraction_at_least_50": 0.6107711138310894,
+        "fraction_at_least_80": 0.2215422276621787,
+        "median_by_distance_m": {
+          "0-3": 70.17267608642578,
+          "3-6": 78.28006744384766,
+          "6-9": 61.62759590148926,
+          "9-100": 33.39698791503906
+        }
+      },
+      "RIGHT_ANKLE": {
+        "median": 54.036434173583984,
+        "p10": 14.36152439117432,
+        "fraction_at_least_50": 0.5373317013463892,
+        "fraction_at_least_80": 0.17135862913096694,
+        "median_by_distance_m": {
+          "0-3": 48.202423095703125,
+          "3-6": 75.89224243164062,
+          "6-9": 63.68342590332031,
+          "9-100": 35.5399227142334
+        }
+      }
+    },
+    "interpretation": "Body-level confidence and tracking state measure person detection/tracking, not accuracy of every anatomical joint."
+  },
+  "limitations": [
+    "The LiDAR corridor-frame axes/origin come from LiDAR-only gravity/wall calibration; the LiDAR-to-ZED extrinsic is not used.",
+    "LiDAR cluster representative points are not anatomical pelvis or floor positions.",
+    "This recording contains one walker, so it cannot validate two-person identity preservation during overtaking.",
+    "No independent motion-capture or manually labeled image reference is available; naturalness is a plausibility check, not an accuracy score."
+  ]
+}

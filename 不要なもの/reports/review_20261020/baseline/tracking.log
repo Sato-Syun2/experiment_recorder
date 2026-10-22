@@ -1,0 +1,27 @@
+frames=1 tracks=0 detections=0 processing=2.1 fpsframes=10 tracks=0 detections=0 processing=3.4 fpsframes=20 tracks=0 detections=0 processing=3.6 fpsframes=30 tracks=0 detections=0 processing=3.7 fpsframes=40 tracks=5 detections=2 processing=4.6 fpsframes=50 tracks=10 detections=2 processing=5.4 fpsframes=60 tracks=12 detections=5 processing=6.1 fpsframes=70 tracks=11 detections=0 processing=6.7 fpsframes=80 tracks=10 detections=2 processing=7.2 fpsframes=90 tracks=11 detections=5 processing=7.7 fpsframes=100 tracks=11 detections=2 processing=8.1 fpsframes=110 tracks=9 detections=4 processing=8.5 fpsframes=120 tracks=8 detections=3 processing=8.8 fpsframes=130 tracks=10 detections=4 processing=9.0 fpsframes=140 tracks=12 detections=4 processing=9.2 fpsframes=150 tracks=10 detections=4 processing=9.4 fpsframes=160 tracks=11 detections=1 processing=9.6 fpsframes=170 tracks=16 detections=3 processing=9.7 fpsframes=180 tracks=14 detections=5 processing=9.9 fpsframes=190 tracks=14 detections=6 processing=10.0 fpsframes=200 tracks=15 detections=6 processing=10.2 fpsframes=210 tracks=12 detections=3 processing=10.3 fpsframes=220 tracks=13 detections=3 processing=10.5 fpsframes=230 tracks=10 detections=3 processing=10.6 fpsframes=240 tracks=11 detections=3 processing=10.7 fpsframes=250 tracks=11 detections=1 processing=10.9 fpsframes=260 tracks=11 detections=4 processing=11.0 fpsframes=270 tracks=11 detections=1 processing=11.1 fpsframes=280 tracks=12 detections=7 processing=11.2 fpsframes=290 tracks=14 detections=5 processing=11.4 fpsframes=300 tracks=17 detections=4 processing=11.5 fpsframes=310 tracks=14 detections=4 processing=11.5 fpsframes=320 tracks=11 detections=4 processing=11.6 fpsframes=330 tracks=14 detections=2 processing=11.7 fpsframes=340 tracks=12 detections=2 processing=11.8 fpsframes=350 tracks=11 detections=3 processing=11.9 fpsframes=360 tracks=12 detections=3 processing=11.9 fpsframes=370 tracks=16 detections=7 processing=11.9 fpsframes=380 tracks=12 detections=5 processing=12.0 fpsframes=390 tracks=15 detections=4 processing=12.0 fpsframes=400 tracks=12 detections=2 processing=12.1 fps
+Processed 408 point-cloud frames from /data/experiment_data/recordings/20261013_group001/recording_001/lidar.
+Track CSV: /home/hp-ubuntu/experiment_recorder/reports/review_20261020/baseline/tracks.csv
+Unique IDs created: 182
+	Command being timed: "python3 scripts/track_people.py /data/experiment_data/recordings/20261013_group001/recording_001/lidar --output reports/review_20261020/baseline/tracks.csv"
+	User time (seconds): 34.29
+	System time (seconds): 0.24
+	Percent of CPU this job got: 102%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:33.72
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 73708
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 17203
+	Voluntary context switches: 1088
+	Involuntary context switches: 973
+	Swaps: 0
+	File system inputs: 422920
+	File system outputs: 2664
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

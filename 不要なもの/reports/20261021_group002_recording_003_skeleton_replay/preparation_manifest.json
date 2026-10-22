@@ -1,0 +1,22 @@
+{
+  "recording": "20261021_group002_recording_003",
+  "skeleton_status": "not exported; no real bone animation has been rendered yet",
+  "review_images": 300,
+  "sdk_pc_required": true,
+  "live_devices_started": false,
+  "originals_modified": false,
+  "calibration_status": "recording_002 candidate, unchanged",
+  "input_sha256": {
+    "/home/hp-ubuntu/experiment_recorder/reports/20261021_group002_recording_003_walk_assessment/dashboard.json": "eea1985936fcb7469c905999f4f7d10364232d888dba05d5a9e647a090878cbd",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261021_group002_recording_003_walk_assessment/corridor_candidate.json": "ad36beb9e218c6f249b1318e5b33f0ab7cece16eb90c1383353a84720234e756",
+    "/data/experiment_data/20261021_group002_recording_003_walk_review/camera.json": "cd146152f34d417f686f812d378dcf9d28f9bb28039ec5c0e35f034074ea811e",
+    "/data/experiment_data/20261021_group002_recording_003_walk_review/frames.csv": "70687cf7e6f8e6072c252b8b9b6ae8f501e3f2d7413fdcb2572af5a1861e47f3",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261021_group002_pole_calibration/candidate.json": "9869dcab724657cd40d89f76a2efed3e56050acd5fc717a1e1df06c686ed796d",
+    "/home/hp-ubuntu/experiment_recorder/scripts/build_walk_skeleton_replay.py": "5a540877d1029cadcf07d079551e91aa60598d31f7c7392529db172833512bf7",
+    "/home/hp-ubuntu/experiment_recorder/scripts/walk_skeleton_replay_template.html": "dcc41a28e77ca708d4356caa9ebeb6aaa40cbf0710f4dabe9be9a4e64b4af542",
+    "/home/hp-ubuntu/experiment_recorder/scripts/analyze_svo_body_tracking.py": "f2d31e7e286ee1e85502e1ebc9992502fabab9a06b2777c3bdb6b9947b5c6e45",
+    "/home/hp-ubuntu/experiment_recorder/scripts/run_recording003_skeleton_replay_20261021.ps1": "8ebaf3c97dd0124d2e8229f3ef29b17edfaa8e352961d95fec1b5e083a5e3eb8",
+    "/home/hp-ubuntu/experiment_recorder/scripts/run_recording003_skeleton_replay_20261021.py": "82065efc02f8fc3e9bfb3f9057044d1ed16344185de5465b316795552405a74a",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261021_group002_recording_003_skeleton_replay/README.md": "1f4c4d0dddc2950f291015299bc3e2fd17b5305f7b29549c19e89ab0c4eaa17e"
+  }
+}

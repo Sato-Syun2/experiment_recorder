@@ -1,0 +1,22 @@
+{
+  "display_changes_only": true,
+  "comparison_with_previous_viewer": {
+    "identical_body_observations": true,
+    "extrinsic_unchanged": true,
+    "level_rotation_unchanged": true,
+    "level_translation_unchanged": true,
+    "corridor_unchanged": true,
+    "lidar_unchanged": true,
+    "images_unchanged": true
+  },
+  "source_sha256": {
+    "reports/20261021_group002_recording_003_skeleton_replay/display_fix_20261022/index.html": "3905085dd47e9d448b74a4b36efa439b55a548ad90d31b0c33e252a34808eff4",
+    "reports/20261021_group002_recording_003_skeleton_replay/display_fix_20261022/README.md": "7e128e9e4ee8526e688cd550a5ea6c844e744d31811e0c2326276f73fdba5b40",
+    "reports/20261021_group002_recording_003_skeleton_replay/display_fix_20261022/browser_review.json": "31a0c3da8f1e38495432f1d3dc57e39da49b1bea4ae2dc05941adc361e650cc6",
+    "reports/20261021_group002_recording_003_skeleton_replay/display_fix_20261022/source/walk_skeleton_replay_template.html": "0b7092efb159411a846b4ad207fc6fd579959f4a2d5ffcfff8c0bc32c73ca1c5",
+    "reports/20261021_group002_recording_003_skeleton_replay/display_fix_20261022/source/build_walk_skeleton_replay.py": "7533e86d89ae2eda09a3caed92e490f9c2e0b77ae39674f0535db85bbada78b1"
+  },
+  "sdk_rerun": false,
+  "original_export_modified": false,
+  "live_devices_started": false
+}

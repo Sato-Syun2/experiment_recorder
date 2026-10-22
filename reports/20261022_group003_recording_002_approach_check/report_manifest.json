@@ -1,0 +1,10 @@
+{
+  "source_sha256": {
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_002_approach_check/build_report.py": "c6021ca24a64d72cd39e84535ce2197fa196c887b86360d070bfa25cb8587bfa",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_002_approach_check/review_template.html": "2adf1ae6c78a4d232874ed92e2a277d4f8d5057ed8035879e55c506234f1ffac",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_002_approach_check/geometry.json": "753a1283fbf4a3390318b2d078eee0076c0405599d7a6123a2f9fc415766a5e0",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_002_approach_check/tracks.csv": "ed4de936f1d39c1e393bdb7e1c70e9fd6b7eb31a465cb293e6f914b90f275d03",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_002_approach_check/heldout_geometry.json": "41bf9c0da48d4bc108e50f90aff0f5025d58b7b365c9256f34a338c9c3f59373"
+  },
+  "note": "No SDK or hardware used. No original files overwritten. No unit tests requested or run."
+}

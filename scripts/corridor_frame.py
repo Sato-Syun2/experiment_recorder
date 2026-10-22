@@ -33,6 +33,7 @@ class CorridorFrame:
     wall_inlier_counts: tuple[int, int]
     source_frame: str = "livox_frame"
     name: str = "corridor"
+    quality: dict = dataclasses.field(default_factory=dict)
 
     def __post_init__(self) -> None:
         # 原点と直交単位軸を検証し、座標変換が距離を変えないようにする。
@@ -41,13 +42,23 @@ class CorridorFrame:
         lateral = np.asarray(self.lateral_xy, dtype=float).reshape(-1)
         if origin.size != 2 or longitudinal.size != 2 or lateral.size != 2:
             raise CorridorFrameError("Corridor frame vectors must have two elements.")
-        if not np.all(np.isfinite(origin)) or not np.all(np.isfinite(longitudinal)) or not np.all(np.isfinite(lateral)):
+        if (
+            not np.all(np.isfinite(origin))
+            or not np.all(np.isfinite(longitudinal))
+            or not np.all(np.isfinite(lateral))
+        ):
             raise CorridorFrameError("Corridor frame vectors must be finite.")
-        if not math.isclose(float(np.linalg.norm(longitudinal)), 1.0, abs_tol=1e-4) or not math.isclose(float(np.linalg.norm(lateral)), 1.0, abs_tol=1e-4):
+        if not math.isclose(
+            float(np.linalg.norm(longitudinal)), 1.0, abs_tol=1e-4
+        ) or not math.isclose(float(np.linalg.norm(lateral)), 1.0, abs_tol=1e-4):
             raise CorridorFrameError("Corridor axes must be unit vectors.")
         if abs(float(np.dot(longitudinal, lateral))) > 1e-4:
             raise CorridorFrameError("Corridor axes must be perpendicular.")
-        if len(self.wall_offsets) != 2 or self.wall_offsets[0] >= self.wall_offsets[1] or self.wall_gap <= 0:
+        if (
+            len(self.wall_offsets) != 2
+            or self.wall_offsets[0] >= self.wall_offsets[1]
+            or self.wall_gap <= 0
+        ):
             raise CorridorFrameError("Corridor wall fields are invalid.")
         object.__setattr__(self, "origin_xy", origin)
         object.__setattr__(self, "longitudinal_xy", longitudinal)
@@ -60,7 +71,9 @@ class CorridorFrame:
         if value.size != 3:
             raise CorridorFrameError("A position must contain three values.")
         delta = value[:2] - self.origin_xy
-        return np.array([self.longitudinal_xy @ delta, self.lateral_xy @ delta, value[2]], dtype=float)
+        return np.array(
+            [self.longitudinal_xy @ delta, self.lateral_xy @ delta, value[2]], dtype=float
+        )
 
     def transform_velocity(self, velocity: Sequence[float]) -> np.ndarray:
         """速度ベクトルを廊下座標の軸へ回転する。原点移動は行わない。"""
@@ -68,26 +81,42 @@ class CorridorFrame:
         value = np.asarray(velocity, dtype=float).reshape(-1)
         if value.size != 3:
             raise CorridorFrameError("A velocity must contain three values.")
-        return np.array([self.longitudinal_xy @ value[:2], self.lateral_xy @ value[:2], value[2]], dtype=float)
+        return np.array(
+            [self.longitudinal_xy @ value[:2], self.lateral_xy @ value[:2], value[2]], dtype=float
+        )
 
     def to_dict(self) -> dict[str, object]:
         """校正結果をJSONへ保存できる基本型へ変換する。"""
 
         return {
-            "version": 1, "name": self.name, "source_frame": self.source_frame,
-            "coordinate_frame": "corridor", "origin_xy": self.origin_xy.tolist(),
-            "longitudinal_xy": self.longitudinal_xy.tolist(), "lateral_xy": self.lateral_xy.tolist(),
-            "wall_offsets": list(self.wall_offsets), "wall_gap": self.wall_gap,
+            "version": 1,
+            "name": self.name,
+            "source_frame": self.source_frame,
+            "coordinate_frame": "corridor",
+            "origin_xy": self.origin_xy.tolist(),
+            "longitudinal_xy": self.longitudinal_xy.tolist(),
+            "lateral_xy": self.lateral_xy.tolist(),
+            "wall_offsets": list(self.wall_offsets),
+            "wall_gap": self.wall_gap,
             "wall_inlier_counts": list(self.wall_inlier_counts),
+            "quality": self.quality,
+            "handedness": (
+                "right"
+                if np.linalg.det(np.stack((self.longitudinal_xy, self.lateral_xy))) > 0
+                else "left_legacy"
+            ),
         }
 
     def write_json(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(self.to_dict(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        path.write_text(
+            json.dumps(self.to_dict(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
 
     @classmethod
     def from_dict(cls, value: object) -> "CorridorFrame":
         """JSON形式の値を検証し、廊下座標系を復元する。"""
+
         if not isinstance(value, dict):
             raise CorridorFrameError("Corridor frame JSON must contain an object.")
         try:
@@ -99,10 +128,12 @@ class CorridorFrame:
                 origin_xy=np.asarray(value["origin_xy"], dtype=float),
                 longitudinal_xy=np.asarray(value["longitudinal_xy"], dtype=float),
                 lateral_xy=np.asarray(value["lateral_xy"], dtype=float),
-                wall_offsets=(offsets[0], offsets[1]), wall_gap=float(value["wall_gap"]),
+                wall_offsets=(offsets[0], offsets[1]),
+                wall_gap=float(value["wall_gap"]),
                 wall_inlier_counts=(counts[0], counts[1]),
                 source_frame=str(value.get("source_frame", "livox_frame")),
                 name=str(value.get("name", "corridor")),
+                quality=dict(value.get("quality", {})),
             )
         except (KeyError, TypeError, ValueError) as exc:
             raise CorridorFrameError("Corridor frame JSON has invalid fields.") from exc
@@ -117,6 +148,8 @@ class CorridorFrame:
 
 @dataclasses.dataclass(frozen=True)
 class _WallLine:
+    """壁直線の法線・距離と、その推定を支える点数・長さを保持する。"""
+
     normal: np.ndarray
     offset: float
     inlier_count: int
@@ -142,7 +175,9 @@ def _fit_line(points: np.ndarray, tolerance: float) -> Optional[_WallLine]:
     return _WallLine(normal, offset, len(inliers), float(projected.max() - projected.min()))
 
 
-def _ransac_line(points: np.ndarray, rng: np.random.Generator, iterations: int, tolerance: float, min_span: float) -> Optional[_WallLine]:
+def _ransac_line(
+    points: np.ndarray, rng: np.random.Generator, iterations: int, tolerance: float, min_span: float
+) -> Optional[_WallLine]:
     """RANSACで、長く連続した壁らしい直線候補を1本探す。"""
 
     best: Optional[_WallLine] = None
@@ -173,15 +208,29 @@ def _ransac_line(points: np.ndarray, rng: np.random.Generator, iterations: int, 
 def _refit(points: np.ndarray, line: _WallLine, tolerance: float) -> Optional[_WallLine]:
     """選んだ直線候補を、元の点群全体で再度フィッティングする。"""
 
-    return _fit_line(points[np.abs(points[:, :2] @ line.normal - line.offset) <= tolerance], tolerance)
+    return _fit_line(
+        points[np.abs(points[:, :2] @ line.normal - line.offset) <= tolerance], tolerance
+    )
 
 
 def estimate_corridor_frame(
-    points: np.ndarray, *, z_min: float = 0.5, z_max: float = 2.2,
-    x_min: float = -30.0, x_max: float = 30.0, y_min: float = -15.0, y_max: float = 15.0,
-    voxel_size: float = 0.10, line_tolerance: float = 0.12, min_wall_span: float = 3.0,
-    min_wall_gap: float = 0.8, max_wall_gap: float = 8.0, max_parallel_angle_deg: float = 15.0,
-    ransac_iterations: int = 2500, candidate_count: int = 8, seed: int = 20260924,
+    points: np.ndarray,
+    *,
+    z_min: float = 0.5,
+    z_max: float = 2.2,
+    x_min: float = -30.0,
+    x_max: float = 30.0,
+    y_min: float = -15.0,
+    y_max: float = 15.0,
+    voxel_size: float = 0.10,
+    line_tolerance: float = 0.12,
+    min_wall_span: float = 3.0,
+    min_wall_gap: float = 0.8,
+    max_wall_gap: float = 8.0,
+    max_parallel_angle_deg: float = 15.0,
+    ransac_iterations: int = 2500,
+    candidate_count: int = 8,
+    seed: int = 20260924,
 ) -> CorridorFrame:
     """左右の壁を2本の平行線として推定し、廊下中心座標系を返す。"""
 
@@ -191,7 +240,14 @@ def estimate_corridor_frame(
         raise CorridorFrameError("Point cloud must be an N x 3 array.")
     # NaN/Infを除き、床や天井の点を高さ条件で除外する。
     mask = np.isfinite(values).all(axis=1)
-    mask &= ((values[:, 0] >= x_min) & (values[:, 0] <= x_max) & (values[:, 1] >= y_min) & (values[:, 1] <= y_max) & (values[:, 2] >= z_min) & (values[:, 2] <= z_max))
+    mask &= (
+        (values[:, 0] >= x_min)
+        & (values[:, 0] <= x_max)
+        & (values[:, 1] >= y_min)
+        & (values[:, 1] <= y_max)
+        & (values[:, 2] >= z_min)
+        & (values[:, 2] <= z_max)
+    )
     values = values[mask]
     if len(values) < 20:
         raise CorridorFrameError("Not enough finite points in the wall estimation ROI.")
@@ -211,7 +267,9 @@ def estimate_corridor_frame(
         if line is None:
             break
         candidates.append(line)
-        remaining = remaining[np.abs(remaining[:, :2] @ line.normal - line.offset) > line_tolerance * 1.5]
+        remaining = remaining[
+            np.abs(remaining[:, :2] @ line.normal - line.offset) > line_tolerance * 1.5
+        ]
         if len(remaining) < 20:
             break
     if len(candidates) < 2:
@@ -222,7 +280,7 @@ def estimate_corridor_frame(
     best_score = -1
     cos_limit = math.cos(math.radians(max_parallel_angle_deg))
     for index, first in enumerate(candidates):
-        for second in candidates[index + 1:]:
+        for second in candidates[index + 1 :]:
             if abs(float(first.normal @ second.normal)) < cos_limit:
                 continue
             second_normal = second.normal.copy()
@@ -234,17 +292,24 @@ def estimate_corridor_frame(
             if not min_wall_gap <= gap <= max_wall_gap:
                 continue
             if first.inlier_count + second.inlier_count > best_score:
-                best = (first, _WallLine(second_normal, second_offset, second.inlier_count, second.span))
+                best = (
+                    first,
+                    _WallLine(second_normal, second_offset, second.inlier_count, second.span),
+                )
                 best_score = first.inlier_count + second.inlier_count
     if best is None:
-        raise CorridorFrameError("Could not find two parallel wall lines with a plausible corridor width.")
+        raise CorridorFrameError(
+            "Could not find two parallel wall lines with a plausible corridor width."
+        )
     first, second = best
     # 2本の壁の法線を平均し、左右方向の軸を安定させる。
     normal = first.normal + second.normal
     normal /= np.linalg.norm(normal)
     second_offset = second.offset if first.normal @ second.normal >= 0 else -second.offset
     second_normal = second.normal if first.normal @ second.normal >= 0 else -second.normal
-    offsets = sorted((first.offset * float(normal @ first.normal), second_offset * float(normal @ second_normal)))
+    offsets = sorted(
+        (first.offset * float(normal @ first.normal), second_offset * float(normal @ second_normal))
+    )
     gap = offsets[1] - offsets[0]
     if not min_wall_gap <= gap <= max_wall_gap:
         raise CorridorFrameError("The fitted wall gap is outside the valid range.")
@@ -254,10 +319,36 @@ def estimate_corridor_frame(
     longitudinal /= np.linalg.norm(longitudinal)
     if longitudinal[0] < 0 or (abs(longitudinal[0]) < 1e-8 and longitudinal[1] < 0):
         longitudinal *= -1
-    counts = tuple(sorted((first.inlier_count, second.inlier_count)))
+    # 選ばれた壁法線の符号によらず、+X・+Y・+Zが右手系になるようにする。
+    lateral = np.array([-longitudinal[1], longitudinal[0]])
+    wall_samples = [
+        values[np.abs(values[:, :2] @ wall.normal - wall.offset) <= line_tolerance, :2]
+        for wall in (first, second)
+    ]
+    fitted = sorted((float(np.median(sample @ lateral)), sample) for sample in wall_samples)
+    offsets = [item[0] for item in fitted]
+    gap = offsets[1] - offsets[0]
+    if not min_wall_gap <= gap <= max_wall_gap:
+        raise CorridorFrameError("Common-normal wall gap is outside the valid range.")
+    counts = tuple(len(item[1]) for item in fitted)
+    quality = {
+        "wall_residual_rmse_m": [
+            float(np.sqrt(np.mean((sample @ lateral - offset) ** 2))) for offset, sample in fitted
+        ],
+        "wall_spans_m": [float(np.ptp(sample @ longitudinal)) for _, sample in fitted],
+        "parallel_angle_deg": math.degrees(
+            math.acos(float(np.clip(abs(first.normal @ second.normal), 0, 1)))
+        ),
+        "seed": seed,
+        "longitudinal_origin": "projection of sensor origin onto corridor center; not a fixed laboratory landmark",
+        "accuracy_note": "Wall fit residuals on fitting data, not surveyed corridor accuracy",
+    }
     return CorridorFrame(
         origin_xy=lateral * ((offsets[0] + offsets[1]) / 2),
-        longitudinal_xy=longitudinal, lateral_xy=lateral,
-        wall_offsets=(offsets[0], offsets[1]), wall_gap=gap,
+        longitudinal_xy=longitudinal,
+        lateral_xy=lateral,
+        wall_offsets=(offsets[0], offsets[1]),
+        wall_gap=gap,
         wall_inlier_counts=(int(counts[0]), int(counts[1])),
+        quality=quality,
     )

@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "source_frame": "livox_frame",
+  "target_frame": "zed_left_eye",
+  "coordinate_system": "IMAGE",
+  "units": "m",
+  "calibration_status": "floor_wall_candidate_longitudinal_translation_unobserved",
+  "rotation_source_to_target": [
+    [
+      -0.0007616410206740319,
+      -0.9998295180385942,
+      0.018448706232900697
+    ],
+    [
+      0.32021505482776474,
+      -0.01772113933721887,
+      -0.9471791171062856
+    ],
+    [
+      0.9473445722463435,
+      0.005186143008355597,
+      0.32017396108379853
+    ]
+  ],
+  "translation_m": [
+    0.03351484754963559,
+    -0.07577490808349929,
+    -0.038120939281162794
+  ],
+  "unobservable_translation_direction_target": [
+    0.38983740976647147,
+    -0.27042981508583847,
+    0.8802809262157208
+  ],
+  "unobservable_longitudinal_origin_difference_assumed_m": 0.0,
+  "notes": "Current recording only. Sensor-projected longitudinal origins provisionally equated; absolute longitudinal translation uncalibrated. Not applied to active config."
+}

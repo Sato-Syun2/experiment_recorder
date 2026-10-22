@@ -1,0 +1,108 @@
+{
+  "floor": {
+    "normal": [
+      0.07462666783890147,
+      -0.943487598002028,
+      -0.32289628809205284
+    ],
+    "d_m": 1.9748403650215296,
+    "inliers": 14253,
+    "inlier_fraction": 0.23755,
+    "median_residual_m": 0.007178591609187768,
+    "p90_residual_m": 0.02253032057008855,
+    "span_xyz_m": [
+      8.498653371157097,
+      4.864759467417318,
+      15.767578125
+    ],
+    "normal_angle_from_prior_deg": 1.1207026638798185
+  },
+  "floor_vs_imu_deg": 1.1207026638798185,
+  "rotation_raw_to_level": [
+    [
+      0.9972115424759493,
+      0.07060621802612002,
+      0.024164054477378877
+    ],
+    [
+      0.0,
+      -0.32379918837515903,
+      0.946125829690527
+    ],
+    [
+      0.07462666783890147,
+      -0.943487598002028,
+      -0.32289628809205284
+    ]
+  ],
+  "translation_raw_to_level": [
+    0.0,
+    0.0,
+    1.9748403650215296
+  ],
+  "corridor": {
+    "version": 1,
+    "name": "corridor",
+    "source_frame": "zed_heading_level_frame",
+    "coordinate_frame": "corridor",
+    "origin_xy": [
+      0.37157923954826705,
+      0.9409382537245444
+    ],
+    "longitudinal_xy": [
+      0.9301024652675648,
+      -0.36730015532694565
+    ],
+    "lateral_xy": [
+      0.36730015532694565,
+      0.9301024652675648
+    ],
+    "wall_offsets": [
+      -0.17393163893164254,
+      2.197231842643849
+    ],
+    "wall_gap": 2.3711634815754916,
+    "wall_inlier_counts": [
+      154,
+      228
+    ],
+    "quality": {
+      "wall_residual_rmse_m": [
+        0.02695375901340852,
+        0.034029086531733144
+      ],
+      "wall_spans_m": [
+        9.985113877729201,
+        15.860538019707569
+      ],
+      "parallel_angle_deg": 0.40089647677354584,
+      "seed": 20261022,
+      "longitudinal_origin": "projection of sensor origin onto corridor center; not a fixed laboratory landmark",
+      "accuracy_note": "Wall fit residuals on fitting data, not surveyed corridor accuracy"
+    },
+    "handedness": "right"
+  },
+  "rotation_raw_to_corridor": [
+    [
+      0.38983740976647147,
+      -0.27042981508583847,
+      0.8802809262157208
+    ],
+    [
+      -0.9178549201229081,
+      -0.19156948485863537,
+      0.34762548536775406
+    ],
+    [
+      0.07462666783890147,
+      -0.943487598002028,
+      -0.32289628809205284
+    ]
+  ],
+  "translation_raw_to_corridor": [
+    -4.6790654513479494e-17,
+    -1.0116501018561028,
+    1.9748403650215296
+  ],
+  "origin_note": "Projection of this sensor origin onto floor/centerline; not the surveyed corridor end."
+}

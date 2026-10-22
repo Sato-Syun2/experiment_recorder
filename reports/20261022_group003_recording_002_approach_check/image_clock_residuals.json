@@ -1,0 +1,10 @@
+{
+  "residual_ms": {
+    "n": 68,
+    "min": -35.189751,
+    "median": 32.100474000000006,
+    "p90": 32.3946267,
+    "max": 32.767111
+  },
+  "note": "Nearest raw timestamp residual; not a synchronization-accuracy measurement."
+}

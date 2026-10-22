@@ -1,0 +1,30 @@
+{
+  "destination": "/data/experiment_data/20261022_group003_recording_002_approach_check/assessment_sdk_20261022",
+  "source_sha256": {
+    "image_correspondence.jpg": "55185eec40cddf182d24e1ca584eae2a26d1178e029b99e330ac2fab19ead035",
+    "README.md": "ece236fa3b3c23e05a2bb6d9ca583f05ce4f3b76f9b9d48887fd175ce81e3092",
+    "index.html": "8bb677031074f2aacbdc6c9498f57c14d20373ccc4d8b024e236ced6e2938f86",
+    "replay.manifest.json": "3b9d22ba64870839c6b9a1fa29899e47ff32e822f6b9706238931cf2a180fbb4",
+    "assessment.log": "6e5de1e0469a8252a0799012b336ae46deb242ca36735754726795e55c406672",
+    "sensor_pairs.csv": "b965c550f6eb0d5ceddd818e987468ece93a9a7c6abe6168618e2503d4788dc5",
+    "reference_quality.json": "d8a8ef160188276fbfbe7ce7ace70b8bb19f94c56e09d155bd826cc12af4e4e3",
+    "manifest.json": "94311afd9d5fc49213bfaa3010ce4ee7a89a44582f6a829e0355e0e60691264f",
+    "replay.html": "2fd412db7d54eaf4f86b4bd693ddb9886f0f3edf7299dcb0ce411981d626a0d4",
+    "metrics.json": "ea4ea04c6d2638e326804e7588c8e55083a0168c45e548a0ec44c07871d260e6",
+    "bundle.json": "3a47332490550ab030f2e32edc27db92b68d1a58c590da30d1f39d2a82334796",
+    "skeleton_replay_template.html": "2cf70056920884eac14eeca771b3918649862ddd6c04fbed1ac509d667537d85",
+    "sdk_diagnostics.png": "6ad805ae769dfcd8560bec22a4bc1e5942a6b987156689a618f3f9feda5d02f3",
+    "assess.py": "1d2f41a4f269d89cfd2244e8674e15ee65b66d7dfbdd6588fa163f5b56fa8524",
+    "observations.json": "e1ed978519e6410d90800efbdfaeb38cb2fdd48a6f190b01c4d20a21721e698f",
+    "image_checks/03.jpg": "a798a122a07351ec2a5c471348354b82de1035d0b53c345c40517ca0f34a7fda",
+    "image_checks/06.jpg": "e66127d9e06a5cb9ab24b925f4ed40a36c81dd9abf97e7bafb87c64c96daa0d0",
+    "image_checks/00.jpg": "b8debd9beef128c6286eb53d1d844b4a29f325d8e4e8541114e1673bbe498d64",
+    "image_checks/04.jpg": "fe71b80fea7b80fa86f1065e9f34d2fe9b701ca8ae7420db0ec2c92223400d64",
+    "image_checks/01.jpg": "59c0a081e4dc9fa704074f39865ce6473e981af95fad420cd0e78ce4efe6ed07",
+    "image_checks/08.jpg": "06f79bb765bda7b0beadd8fc653577130aa7071956849a4c9cc9d24ac15dc48c",
+    "image_checks/02.jpg": "c5897f880d01d511481b95d45c94bc068c06838584517f553b89d53c0773ef96",
+    "image_checks/07.jpg": "48b0aaabc81f61f7776d6e38a08f2c962927c6a508fa6482efb85d9a05cfbb26",
+    "image_checks/05.jpg": "1320d248caa549364d1f891519a05436b77031505bf901cf712e8ebd9111b28a"
+  },
+  "note": "New assessment only. Original SDK export, replay, geometry and recording files preserved."
+}

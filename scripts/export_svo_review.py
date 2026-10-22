@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Export timestamped review frames and optional metric depth from a ZED SVO2.
+"""ZED SVO2から時刻付き確認画像と、必要に応じてm単位の深度・IMUを保存する。
 
-Run this on a machine with the matching ZED SDK Python binding and NVIDIA
-runtime. The regular workspace can then inspect camera images alongside a
-rosbag without needing to decode SVO2 locally.
+対応するZED SDK・Pythonバインディング・NVIDIA環境を備えた外部PCで使う。
+書き出し後はSVO2を復号できない環境でも、画像・深度とLiDAR結果を比較できる。
+Body Trackingは行わない。出力先には未使用の専用フォルダーを指定する。
 """
 
 from __future__ import annotations
@@ -22,6 +22,8 @@ import numpy as np
 
 
 def _timestamp_ns(zed: object, sl: object) -> int:
+    """各画像に付いたSDK時刻を整数ナノ秒で取得する。"""
+
     value = zed.get_timestamp(sl.TIME_REFERENCE.IMAGE)
     if hasattr(value, "get_nanoseconds"):
         return int(value.get_nanoseconds())
@@ -31,6 +33,8 @@ def _timestamp_ns(zed: object, sl: object) -> int:
 
 
 def _sensor_timestamp_ns(sensor: object) -> int:
+    """センサーデータのSDK時刻を取得し、時刻を取得できなければエラーにする。"""
+
     value = sensor.timestamp
     if hasattr(value, "get_nanoseconds"):
         return int(value.get_nanoseconds())
@@ -40,9 +44,13 @@ def _sensor_timestamp_ns(sensor: object) -> int:
 
 
 def _write_contact_sheet(frame_rows: list[dict[str, object]], output_path: Path) -> None:
+    """確認画像を縮小して、録画の流れを見渡せる一覧を作る。"""
+
     tile_width, tile_height, label_height, columns = 320, 180, 24, 4
     rows = math.ceil(len(frame_rows) / columns)
-    canvas = np.zeros((rows * (tile_height + label_height), columns * tile_width, 3), dtype=np.uint8)
+    canvas = np.zeros(
+        (rows * (tile_height + label_height), columns * tile_width, 3), dtype=np.uint8
+    )
     for index, row in enumerate(frame_rows):
         image = cv2.imread(str(output_path.parent / str(row["image_file"])), cv2.IMREAD_COLOR)
         if image is None:
@@ -51,9 +59,24 @@ def _write_contact_sheet(frame_rows: list[dict[str, object]], output_path: Path)
         x = (index % columns) * tile_width
         y = (index // columns) * (tile_height + label_height)
         canvas[y : y + tile_height, x : x + tile_width] = tile
-        cv2.rectangle(canvas, (x, y + tile_height), (x + tile_width - 1, y + tile_height + label_height - 1), (20, 20, 20), -1)
+        cv2.rectangle(
+            canvas,
+            (x, y + tile_height),
+            (x + tile_width - 1, y + tile_height + label_height - 1),
+            (20, 20, 20),
+            -1,
+        )
         label = f"f={row['frame_index']}  t={float(row['elapsed_s']):.2f}s"
-        cv2.putText(canvas, label, (x + 8, y + tile_height + 17), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(
+            canvas,
+            label,
+            (x + 8, y + tile_height + 17),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 255, 255),
+            1,
+            cv2.LINE_AA,
+        )
     if not cv2.imwrite(str(output_path), canvas, [cv2.IMWRITE_JPEG_QUALITY, 88]):
         raise RuntimeError(f"Could not write contact sheet: {output_path}")
 
@@ -65,6 +88,8 @@ def export_review(
     include_depth: bool,
     include_imu: bool,
 ) -> None:
+    """録画を一定フレーム間隔で読み、左画像・深度・任意のIMUを台帳付きで保存する。"""
+
     try:
         import pyzed.sl as sl
     except Exception as exc:
@@ -252,15 +277,19 @@ def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser.add_argument("svo", type=Path, help="ZED .svo or .svo2 file")
     parser.add_argument("--output", type=Path, required=True, help="review output directory")
     parser.add_argument(
-        "--every-seconds", type=float, default=0.5,
+        "--every-seconds",
+        type=float,
+        default=0.5,
         help="sample interval in seconds (default: 0.5)",
     )
     parser.add_argument(
-        "--include-depth", action="store_true",
+        "--include-depth",
+        action="store_true",
         help="also export metric ZED depth maps (requires GPU depth support)",
     )
     parser.add_argument(
-        "--include-imu", action="store_true",
+        "--include-imu",
+        action="store_true",
         help="export frame-synchronized IMU acceleration and gyro data to imu.csv",
     )
     return parser.parse_args(argv)
@@ -269,7 +298,9 @@ def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
 def main(argv: Optional[Sequence[str]] = None) -> int:
     args = _parse_args(argv)
     try:
-        export_review(args.svo, args.output, args.every_seconds, args.include_depth, args.include_imu)
+        export_review(
+            args.svo, args.output, args.every_seconds, args.include_depth, args.include_imu
+        )
     except (OSError, RuntimeError, ValueError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1

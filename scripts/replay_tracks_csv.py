@@ -28,7 +28,6 @@ from playback_timeline import (
     inspect_svo_timeline,
 )
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG_PATH = PROJECT_ROOT / "config.json"
 DEFAULT_TOPIC = "/livox/lidar"
@@ -107,17 +106,17 @@ def load_tracking_csv(
         required = {"frame", "time_sec", "track_id", "x", "y"}
         missing = required - fieldnames
         if missing:
-            raise ReplayError(
-                "CSV is missing required columns: " + ", ".join(sorted(missing))
-            )
+            raise ReplayError("CSV is missing required columns: " + ", ".join(sorted(missing)))
         # 廊下座標の列があり、少なくとも1行に値があれば校正済みとみなす。
         corridor_fields = {
-            "corridor_x", "corridor_y", "corridor_z",
-            "corridor_vx", "corridor_vy",
+            "corridor_x",
+            "corridor_y",
+            "corridor_z",
+            "corridor_vx",
+            "corridor_vy",
         }
         corridor_available = corridor_fields <= fieldnames and any(
-            all((row.get(name) or "").strip() != "" for name in corridor_fields)
-            for row in raw_rows
+            all((row.get(name) or "").strip() != "" for name in corridor_fields) for row in raw_rows
         )
         if coordinate_frame == "corridor" and not corridor_available:
             raise ReplayError(
@@ -149,9 +148,7 @@ def load_tracking_csv(
                 z = _float_field(row, "corridor_z", line, 0.0)
                 vx = _float_field(row, "corridor_vx", line, 0.0)
                 vy = _float_field(row, "corridor_vy", line, 0.0)
-                speed = _float_field(
-                    row, "corridor_speed_xy", line, math.hypot(vx, vy)
-                )
+                speed = _float_field(row, "corridor_speed_xy", line, math.hypot(vx, vy))
             else:
                 x = _float_field(row, "x", line)
                 y = _float_field(row, "y", line)
@@ -244,6 +241,8 @@ def load_tracking_csv(
 
 
 def _bounds(rows: Sequence[dict[str, object]]) -> dict[str, float]:
+    """選んだ表示座標の範囲から、HTMLの描画境界を決める。"""
+
     xs = [float(row["x"]) for row in rows]
     ys = [float(row["y"]) for row in rows]
     x_pad = max(0.5, (max(xs) - min(xs)) * 0.08)
@@ -285,8 +284,12 @@ def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         help="override ZED_Explorer executable from config.json",
     )
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG_PATH)
-    parser.add_argument("--topic", default=None, help=f"Point cloud topic (default: {DEFAULT_TOPIC})")
-    parser.add_argument("--rate", type=float, default=1.0, help="shared playback rate for HTML and RViz")
+    parser.add_argument(
+        "--topic", default=None, help=f"Point cloud topic (default: {DEFAULT_TOPIC})"
+    )
+    parser.add_argument(
+        "--rate", type=float, default=1.0, help="shared playback rate for HTML and RViz"
+    )
     parser.add_argument(
         "--fps",
         type=float,
@@ -352,11 +355,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             else csv_path.with_name(f"{csv_path.stem}_replay.html")
         )
         payload = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
-        payload = (
-            payload.replace("<", "\\u003c")
-            .replace(">", "\\u003e")
-            .replace("&", "\\u0026")
-        )
+        payload = payload.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
         # テンプレートへ解析済みデータを埋め、単体で開けるHTMLを書き出す。
         page = HTML_PAGE.replace("__DATA__", payload)
         output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -385,11 +384,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                     if colocated_bag.is_dir()
                     else PROJECT_ROOT / "recordings" / "livox" / svo_path.stem
                 )
-            timeline = (
-                _inspect_playback_timeline(svo_path, sync_bag)
-                if sync_bag.is_dir()
-                else None
-            )
+            timeline = _inspect_playback_timeline(svo_path, sync_bag) if sync_bag.is_dir() else None
             if timeline is None:
                 print(
                     "Warning: SVO/LiDAR recorded timestamps were unavailable; "
@@ -424,9 +419,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
             process: Optional[subprocess.Popen] = None
             if args.no_open:
-                process = subprocess.Popen(
-                    [resolved_executable, str(svo_path)]
-                )
+                process = subprocess.Popen([resolved_executable, str(svo_path)])
             elif timeline is not None and timeline.bag_start_delay_seconds > 0:
                 # カメラ録画の方が先に始まっている場合は、カメラを先に起動する。
                 # 記録上のLiDAR開始差分だけ待ってからHTMLを開く。
@@ -443,7 +436,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         except (OSError, json.JSONDecodeError, ReplayError, TypeError) as exc:
             print(f"Error: could not start camera replay: {exc}", file=sys.stderr)
             return 1
-        print("ZED camera video started with recorded-timestamp alignment. Close ZED_Explorer to finish replay.")
+        print(
+            "ZED camera video started with recorded-timestamp alignment. Close ZED_Explorer to finish replay."
+        )
         if args.rate != 1.0:
             print(
                 "Note: --rate controls the HTML graph; change playback speed "

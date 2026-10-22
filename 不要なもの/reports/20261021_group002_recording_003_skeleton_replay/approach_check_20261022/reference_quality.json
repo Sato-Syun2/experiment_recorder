@@ -1,0 +1,42 @@
+{
+  "reference": {
+    "reference_time_s": [
+      4.5,
+      10.5
+    ],
+    "reference_segment_m": {
+      "torso": 0.5251022971491536,
+      "left_thigh": 0.34688534386104414,
+      "left_shin": 0.30834251291004866,
+      "right_thigh": 0.346885336451748,
+      "right_shin": 0.3083425285875319
+    },
+    "ratio_limits": [
+      0.5,
+      1.8
+    ],
+    "note": "Recording-specific review screen: compare SDK segment lengths with early same-person observations. Not anatomical truth or corrected skeleton.",
+    "segments": {
+      "torso": [
+        0,
+        3
+      ],
+      "left_thigh": [
+        18,
+        19
+      ],
+      "left_shin": [
+        19,
+        20
+      ],
+      "right_thigh": [
+        22,
+        23
+      ],
+      "right_shin": [
+        23,
+        24
+      ]
+    }
+  }
+}

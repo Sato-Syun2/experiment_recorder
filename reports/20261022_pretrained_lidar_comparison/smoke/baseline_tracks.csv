@@ -1,0 +1,1 @@
+frame,time_sec,timestamp_ns,track_id,status,detected,hits,missed_frames,x,y,z,vx,vy,speed_xy,level_x,level_y,level_z,level_vx,level_vy,level_vz,level_speed_xy,zed_x,zed_y,zed_z,zed_vx,zed_vy,zed_vz,corridor_x,corridor_y,corridor_z,corridor_vx,corridor_vy,corridor_vz,corridor_speed_xy,point_count,width,depth,height,confidence

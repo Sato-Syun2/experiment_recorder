@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "name": "corridor",
+  "source_frame": "livox_level_frame",
+  "coordinate_frame": "corridor",
+  "origin_xy": [
+    0.3523591595659027,
+    0.9797097427354005
+  ],
+  "longitudinal_xy": [
+    0.9409903249974523,
+    -0.3384334620884721
+  ],
+  "lateral_xy": [
+    0.3384334620884721,
+    0.9409903249974523
+  ],
+  "wall_offsets": [
+    -0.14896777574977949,
+    2.2312628147302345
+  ],
+  "wall_gap": 2.380230590480014,
+  "wall_inlier_counts": [
+    69,
+    254
+  ],
+  "quality": {
+    "wall_residual_rmse_m": [
+      0.01803784897622101,
+      0.018190237843268387
+    ],
+    "wall_spans_m": [
+      10.598773586390095,
+      16.17697036942341
+    ],
+    "parallel_angle_deg": 0.01354171968719539,
+    "seed": 20261022,
+    "longitudinal_origin": "projection of sensor origin onto corridor center; not a fixed laboratory landmark",
+    "accuracy_note": "Wall fit residuals on fitting data, not surveyed corridor accuracy"
+  },
+  "handedness": "right"
+}

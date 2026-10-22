@@ -1,0 +1,118 @@
+{
+  "status": "preliminary_not_independently_validated",
+  "method": "LiDAR floor-plane + seven LiDAR pole stem clusters; manually seeded ZED base-dark-blob localization; fixed camera height from ZED NEURAL depth floor; 2D reprojection fit",
+  "frames": {
+    "source": "livox_frame",
+    "destination": "ZED rectified left camera IMAGE coordinates (x right, y down, z forward)"
+  },
+  "units": "meters; rotation matrix dimensionless",
+  "T_camera_from_lidar_4x4": [
+    [
+      0.011349110168661043,
+      -0.9997638074419285,
+      -0.01853196882220031,
+      -0.017217679598045196
+    ],
+    [
+      0.31616003202424714,
+      0.02117014341521761,
+      -0.9484695775655746,
+      -0.12480848566091458
+    ],
+    [
+      0.9486380033582439,
+      0.004905217614288633,
+      0.3163256294407727,
+      -0.07046213139645643
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "R_camera_from_lidar_3x3": [
+    [
+      0.011349110168661043,
+      -0.9997638074419285,
+      -0.01853196882220031
+    ],
+    [
+      0.31616003202424714,
+      0.02117014341521761,
+      -0.9484695775655746
+    ],
+    [
+      0.9486380033582439,
+      0.004905217614288633,
+      0.3163256294407727
+    ]
+  ],
+  "t_camera_from_lidar_m": [
+    -0.017217679598045196,
+    -0.12480848566091458,
+    -0.07046213139645643
+  ],
+  "camera_origin_in_lidar_m": [
+    0.10649791459271321,
+    -0.014225768475867175,
+    -0.09640716507353739
+  ],
+  "height_lidar_m": 2.0651252269744873,
+  "height_zed_m_assumed": 1.9258141264766786,
+  "camera_model": {
+    "camera_model": "ZED 2i",
+    "fps": 30.0,
+    "fx": 523.9061889648438,
+    "fy": 523.9061889648438,
+    "cx": 646.8890991210938,
+    "cy": 348.150146484375,
+    "image_view": "VIEW.LEFT (rectified)",
+    "depth_mode": "NEURAL"
+  },
+  "fit": {
+    "n_stations": 7,
+    "pixel_axis_rms": 1.1354923477314693,
+    "mean_pixel_euclidean": 1.5079706107637265,
+    "held_out_leave_one_out_mean_euclidean_px": 2.6260791588424057,
+    "held_out_leave_one_out_max_euclidean_px": 6.5851214947014505,
+    "center_spacing_mean_m": 1.9986991590608962,
+    "center_spacing_sd_m": 0.047047858930800907,
+    "zed_floor_pitch_from_depth_deg": 14.693312165471841,
+    "zed_pitch_from_pole_images_deg": 15.855467143605045,
+    "lidar_vertical_plane_normal_xyz": [
+      -0.5633103251457214,
+      -0.021704865619540215,
+      0.8259602189064026
+    ],
+    "zed_floor_down_normal_xyz": [
+      -0.006651641641929969,
+      0.9672744956641288,
+      0.2536450387868301
+    ],
+    "note": "This is not a true independent 6-DOF solution: centers are approximately collinear; floor normals and height priors fix otherwise weak degrees of freedom."
+  },
+  "assumptions_and_risks": [
+    "camera height fixed using one depth-derived floor plane (NEURAL depth); fit differs in pitch by around 1.16 degrees",
+    "ZED pole base centers were seeded from human inspection then refined by negative difference relative to empty-frame grayscale",
+    "points from central-corridor ROI may contain outliers or beam/shadow returns",
+    "The outer diameter of the pole base may bias center in image; use calibrated marker or off-axis ground points to independently validate",
+    "do not substitute as final camera-lidar extrinsics without validation on door corners or off-axis markers"
+  ],
+  "quaternion_camera_from_lidar_xyzw": [
+    0.41044284796365577,
+    -0.4163818546837554,
+    0.5665259006688633,
+    0.5806989095193243
+  ],
+  "cross_sensor_static_scene_check": {
+    "paired_points_total": 34926,
+    "n_frames": 8,
+    "nearest_cloud_timestamps_difference_median_ms": 27.948777999999997,
+    "median_absolute_ZED_minus_LiDAR_depth_m": 0.11331401773990568,
+    "p90_absolute_depth_m": 0.39478978172426427,
+    "fraction_absolute_depth_lt_half_meter": 0.931941819847678,
+    "caveat": "Pixel-wise correspondence in large static surfaces, not an independent metric ground-truth pose calibration; depth error and occlusions rise at long range."
+  }
+}

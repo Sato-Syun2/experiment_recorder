@@ -1,0 +1,171 @@
+{
+  "cases": [
+    {
+      "recording": "002",
+      "scope": "approach",
+      "label": "historical_5_4_accurate",
+      "status": "historical",
+      "metrics": {
+        "sdk_version_field": "5.4",
+        "pyzed_version": null,
+        "model": "HUMAN_BODY_ACCURATE",
+        "generation_requested": null,
+        "generation_effective": null,
+        "generation_verified": false,
+        "frames": 414,
+        "window_s": [
+          7.199002,
+          20.999397
+        ],
+        "sdk_OK_any_frames": 411,
+        "sdk_OK_any_fraction": 0.9927536231884058,
+        "sdk_OK_ids": {
+          "0": 411
+        },
+        "dominant_id": "0",
+        "dominant_OK_frames": 411,
+        "dominant_OK_fraction": 0.9927536231884058,
+        "multiple_OK_ID_frames": 0,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 3,
+        "latency": null,
+        "model_enable_seconds": null,
+        "processing_wall_s": null,
+        "depth_precision": null,
+        "positional_mode": null,
+        "prediction_timeout_s": null,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 0.100015,
+        "max_no_OK_gap_s": 0.10001499999999997,
+        "both_legs_conf25_inside_frames": 307,
+        "both_legs_conf25_inside_fraction": 0.7415458937198067,
+        "reference_rows": 60,
+        "reference_segment_m": {
+          "torso": 0.5032673341017277,
+          "left_thigh": 0.3770699011187507,
+          "left_shin": 0.3351732706634064,
+          "right_thigh": 0.3770699276425395,
+          "right_shin": 0.33517323034914337
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 411,
+            "min": 0.472483750441874,
+            "median": 0.4921645268899698,
+            "p10": 0.48394027701576264,
+            "p90": 0.5469529069112706,
+            "max": 0.5558863593377622
+          },
+          "left_thigh": {
+            "n": 411,
+            "min": 0.3206273501752154,
+            "median": 0.40875870954043486,
+            "p10": 0.37130346160958566,
+            "p90": 0.5154355712594819,
+            "max": 0.5693330990805565
+          },
+          "left_shin": {
+            "n": 411,
+            "min": 0.28500209645584385,
+            "median": 0.36334099120228347,
+            "p10": 0.33004751948616406,
+            "p90": 0.45816497763695024,
+            "max": 0.5060739123811971
+          },
+          "right_thigh": {
+            "n": 411,
+            "min": 0.32062731966435437,
+            "median": 0.4087585939936647,
+            "p10": 0.3713035071876632,
+            "p90": 0.5154355539886674,
+            "max": 0.5693331516805236
+          },
+          "right_shin": {
+            "n": 411,
+            "min": 0.28500221564131056,
+            "median": 0.36334133210466824,
+            "p10": 0.3300476010449216,
+            "p90": 0.4581650653370866,
+            "max": 0.506073814929742
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 411,
+            "min": 0.9388325417249686,
+            "median": 0.9779385498334099,
+            "p10": 0.9615968377513283,
+            "p90": 1.086803910862835,
+            "max": 1.1045548194180994
+          },
+          "left_thigh": {
+            "n": 411,
+            "min": 0.8503127648850448,
+            "median": 1.084039612622659,
+            "p10": 0.984707239978433,
+            "p90": 1.3669496550379812,
+            "max": 1.5098874171376948
+          },
+          "left_shin": {
+            "n": 411,
+            "min": 0.85031272300366,
+            "median": 1.0840392805879921,
+            "p10": 0.9847071600694859,
+            "p90": 1.3669496279643871,
+            "max": 1.5098874423355064
+          },
+          "right_thigh": {
+            "n": 411,
+            "min": 0.8503126241568316,
+            "median": 1.0840392299360608,
+            "p10": 0.9847072915866607,
+            "p90": 1.3669495130815572,
+            "max": 1.5098874504260353
+          },
+          "right_shin": {
+            "n": 411,
+            "min": 0.850313180871961,
+            "median": 1.0840404280681446,
+            "p10": 0.9847075218421157,
+            "p90": 1.366950054035715,
+            "max": 1.5098873331935694
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.3488579430123554,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "heel_z_m": {
+          "n": 666,
+          "min": -0.27753241291775654,
+          "median": 0.05678728210649209,
+          "p10": -0.17655106728432335,
+          "p90": 0.1294319858294838,
+          "max": 0.2377791802169582
+        },
+        "supported_heel_below_minus10cm_frames": 57,
+        "supported_heel_below_minus10cm_fraction": 0.13768115942028986,
+        "pelvis_x_m": {
+          "n": 411,
+          "min": 0.31444217330889596,
+          "median": 8.073391886146108,
+          "p10": 1.435314791833127,
+          "p90": 14.049049890080722,
+          "max": 14.806692210065815
+        },
+        "pelvis_y_m": {
+          "n": 411,
+          "min": -0.16005018467757492,
+          "median": 0.006043673245884396,
+          "p10": -0.08448542851400231,
+          "p90": 0.10337718150743047,
+          "max": 0.20913054966503974
+        },
+        "floor_note": "Frozen recording002 floor candidate, not surveyed ground truth. Never refitted per model."
+      },
+      "note": "Historical sdk_version field recorded pyzed package version only; runtime SDK patch and generation were not read back. SDK/model changes are confounded."
+    }
+  ],
+  "execution_errors": {},
+  "ranking_status": "pending_visual_person_pole_association",
+  "interpretation": "Compare metrics within each identical recording/window. No absolute accuracy ground truth. Review RGB and ID association before choosing a model."
+}

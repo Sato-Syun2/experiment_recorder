@@ -1,0 +1,118 @@
+{
+  "far_15m": {
+    "expected_frames": 285,
+    "processed_frames": 285,
+    "body_observations": 285,
+    "sdk_state_counts": {
+      "OK": 285
+    },
+    "sdk_OK_frames": 285,
+    "sdk_OK_fraction": 1.0,
+    "shape_coherent_OK_frames": 0,
+    "shape_coherent_OK_fraction": 0.0,
+    "both_legs_confidence25_frames": 0,
+    "both_legs_confidence25_fraction": 0.0,
+    "first_shape_coherent_time_s": null,
+    "first_shape_coherent_latency_s": null,
+    "longest_shape_coherent_absence_s": 9.499376999999999,
+    "sdk_OK_ids": [
+      "0"
+    ],
+    "shape_coherent_ids": [],
+    "segment_lengths_m": {
+      "torso": {
+        "n": 285,
+        "min": 0.1827295301803829,
+        "median": 0.18272994658658187,
+        "max": 0.1827429642199363
+      },
+      "left_thigh": {
+        "n": 285,
+        "min": 1.3993608106383977,
+        "median": 1.3993613059154162,
+        "max": 1.3993617454846532
+      },
+      "left_shin": {
+        "n": 285,
+        "min": 1.2438761039593362,
+        "median": 1.243876707725497,
+        "max": 1.243877235650547
+      },
+      "right_thigh": {
+        "n": 285,
+        "min": 1.3993607187123382,
+        "median": 1.3993611909244217,
+        "max": 1.3993616356777219
+      },
+      "right_shin": {
+        "n": 285,
+        "min": 1.2438763658769674,
+        "median": 1.2438766248941804,
+        "max": 1.2438772325739489
+      }
+    },
+    "camera_time_window_s": [
+      17.000623,
+      26.46765
+    ],
+    "interpretation": "SDK availability and same-person shape consistency only. Confidence is not joint accuracy."
+  },
+  "near_13m": {
+    "expected_frames": 240,
+    "processed_frames": 240,
+    "body_observations": 240,
+    "sdk_state_counts": {
+      "OK": 240
+    },
+    "sdk_OK_frames": 240,
+    "sdk_OK_fraction": 1.0,
+    "shape_coherent_OK_frames": 0,
+    "shape_coherent_OK_fraction": 0.0,
+    "both_legs_confidence25_frames": 0,
+    "both_legs_confidence25_fraction": 0.0,
+    "first_shape_coherent_time_s": null,
+    "first_shape_coherent_latency_s": null,
+    "longest_shape_coherent_absence_s": 7.999227999999999,
+    "sdk_OK_ids": [
+      "0"
+    ],
+    "shape_coherent_ids": [],
+    "segment_lengths_m": {
+      "torso": {
+        "n": 240,
+        "min": 0.18272986689537044,
+        "median": 0.18272994658658187,
+        "max": 0.18273007485627807
+      },
+      "left_thigh": {
+        "n": 240,
+        "min": 1.3993608923053942,
+        "median": 1.3993613136218035,
+        "max": 1.3993617454846532
+      },
+      "left_shin": {
+        "n": 240,
+        "min": 1.2438761733273687,
+        "median": 1.2438767113631823,
+        "max": 1.2438771938722222
+      },
+      "right_thigh": {
+        "n": 240,
+        "min": 1.3993607187123382,
+        "median": 1.3993611909830679,
+        "max": 1.3993615477323977
+      },
+      "right_shin": {
+        "n": 240,
+        "min": 1.2438763658769674,
+        "median": 1.2438766225310134,
+        "max": 1.2438769678805566
+      }
+    },
+    "camera_time_window_s": [
+      18.500772,
+      26.46765
+    ],
+    "interpretation": "SDK availability and same-person shape consistency only. Confidence is not joint accuracy."
+  }
+}

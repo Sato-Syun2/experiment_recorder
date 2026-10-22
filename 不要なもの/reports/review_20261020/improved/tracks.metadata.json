@@ -1,0 +1,154 @@
+{
+  "source_script": "/home/hp-ubuntu/experiment_recorder/scripts/track_people.py",
+  "bag": "/data/experiment_data/recordings/20261013_group001/recording_001/lidar",
+  "settings": {
+    "topic": "/livox/lidar",
+    "voxel_size": 0.08,
+    "roi": {
+      "x_min": -30.0,
+      "x_max": 30.0,
+      "y_min": -15.0,
+      "y_max": 15.0,
+      "z_min": -3.0,
+      "z_max": 5.0
+    },
+    "ground_mode": "fixed",
+    "ground_z": 0.0,
+    "ground_clearance": 0.12,
+    "max_height_above_ground": 2.4,
+    "gravity_alignment_enabled": true,
+    "gravity_up_vector": [
+      -0.55091,
+      -0.0241,
+      0.83422
+    ],
+    "ground_height_along_up": -2.11,
+    "gravity_alignment_rotation": [
+      [
+        0.8345656868176381,
+        -0.0159087010668503,
+        0.5506786972609069
+      ],
+      [
+        -1.7347234759768075e-18,
+        0.9995829662963904,
+        0.028877214029564162
+      ],
+      [
+        -0.5509084446499292,
+        -0.02409993195996314,
+        0.8342176447983588
+      ]
+    ],
+    "gravity_alignment_translation": [
+      0.0,
+      0.0,
+      2.11
+    ],
+    "background_mode": "temporal",
+    "background_learning_frames": 30,
+    "background_min_presence": 0.85,
+    "background_voxel_size": 0.18,
+    "cluster_tolerance": 0.35,
+    "min_cluster_points": 8,
+    "max_cluster_points": 2500,
+    "min_cluster_height": 0.15,
+    "min_cluster_width": 0.1,
+    "min_cluster_depth": 0.1,
+    "max_cluster_base_height": 0.45,
+    "max_cluster_height": 2.5,
+    "max_cluster_width": 2.0,
+    "max_cluster_depth": 2.0,
+    "far_detection_start": 8.0,
+    "far_min_cluster_points": 5,
+    "far_min_cluster_width": 0.05,
+    "far_min_cluster_depth": 0.05,
+    "far_cluster_tolerance_growth_per_meter": 0.012,
+    "max_cluster_tolerance": 0.8,
+    "cluster_background_voxel_size": 0.9,
+    "cluster_background_min_presence": 0.5,
+    "max_match_distance": 0.55,
+    "max_track_speed": 3.0,
+    "max_missed_frames": 12,
+    "max_prediction_seconds": 1.2,
+    "association_prediction": true,
+    "min_hits": 2,
+    "min_confirmed_consecutive_hits": 5,
+    "min_confirmed_point_count": 20.0,
+    "far_min_confirmed_point_count": 8.0,
+    "min_track_displacement": 0.8,
+    "min_motion_consistency": 0.55,
+    "motion_consistency_window": 15,
+    "velocity_smoothing": 0.65,
+    "markers_topic": "/people/tracks",
+    "publish_markers": false,
+    "output_coordinate_frame": "corridor",
+    "corridor_frame_file": "/home/hp-ubuntu/experiment_recorder/tracking/corridor_frame_livox_level.json",
+    "corridor_frame": {
+      "origin_xy": [
+        0.007617801931220109,
+        -0.1309505902323357
+      ],
+      "longitudinal_xy": [
+        0.9983122276503811,
+        0.058074918198252064
+      ],
+      "lateral_xy": [
+        -0.058074918198252064,
+        0.9983122276503811
+      ],
+      "wall_offsets": [
+        -1.344094459276375,
+        1.0817505019344122
+      ],
+      "wall_gap": 2.425844961210787,
+      "wall_inlier_counts": [
+        226,
+        265
+      ],
+      "source_frame": "livox_level_frame",
+      "name": "corridor"
+    },
+    "lidar_to_zed_frame_file": "/home/hp-ubuntu/experiment_recorder/tracking/lidar_to_zed_left_eye.json",
+    "lidar_to_zed_frame": {
+      "rotation": [
+        [
+          0.036831584104204194,
+          -0.9987785464945459,
+          0.03293705321695532
+        ],
+        [
+          -0.2363876975800268,
+          -0.04073173163535196,
+          -0.9708047087189052
+        ],
+        [
+          0.9709604991168216,
+          0.027970361102910898,
+          -0.2375991751976092
+        ]
+      ],
+      "translation": [
+        -0.09156579925593654,
+        1.9213690241945989,
+        0.50846870195335
+      ],
+      "source_frame": "livox_level_frame",
+      "target_frame": "zed_left_eye"
+    }
+  },
+  "stride": 1,
+  "max_frames": null,
+  "completed": true,
+  "frames": 408,
+  "wall_time_s": 33.8861366600031,
+  "source_sha256": {
+    "/home/hp-ubuntu/experiment_recorder/scripts/track_people.py": "3aa0aaeccaefac12edd2b3e0e488733f56523e4de5fd8e696dff54a1b93b86c2",
+    "/home/hp-ubuntu/experiment_recorder/scripts/assignment.py": "555fbe76a4b72800faeecc348d566d9374237977f486c91f324edd7b6432546f",
+    "/home/hp-ubuntu/experiment_recorder/tracking/corridor_frame_livox_level.json": "4fa91d5c1e4a6d6dc4483e3e0df157ff11525f25517c504c1b8949ef50ae4fe7",
+    "/home/hp-ubuntu/experiment_recorder/tracking/lidar_to_zed_left_eye.json": "834a73336d94745f89d65afcce0747ea3ff48d4f4e3c4af25856ed755d38b111",
+    "/data/experiment_data/recordings/20261013_group001/recording_001/lidar/metadata.yaml": "85c58d8e2c3bad1483c49f34b147db3ad8eacea8fc6d2f3efcae79fcf96d7567"
+  },
+  "timestamp_policy": "header nanoseconds; bag receive time only when header is absent/zero",
+  "accuracy_note": "Confidence is a point-support heuristic, not a position error probability."
+}

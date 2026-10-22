@@ -1,0 +1,39 @@
+test_assignment_matches_bruteforce_with_forbidden_edges (test_measurement_quality.MeasurementTests.test_assignment_matches_bruteforce_with_forbidden_edges) ... ok
+test_coordinate_chain_roundtrip (test_measurement_quality.MeasurementTests.test_coordinate_chain_roundtrip) ... ok
+test_crossing_keeps_motion_identity (test_measurement_quality.MeasurementTests.test_crossing_keeps_motion_identity) ... ok
+test_duplicate_and_reversed_timestamps_rejected (test_measurement_quality.MeasurementTests.test_duplicate_and_reversed_timestamps_rejected) ... ok
+test_elapsed_time_expires_id_without_intermediate_frames (test_measurement_quality.MeasurementTests.test_elapsed_time_expires_id_without_intermediate_frames) ... ok
+test_evaluator_counts_missing_false_positive_and_id_switch (test_measurement_quality.MeasurementTests.test_evaluator_counts_missing_false_positive_and_id_switch) ... ok
+test_evaluator_empty_scene_and_no_frame (test_measurement_quality.MeasurementTests.test_evaluator_empty_scene_and_no_frame) ... ok
+test_large_wall_not_accepted_as_small_panel (test_measurement_quality.MeasurementTests.test_large_wall_not_accepted_as_small_panel) ... ok
+test_plane_solution_and_degeneracy (test_measurement_quality.MeasurementTests.test_plane_solution_and_degeneracy) ... ok
+test_reacquisition_velocity_uses_observations (test_measurement_quality.MeasurementTests.test_reacquisition_velocity_uses_observations) ... ok
+test_reject_millimeter_transform (test_measurement_quality.MeasurementTests.test_reject_millimeter_transform) ... ok
+test_sync_offset_cannot_be_implicitly_zero (test_measurement_quality.MeasurementTests.test_sync_offset_cannot_be_implicitly_zero) ... usage: python3 -m unittest [-h] [--body-dir BODY_DIR] [--body-csv BODY_CSV]
+                           [--camera-json CAMERA_JSON] [--tracks TRACKS]
+                           [--config CONFIG] [--output-dir OUTPUT_DIR]
+                           --timestamp-offset-ms TIMESTAMP_OFFSET_MS
+                           --sync-note SYNC_NOTE
+                           [--smoothing-window-s SMOOTHING_WINDOW_S]
+                           [--max-lidar-gap-s MAX_LIDAR_GAP_S]
+                           [--association-bbox-gate-px ASSOCIATION_BBOX_GATE_PX]
+                           [--association-center-gate-m ASSOCIATION_CENTER_GATE_M]
+                           [--association-json ASSOCIATION_JSON]
+                           [--min-body-confidence MIN_BODY_CONFIDENCE]
+                           [--max-fusion-residual-m MAX_FUSION_RESIDUAL_M]
+                           [--minimum-lidar-longitudinal-share MINIMUM_LIDAR_LONGITUDINAL_SHARE]
+                           [--max-speed-mps MAX_SPEED_MPS]
+                           [--max-motion-gap-s MAX_MOTION_GAP_S]
+python3 -m unittest: error: the following arguments are required: --timestamp-offset-ms, --sync-note
+ok
+test_unsmoothed_acceleration_nonuniform_times (test_measurement_quality.MeasurementTests.test_unsmoothed_acceleration_nonuniform_times) ... ok
+test_corridor_coordinates_survive_json_round_trip (test_regression.RefactorRegressionTests.test_corridor_coordinates_survive_json_round_trip) ... ok
+test_csv_replay_interpolates_missing_frame (test_regression.RefactorRegressionTests.test_csv_replay_interpolates_missing_frame) ... ok
+test_playback_uses_recorded_timestamp_offset (test_regression.RefactorRegressionTests.test_playback_uses_recorded_timestamp_offset) ... ok
+test_recording_names_keep_trial_and_avoid_overwrite (test_regression.RefactorRegressionTests.test_recording_names_keep_trial_and_avoid_overwrite) ... ok
+test_tracker_keeps_id_when_detection_is_temporarily_missing (test_regression.RefactorRegressionTests.test_tracker_keeps_id_when_detection_is_temporarily_missing) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.150s
+
+OK

@@ -1,0 +1,142 @@
+{
+  "source_script": "/home/hp-ubuntu/experiment_recorder/scripts/track_people.py",
+  "bag": "/data/experiment_data/recordings/20261022_group003/recording_003/lidar",
+  "settings": {
+    "topic": "/livox/lidar",
+    "voxel_size": 0.08,
+    "roi": {
+      "x_min": -30.0,
+      "x_max": 30.0,
+      "y_min": -15.0,
+      "y_max": 15.0,
+      "z_min": -3.0,
+      "z_max": 5.0
+    },
+    "ground_mode": "fixed",
+    "ground_z": 0.0,
+    "ground_clearance": 0.12,
+    "max_height_above_ground": 2.4,
+    "gravity_alignment_enabled": true,
+    "gravity_up_vector": [
+      -0.6090931064694458,
+      -0.059420893536078045,
+      0.7908696131871388
+    ],
+    "ground_height_along_up": -2.0628784254134023,
+    "gravity_alignment_rotation": [
+      [
+        0.7930987250345322,
+        -0.045634743179676814,
+        0.6073811674422617
+      ],
+      [
+        0.0,
+        0.9971893639757191,
+        0.07492244239012087
+      ],
+      [
+        -0.6090931064694458,
+        -0.059420893536078045,
+        0.7908696131871388
+      ]
+    ],
+    "gravity_alignment_translation": [
+      0.0,
+      0.0,
+      2.0628784254134023
+    ],
+    "background_mode": "temporal",
+    "background_learning_frames": 30,
+    "background_min_presence": 0.85,
+    "background_voxel_size": 0.18,
+    "cluster_tolerance": 0.35,
+    "min_cluster_points": 8,
+    "max_cluster_points": 2500,
+    "min_cluster_height": 0.15,
+    "min_cluster_width": 0.1,
+    "min_cluster_depth": 0.1,
+    "max_cluster_base_height": 0.45,
+    "max_cluster_height": 2.5,
+    "max_cluster_width": 2.0,
+    "max_cluster_depth": 2.0,
+    "far_detection_start": 8.0,
+    "far_min_cluster_points": 5,
+    "far_min_cluster_width": 0.05,
+    "far_min_cluster_depth": 0.05,
+    "far_cluster_tolerance_growth_per_meter": 0.012,
+    "max_cluster_tolerance": 0.8,
+    "cluster_background_voxel_size": 0.9,
+    "cluster_background_min_presence": 0.5,
+    "max_match_distance": 0.55,
+    "max_track_speed": 3.0,
+    "max_missed_frames": 12,
+    "max_prediction_seconds": 1.2,
+    "association_prediction": true,
+    "min_hits": 2,
+    "min_confirmed_consecutive_hits": 5,
+    "min_confirmed_point_count": 20.0,
+    "far_min_confirmed_point_count": 8.0,
+    "min_track_displacement": 0.8,
+    "min_motion_consistency": 0.55,
+    "motion_consistency_window": 15,
+    "velocity_smoothing": 0.65,
+    "markers_topic": "/people/tracks",
+    "publish_markers": false,
+    "output_coordinate_frame": "corridor",
+    "corridor_frame_file": "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_003_pole_walk_check/corridor_candidate.json",
+    "corridor_frame": {
+      "origin_xy": [
+        0.3524031247765153,
+        0.9779262715754943
+      ],
+      "longitudinal_xy": [
+        0.9407801598736306,
+        -0.33901724261185595
+      ],
+      "lateral_xy": [
+        0.33901724261185595,
+        0.9407801598736306
+      ],
+      "wall_offsets": [
+        -0.14978735324297404,
+        2.22875609277688
+      ],
+      "wall_gap": 2.378543446019854,
+      "wall_inlier_counts": [
+        64,
+        256
+      ],
+      "source_frame": "livox_level_frame",
+      "name": "corridor",
+      "quality": {
+        "wall_residual_rmse_m": [
+          0.016521668006631855,
+          0.01608690731234832
+        ],
+        "wall_spans_m": [
+          10.616281600958397,
+          16.412668163282184
+        ],
+        "parallel_angle_deg": 0.016569520104458824,
+        "seed": 20261023,
+        "longitudinal_origin": "projection of sensor origin onto corridor center; not a fixed laboratory landmark",
+        "accuracy_note": "Wall fit residuals on fitting data, not surveyed corridor accuracy"
+      }
+    },
+    "lidar_to_zed_frame_file": "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_003_pole_walk_check/no_external_calibration_loaded.json",
+    "lidar_to_zed_frame": null
+  },
+  "stride": 1,
+  "max_frames": null,
+  "completed": true,
+  "frames": 273,
+  "wall_time_s": 27.056491209999876,
+  "source_sha256": {
+    "/home/hp-ubuntu/experiment_recorder/scripts/track_people.py": "9aa781d5f6e977461626484b9037692af857888b3fb2ff5adcaf6921ec223d21",
+    "/home/hp-ubuntu/experiment_recorder/scripts/assignment.py": "6d6ff0f2db64bb04f916123d35a7a69c6cfe66243afad25fd5b1c01fdc015c49",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_003_pole_walk_check/corridor_candidate.json": "e23f1fbc389bbddee687722a5ee305910b88a5032758dcdb0d6e3c2c2826dd0b",
+    "/data/experiment_data/recordings/20261022_group003/recording_003/lidar/metadata.yaml": "c4a17ec2ca7080e963d89bd40088322a2d3c4861470d16780d68fe78ca50ba0a"
+  },
+  "timestamp_policy": "header nanoseconds; bag receive time only when header is absent/zero",
+  "accuracy_note": "Confidence is a point-support heuristic, not a position error probability."
+}

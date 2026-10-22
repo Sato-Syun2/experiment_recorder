@@ -1,0 +1,137 @@
+{
+  "bins": [
+    {
+      "x_lo_m": 3,
+      "x_hi_m": 4,
+      "outgoing_n": 8,
+      "returning_n": 8,
+      "outgoing_median_y_m": 0.01139,
+      "returning_median_y_m": 0.06958500000000001,
+      "abs_median_y_difference_m": 0.05819500000000001
+    },
+    {
+      "x_lo_m": 4,
+      "x_hi_m": 5,
+      "outgoing_n": 8,
+      "returning_n": 8,
+      "outgoing_median_y_m": 0.00218,
+      "returning_median_y_m": 0.05734499999999999,
+      "abs_median_y_difference_m": 0.05516499999999999
+    },
+    {
+      "x_lo_m": 5,
+      "x_hi_m": 6,
+      "outgoing_n": 7,
+      "returning_n": 7,
+      "outgoing_median_y_m": -0.05209,
+      "returning_median_y_m": 0.09313,
+      "abs_median_y_difference_m": 0.14522000000000002
+    },
+    {
+      "x_lo_m": 6,
+      "x_hi_m": 7,
+      "outgoing_n": 9,
+      "returning_n": 8,
+      "outgoing_median_y_m": -0.08344,
+      "returning_median_y_m": 0.09101000000000001,
+      "abs_median_y_difference_m": 0.17445
+    },
+    {
+      "x_lo_m": 7,
+      "x_hi_m": 8,
+      "outgoing_n": 6,
+      "returning_n": 6,
+      "outgoing_median_y_m": -0.057825,
+      "returning_median_y_m": 0.07441,
+      "abs_median_y_difference_m": 0.132235
+    },
+    {
+      "x_lo_m": 8,
+      "x_hi_m": 9,
+      "outgoing_n": 6,
+      "returning_n": 7,
+      "outgoing_median_y_m": -0.02237,
+      "returning_median_y_m": 0.04595,
+      "abs_median_y_difference_m": 0.06831999999999999
+    },
+    {
+      "x_lo_m": 9,
+      "x_hi_m": 10,
+      "outgoing_n": 5,
+      "returning_n": 6,
+      "outgoing_median_y_m": -0.0115,
+      "returning_median_y_m": 0.06783,
+      "abs_median_y_difference_m": 0.07933
+    },
+    {
+      "x_lo_m": 10,
+      "x_hi_m": 11,
+      "outgoing_n": 8,
+      "returning_n": 6,
+      "outgoing_median_y_m": -0.009325,
+      "returning_median_y_m": 0.07865,
+      "abs_median_y_difference_m": 0.087975
+    },
+    {
+      "x_lo_m": 11,
+      "x_hi_m": 12,
+      "outgoing_n": 5,
+      "returning_n": 7,
+      "outgoing_median_y_m": -0.02678,
+      "returning_median_y_m": 0.09616,
+      "abs_median_y_difference_m": 0.12294
+    },
+    {
+      "x_lo_m": 12,
+      "x_hi_m": 13,
+      "outgoing_n": 5,
+      "returning_n": 6,
+      "outgoing_median_y_m": 0.01301,
+      "returning_median_y_m": 0.089835,
+      "abs_median_y_difference_m": 0.076825
+    },
+    {
+      "x_lo_m": 13,
+      "x_hi_m": 14,
+      "outgoing_n": 4,
+      "returning_n": 5,
+      "outgoing_median_y_m": 0.06611,
+      "returning_median_y_m": 0.12278,
+      "abs_median_y_difference_m": 0.05667
+    },
+    {
+      "x_lo_m": 14,
+      "x_hi_m": 15,
+      "outgoing_n": 6,
+      "returning_n": 8,
+      "outgoing_median_y_m": 0.08922,
+      "returning_median_y_m": 0.17139,
+      "abs_median_y_difference_m": 0.08216999999999999
+    }
+  ],
+  "legs": [
+    {
+      "track_id": 17,
+      "observations": 71,
+      "adjacent_pairs": 67,
+      "expected_direction_fraction": 1.0,
+      "camera_time_range_s": [
+        4.547714997,
+        13.247792789
+      ]
+    },
+    {
+      "track_id": 60,
+      "observations": 74,
+      "adjacent_pairs": 72,
+      "expected_direction_fraction": 1.0,
+      "camera_time_range_s": [
+        17.846807917,
+        26.44675421
+      ]
+    }
+  ],
+  "median_bin_lateral_difference_m": 0.08074999999999999,
+  "max_bin_lateral_difference_m": 0.17445,
+  "note": "Descriptive consistency only. Includes tentative observations; real walking lines can differ. Not true position error."
+}

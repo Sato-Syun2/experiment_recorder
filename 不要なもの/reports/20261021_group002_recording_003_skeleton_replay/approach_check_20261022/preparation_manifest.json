@@ -1,0 +1,21 @@
+{
+  "status": "prepared_not_executed",
+  "sdk_execution_available_here": false,
+  "source_recordings_modified": false,
+  "live_devices_started": false,
+  "code_sha256": {
+    "/home/hp-ubuntu/experiment_recorder/scripts/analyze_svo_body_tracking.py": "110af11447488f5fdbc40b63cb448b69678e9f906a5efd035c1f8307dd7a583d",
+    "/home/hp-ubuntu/experiment_recorder/scripts/build_walk_skeleton_replay.py": "4e4e30d4e6935284655af67edd44dfb8564a908a47cadbfd23a2a9e519e0599b",
+    "/home/hp-ubuntu/experiment_recorder/scripts/compare_approach_tracking.py": "06c1e44752a25a66b491522b36e4c87c8367b2c3da5c20bf12687aad0ba97008",
+    "/home/hp-ubuntu/experiment_recorder/scripts/run_recording003_approach_only_20261022.py": "ad581b48b63436e57ee78d6e57a835775fad4d4a80813863f3714263d29f64cc",
+    "/home/hp-ubuntu/experiment_recorder/scripts/walk_skeleton_replay_template.html": "c5fc918348412c5c2b45a167c389027e91fc63f72bc19ecba164863614452d6a"
+  },
+  "prepared_input_sha256": {
+    "baseline_windows.json": "413e46e4092529018410211da1b395a7b7163ba609f8960750b6bcc6af9e9df1",
+    "window_far_15m.json": "03c2406c90c49468a87a68ee45fa6accacfdd36f16bd0d1e6577b66c5ee56db5",
+    "reference_quality.json": "367c90657bdc69bd19dbc56d0cb3b4fdc60c3c220e02672cedfa9caf59d1faac",
+    "bundle.json": "1b6d8a045ad1c3f245d0ab2283953e095ad038b13d10163163fff400429bc3c4",
+    "window_near_13m.json": "e25466638a9fd0301b25782147ffb25e22e3f20aa4cbb8eacb2f158804540d2a",
+    "approach_plan.json": "599542cd1817a1f9502c31c785e5b51d8be3a7c87a14756289a497fc58cd2cfd"
+  }
+}

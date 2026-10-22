@@ -33,7 +33,6 @@ from track_people import (
     load_settings,
 )
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG_PATH = PROJECT_ROOT / "config.json"
 DEFAULT_TOPIC = "/livox/lidar"
@@ -120,7 +119,9 @@ def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("bags", nargs="+", type=Path, help="rosbag2 directories in playback order")
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG_PATH)
-    parser.add_argument("--topic", default=None, help=f"PointCloud2 topic (default: {DEFAULT_TOPIC})")
+    parser.add_argument(
+        "--topic", default=None, help=f"PointCloud2 topic (default: {DEFAULT_TOPIC})"
+    )
     parser.add_argument("--output-dir", type=Path, default=PROJECT_ROOT / "tracking")
     parser.add_argument("--rate", type=float, default=1.0, help="Recorded-time playback rate")
     parser.add_argument("--stride", type=int, default=1, help="Process every Nth cloud")
@@ -128,7 +129,9 @@ def _parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser.add_argument("--markers-topic", default=None, help="RViz MarkerArray topic")
     parser.add_argument("--fixed-frame", default="livox_frame")
     parser.add_argument("--rviz-executable", default="rviz2")
-    parser.add_argument("--rviz-config", type=Path, default=None, help="Use an existing RViz2 config")
+    parser.add_argument(
+        "--rviz-config", type=Path, default=None, help="Use an existing RViz2 config"
+    )
     parser.add_argument("--no-rviz", action="store_true", help="Publish without launching RViz2")
     parser.add_argument(
         "--exit-after-playback",
@@ -178,7 +181,9 @@ def _validate(args: argparse.Namespace) -> None:
             raise TrackingError(f"browser replay HTML does not exist: {args.browser_html}")
 
 
-def _start_rviz(args: argparse.Namespace, marker_topic: str) -> tuple[Optional[subprocess.Popen], Optional[Path]]:
+def _start_rviz(
+    args: argparse.Namespace, marker_topic: str
+) -> tuple[Optional[subprocess.Popen], Optional[Path]]:
     if args.no_rviz:
         return None, None
     config_path = args.rviz_config.expanduser().resolve() if args.rviz_config else None
@@ -232,9 +237,7 @@ def _load_track_csv(path: Path) -> dict[int, list[TrackSnapshot]]:
         reader = csv.DictReader(stream)
         missing = required - set(reader.fieldnames or [])
         if missing:
-            raise TrackingError(
-                "Tracking CSV is missing columns: " + ", ".join(sorted(missing))
-            )
+            raise TrackingError("Tracking CSV is missing columns: " + ", ".join(sorted(missing)))
         for line, row in enumerate(reader, start=2):
             try:
                 timestamp_ns = int(row["timestamp_ns"])
@@ -243,9 +246,7 @@ def _load_track_csv(path: Path) -> dict[int, list[TrackSnapshot]]:
                     [float(row["x"]), float(row["y"]), float(row["z"])],
                     dtype=np.float64,
                 )
-                velocity = np.asarray(
-                    [float(row["vx"]), float(row["vy"]), 0.0], dtype=np.float64
-                )
+                velocity = np.asarray([float(row["vx"]), float(row["vy"]), 0.0], dtype=np.float64)
                 extent = np.asarray(
                     [
                         float(row.get("width") or 0.0),
@@ -300,6 +301,8 @@ def _replay_bag(
     rclpy: object,
     csv_snapshots: Optional[dict[int, list[TrackSnapshot]]] = None,
 ) -> int:
+    """保存点群と追跡結果を記録時刻に沿って配信し、RViz表示を更新する。"""
+
     tracker = PeopleTracker(settings) if csv_snapshots is None else None
     writer = (
         CsvWriter(output_path, settings.corridor_frame, settings.lidar_to_zed_frame)
@@ -337,7 +340,9 @@ def _replay_bag(
                 points = _pointcloud2_to_numpy(message)
                 snapshots = tracker.update(points, timestamp_ns)
                 if writer is not None:
-                    writer.write(frame + 1, timestamp_ns, snapshots, start_timestamp_ns or timestamp_ns)
+                    writer.write(
+                        frame + 1, timestamp_ns, snapshots, start_timestamp_ns or timestamp_ns
+                    )
             else:
                 snapshots = csv_snapshots.get(timestamp_ns, [])
                 if timestamp_ns in csv_snapshots:
@@ -380,11 +385,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     try:
         _validate(args)
         settings = load_settings(args.config.expanduser().resolve(), args.topic)
-        csv_snapshots = (
-            _load_track_csv(args.tracks_csv)
-            if args.tracks_csv is not None
-            else None
-        )
+        csv_snapshots = _load_track_csv(args.tracks_csv) if args.tracks_csv is not None else None
         if args.markers_topic is not None:
             settings.markers_topic = args.markers_topic.strip()
 
@@ -399,7 +400,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         point_publisher = node.create_publisher(
             # RVizのPointCloud2表示は既定でReliable QoSを要求する。
             # センサードライバのBest Effortではなく、互換性のあるQoSを使う。
-            PointCloud2, args.point_topic, 10
+            PointCloud2,
+            args.point_topic,
+            10,
         )
         marker_publisher = MarkerPublisher(
             node,
@@ -420,8 +423,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 print("Warning: RViz2 has not subscribed to the point cloud topic yet.")
         if args.browser_html is not None:
             browser_url = (
-                args.browser_html.expanduser().resolve().as_uri()
-                + f"?autoplay=1&rate={args.rate}"
+                args.browser_html.expanduser().resolve().as_uri() + f"?autoplay=1&rate={args.rate}"
             )
             webbrowser.open(browser_url)
             # ブラウザがHTMLを読み込み、再生を開始する時間を確保する。
@@ -438,9 +440,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         # 複数のbagを順に再生し、それぞれの追跡CSVも保存する。
         for bag in args.bags:
             bag_path = bag.expanduser().resolve()
-            recording_name = (
-                bag_path.parent.name if bag_path.name == "lidar" else bag_path.name
-            )
+            recording_name = bag_path.parent.name if bag_path.name == "lidar" else bag_path.name
             output_path = args.output_dir.expanduser().resolve() / f"{recording_name}_tracks.csv"
             _replay_bag(
                 node,

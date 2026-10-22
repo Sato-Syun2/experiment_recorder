@@ -1,0 +1,311 @@
+{
+  "camera": {
+    "source_svo": "F:\\20261022_group003\\recording_002\\recording_002.svo2",
+    "sdk_version": "5.4",
+    "camera_model": "ZED 2i",
+    "serial_number": 35290843,
+    "fps": 30.0,
+    "width": 1280,
+    "height": 720,
+    "fx": 523.7642211914062,
+    "fy": 523.7642211914062,
+    "cx": 646.8901977539062,
+    "cy": 348.150390625,
+    "image_view": "VIEW.LEFT (rectified)",
+    "coordinate_system": "IMAGE (x right, y down, z forward)",
+    "coordinate_units": "meter",
+    "depth_mode": "NEURAL",
+    "sample_period_requested_s": 0.2,
+    "sample_stride_frames": 6,
+    "imu_available": true,
+    "imu_acceleration_units": "m/s^2",
+    "camera_imu_transform_direction": "imu_to_left_camera",
+    "camera_imu_rotation_imu_to_left_camera_xyzw": [
+      -0.0033304570242762566,
+      -0.001646173419430852,
+      -0.003285263665020466,
+      0.9999876022338867
+    ],
+    "total_svo_frames": 700,
+    "exported_samples": 117,
+    "first_image_timestamp_ns": 1792647354880201000,
+    "last_image_timestamp_ns": 1792647378113056000,
+    "exported_imu_samples": 117
+  },
+  "checked_images": 117,
+  "checked_depths": 117,
+  "zed_imu_up": [
+    0.056350675453124964,
+    -0.9468243333928591,
+    -0.31677797125296553
+  ],
+  "zed_acceleration_std": [
+    0.013418679305455773,
+    0.019152859685663964,
+    0.020183128226549055
+  ],
+  "lidar_audit": {
+    "bag": "/data/experiment_data/recordings/20261022_group003/recording_002/lidar",
+    "condition_label": "追い越し",
+    "note": "Planned metadata does not verify actual behavior. IMU average assumes a stationary rig.",
+    "frames": 251,
+    "first_header_ns": 1792647353044227149,
+    "last_header_ns": 1792647378044844453,
+    "duration_s": 25.000617304,
+    "nonmonotonic": 0,
+    "header_fallback_count": 0,
+    "header_interval_ms_p50_p99": [
+      99.964448,
+      101.13470088
+    ],
+    "bag_minus_header_ms_p50_p99": [
+      102.658121,
+      106.27286749999999
+    ],
+    "imu_first_2000_mean_native": [
+      -0.6120871276855469,
+      -0.06703761923313141,
+      0.7805923776626587
+    ],
+    "imu_up": [
+      -0.6156468837888543,
+      -0.06742749440518199,
+      0.7851321210339773
+    ],
+    "up_difference_from_config_deg": 5.277351218964381
+  },
+  "geometries": {
+    "lidar": {
+      "floor": {
+        "normal": [
+          -0.6080698175774957,
+          -0.05956885647797583,
+          0.7916455319707031
+        ],
+        "d_m": 2.061143262226283,
+        "inliers": 7613,
+        "inlier_fraction": 0.12688333333333332,
+        "median_residual_m": 0.004575365216069827,
+        "p90_residual_m": 0.011211368020854984,
+        "span_xyz_m": [
+          7.610000371932983,
+          11.949999570846558,
+          5.083999931812286
+        ],
+        "normal_angle_from_prior_deg": 0.7283481782567971
+      },
+      "floor_vs_imu_deg": 0.7283481782567971,
+      "rotation_raw_to_level": [
+        [
+          0.7938835537730148,
+          -0.045626368652825496,
+          0.6063556196921781
+        ],
+        [
+          0.0,
+          0.9971809193027427,
+          0.07503475313837729
+        ],
+        [
+          -0.6080698175774957,
+          -0.05956885647797583,
+          0.7916455319707031
+        ]
+      ],
+      "translation_raw_to_level": [
+        0.0,
+        0.0,
+        2.061143262226283
+      ],
+      "corridor": {
+        "version": 1,
+        "name": "corridor",
+        "source_frame": "livox_level_frame",
+        "coordinate_frame": "corridor",
+        "origin_xy": [
+          0.3523591595659027,
+          0.9797097427354005
+        ],
+        "longitudinal_xy": [
+          0.9409903249974523,
+          -0.3384334620884721
+        ],
+        "lateral_xy": [
+          0.3384334620884721,
+          0.9409903249974523
+        ],
+        "wall_offsets": [
+          -0.14896777574977949,
+          2.2312628147302345
+        ],
+        "wall_gap": 2.380230590480014,
+        "wall_inlier_counts": [
+          69,
+          254
+        ],
+        "quality": {
+          "wall_residual_rmse_m": [
+            0.01803784897622101,
+            0.018190237843268387
+          ],
+          "wall_spans_m": [
+            10.598773586390095,
+            16.17697036942341
+          ],
+          "parallel_angle_deg": 0.01354171968719539,
+          "seed": 20261022,
+          "longitudinal_origin": "projection of sensor origin onto corridor center; not a fixed laboratory landmark",
+          "accuracy_note": "Wall fit residuals on fitting data, not surveyed corridor accuracy"
+        },
+        "handedness": "right"
+      },
+      "rotation_raw_to_corridor": [
+        [
+          0.7470367432750016,
+          -0.38041336231526834,
+          0.5451805003565994
+        ],
+        [
+          0.26867675959850107,
+          0.9228961074302454,
+          0.27581800837101
+        ],
+        [
+          -0.6080698175774957,
+          -0.05956885647797583,
+          0.7916455319707031
+        ]
+      ],
+      "translation_raw_to_corridor": [
+        -5.576148358335084e-17,
+        -1.0411475194902275,
+        2.061143262226283
+      ],
+      "origin_note": "Projection of this sensor origin onto floor/centerline; not the surveyed corridor end."
+    },
+    "zed": {
+      "floor": {
+        "normal": [
+          0.07462666783890147,
+          -0.943487598002028,
+          -0.32289628809205284
+        ],
+        "d_m": 1.9748403650215296,
+        "inliers": 14253,
+        "inlier_fraction": 0.23755,
+        "median_residual_m": 0.007178591609187768,
+        "p90_residual_m": 0.02253032057008855,
+        "span_xyz_m": [
+          8.498653371157097,
+          4.864759467417318,
+          15.767578125
+        ],
+        "normal_angle_from_prior_deg": 1.1207026638798185
+      },
+      "floor_vs_imu_deg": 1.1207026638798185,
+      "rotation_raw_to_level": [
+        [
+          0.9972115424759493,
+          0.07060621802612002,
+          0.024164054477378877
+        ],
+        [
+          0.0,
+          -0.32379918837515903,
+          0.946125829690527
+        ],
+        [
+          0.07462666783890147,
+          -0.943487598002028,
+          -0.32289628809205284
+        ]
+      ],
+      "translation_raw_to_level": [
+        0.0,
+        0.0,
+        1.9748403650215296
+      ],
+      "corridor": {
+        "version": 1,
+        "name": "corridor",
+        "source_frame": "zed_heading_level_frame",
+        "coordinate_frame": "corridor",
+        "origin_xy": [
+          0.37157923954826705,
+          0.9409382537245444
+        ],
+        "longitudinal_xy": [
+          0.9301024652675648,
+          -0.36730015532694565
+        ],
+        "lateral_xy": [
+          0.36730015532694565,
+          0.9301024652675648
+        ],
+        "wall_offsets": [
+          -0.17393163893164254,
+          2.197231842643849
+        ],
+        "wall_gap": 2.3711634815754916,
+        "wall_inlier_counts": [
+          154,
+          228
+        ],
+        "quality": {
+          "wall_residual_rmse_m": [
+            0.02695375901340852,
+            0.034029086531733144
+          ],
+          "wall_spans_m": [
+            9.985113877729201,
+            15.860538019707569
+          ],
+          "parallel_angle_deg": 0.40089647677354584,
+          "seed": 20261022,
+          "longitudinal_origin": "projection of sensor origin onto corridor center; not a fixed laboratory landmark",
+          "accuracy_note": "Wall fit residuals on fitting data, not surveyed corridor accuracy"
+        },
+        "handedness": "right"
+      },
+      "rotation_raw_to_corridor": [
+        [
+          0.38983740976647147,
+          -0.27042981508583847,
+          0.8802809262157208
+        ],
+        [
+          -0.9178549201229081,
+          -0.19156948485863537,
+          0.34762548536775406
+        ],
+        [
+          0.07462666783890147,
+          -0.943487598002028,
+          -0.32289628809205284
+        ]
+      ],
+      "translation_raw_to_corridor": [
+        -4.6790654513479494e-17,
+        -1.0116501018561028,
+        1.9748403650215296
+      ],
+      "origin_note": "Projection of this sensor origin onto floor/centerline; not the surveyed corridor end."
+    }
+  },
+  "calibration_interval_zed_s": [
+    0.0,
+    2.5
+  ],
+  "seed": 20261022,
+  "clock_note": "Raw absolute timestamps. No estimated clock correction.",
+  "source_sha256": {
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_002_approach_check/prepare.py": "f1eb4c2359264032611e899352999b8da3cd520214b182e315201028407c614a",
+    "/home/hp-ubuntu/experiment_recorder/config.json": "8452a52a21fd80af5441b39dfd0dcaa24b034c184871166f558788768f7f14bc",
+    "/home/hp-ubuntu/experiment_recorder/scripts/corridor_frame.py": "7fae8a08285ea0f0ffb80afe75d543179971cbd15913a42383f9ed413b2e7fba",
+    "/home/hp-ubuntu/experiment_recorder/scripts/calibrate_zed_lidar_planes.py": "32b28f123ddd070560048c096a4400d1ee8ccd9e163169b25629bd8cb8e7a756",
+    "/data/experiment_data/20261022_group003_recording_002_calibration_review/frames.csv": "2d732ceea3868fc4c4fdd1592a46f5bc0047a7f3dcb71d3a25934d660c5f7289",
+    "/data/experiment_data/20261022_group003_recording_002_calibration_review/camera.json": "744682bf57857384028ffbe0d09723bd3c24668049a44c8c4c2e43651077287d",
+    "/data/experiment_data/20261022_group003_recording_002_calibration_review/imu.csv": "dd901c9a399b599f27b3212ff3962af558a8f5c73e301cd6178502cbd16107a6",
+    "/data/experiment_data/recordings/20261022_group003/recording_002/lidar/metadata.yaml": "bbfc23e4881367c2301ad875060c82fc4dcc09f94c56a07a68ffa6d87df74979"
+  }
+}

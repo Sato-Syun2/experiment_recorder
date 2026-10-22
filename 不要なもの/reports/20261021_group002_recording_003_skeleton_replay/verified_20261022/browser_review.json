@@ -1,0 +1,40 @@
+{
+  "frames": 899,
+  "observations": 796,
+  "shapeCoherent": 365,
+  "shapeInconsistent": 392,
+  "status": "骨格読込済み：899フレーム / 796観測、SDK OK 757件。形状整合 365件・不整合 392件。",
+  "duration": 30.001342,
+  "currentVisible": 1,
+  "imageWidth": 768,
+  "filtered_return": {
+    "visible": 0,
+    "raw": 1,
+    "readout": "SDK観測あり・形状不整合のため骨格を非表示 ｜ LiDAR ID 60 未確定候補 / X=11.21m"
+  },
+  "raw_return": {
+    "visible": 1,
+    "shapeOK": false,
+    "readout": "ZED ID 0 OK / 骨盤 X=10.64m、Y=0.27m ｜ LiDAR ID 60 未確定候補 / X=11.21m"
+  },
+  "top_view": {
+    "yaw": -1.5707963267948966,
+    "pitch": 1.5697963267948967,
+    "visible": 1
+  },
+  "side_view": {
+    "yaw": -1.5707963267948966,
+    "pitch": 0.08,
+    "visible": 1
+  },
+  "overview": {
+    "follow": false,
+    "distance": 25
+  },
+  "playback_after_1200ms": {
+    "time": 11.1963000000179,
+    "playing": false,
+    "readout": "11.20 / 30.00 秒"
+  },
+  "runtime_errors": []
+}

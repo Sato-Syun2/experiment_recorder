@@ -1,0 +1,41 @@
+{
+  "model_box_height_m": {
+    "n": 157,
+    "median": 1.7994338274002075,
+    "p10": 1.676356315612793,
+    "p90": 1.9124476909637451,
+    "minimum": 1.4241729974746704,
+    "maximum": 2.0109927654266357
+  },
+  "model_box_bottom_relative_to_calibration_floor_m": {
+    "n": 157,
+    "median": -0.3685513734817505,
+    "p10": -0.5016136169433594,
+    "p90": -0.14923168420791624,
+    "minimum": -0.6540523767471313,
+    "maximum": 0.0014905333518981934
+  },
+  "model_score": {
+    "n": 157,
+    "median": 0.39227941632270813,
+    "p10": 0.17801798582077027,
+    "p90": 0.745532763004303,
+    "minimum": 0.11230191588401794,
+    "maximum": 0.9024194478988647
+  },
+  "visual_review": {
+    "method": "Assistant inspection of saved image gallery and original-size 8s/24s overlays",
+    "checked": [
+      "image_gallery.jpg",
+      "overlay_08s.jpg",
+      "overlay_24s.jpg"
+    ],
+    "note": "Near/middle range boxes follow the visible walker; missing far/turn interval and below-floor box bottoms remain. Not exhaustive frame-level ground truth."
+  },
+  "note": "Estimated person boxes and partial installation calibration, not anatomical dimensions or independent accuracy",
+  "sha256": {
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_pretrained_lidar_comparison/full/detections.csv": "1ffca83a1b01ccd79bec5b4740dac1bde7f244772ae84b4e3582f0a7ae7a25dd",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_pretrained_lidar_comparison/summarize_geometry.py": "f71d8b2709fe13a01844065799f5197c2a97a3a8b2f9ccd1560583ec5348553a",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_pretrained_lidar_comparison/analyze.py": "2bf6141676184e3f5c80358d5638fe217d697847e75a9926657e893939c04c06"
+  }
+}

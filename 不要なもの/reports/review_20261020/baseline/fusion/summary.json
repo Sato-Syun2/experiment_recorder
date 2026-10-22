@@ -1,0 +1,37 @@
+{
+  "source_script": "fuse_zed_lidar.py",
+  "source_body_csv": "/data/experiment_data/recording_001_zed_body_tracking/bodies.csv",
+  "source_camera_json": "/data/experiment_data/recording_001_zed_body_tracking/camera.json",
+  "source_lidar_tracks_csv": "/home/hp-ubuntu/experiment_recorder/reports/review_20261020/baseline/tracks.csv",
+  "source_config": "/home/hp-ubuntu/experiment_recorder/config.json",
+  "corridor_frame_file": "/home/hp-ubuntu/experiment_recorder/tracking/corridor_frame_livox_level.json",
+  "lidar_to_zed_frame_file": "/home/hp-ubuntu/experiment_recorder/tracking/lidar_to_zed_left_eye.json",
+  "timestamp_matching": "absolute nanosecond timestamps from ZED image timestamp and LiDAR message header stamp",
+  "timestamp_offset_applied_ms": 0.0,
+  "zed_body_observations": 818,
+  "observations_with_associated_lidar": 577,
+  "association_coverage": 0.7053789731051344,
+  "zed_to_lidar_track_mapping": {
+    "0": "45"
+  },
+  "position_residual_median_m": 0.3102465215336987,
+  "position_residual_p90_m": 0.6013204772339745,
+  "valid_motion_frames": 794,
+  "motion_outlier_frames": 24,
+  "fused_position_range_corridor_x_m": [
+    0.6947499103606114,
+    12.774328799586105
+  ],
+  "fusion_method": "confidence, keypoint support, person-depth spread, LiDAR confidence and point count; the longitudinal corridor coordinate has the configured minimum LiDAR share; weighted positions are retained only within the configured sensor agreement gate",
+  "joint_angle_note": "Angles are computed from the SDK BODY_34 skeleton and are approximate model keypoint angles, not calibrated anatomical joint centers.",
+  "thresholds": {
+    "minimum_body_confidence": 35.0,
+    "max_lidar_interpolation_gap_s": 0.25,
+    "association_bbox_gate_px": 250.0,
+    "association_center_gate_m": 4.0,
+    "max_fusion_residual_m": 2.0,
+    "minimum_lidar_longitudinal_share": 0.7,
+    "max_human_speed_mps": 4.0,
+    "max_motion_gap_s": 0.25
+  }
+}

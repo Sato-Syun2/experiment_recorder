@@ -1,0 +1,17 @@
+{
+  "source_run": "/data/experiment_data/20261022_group003_recording_002_approach_check/sdk_runs/20261022_150530_153836",
+  "source_sha256": {
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_002_approach_check/assessment_sdk_20261022/assess.py": "1d2f41a4f269d89cfd2244e8674e15ee65b66d7dfbdd6588fa163f5b56fa8524",
+    "/data/experiment_data/20261022_group003_recording_002_approach_check/sdk_runs/20261022_150530_153836/sdk/camera.json": "07ba81882b1df89d5dea402e89e2d024d043fcecc5a087ca358e591bf168159b",
+    "/data/experiment_data/20261022_group003_recording_002_approach_check/sdk_runs/20261022_150530_153836/sdk/frames.csv": "f817de22662ccd0ec6848189a38b03282469ac1064b23de81746dff91eb12b35",
+    "/data/experiment_data/20261022_group003_recording_002_approach_check/sdk_runs/20261022_150530_153836/sdk/bodies.csv": "3f7f88323237c9dcf15c70ab9380cd456542b623d676853d5abc3efab1c7bdcc",
+    "/data/experiment_data/20261022_group003_recording_002_approach_check/sdk_runs/20261022_150530_153836/bodies_corridor.csv": "c53aa7be0cfecadc82a4e58826d75944f209012d74dce187b8a8c265a58bf593",
+    "/data/experiment_data/20261022_group003_recording_002_approach_check/sdk_runs/20261022_150530_153836/window.json": "9643c8872b49a7adf335992b92d104b2046d4d82d08e7a2070d28985b21c22c9",
+    "/data/experiment_data/20261022_group003_recording_002_approach_check/sdk_runs/20261022_150530_153836/replay.manifest.json": "b07b144c3e7307053bdb5089770dd35d1bb49ecf4a308847a062b4bb90d1a8bc",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_002_approach_check/geometry.json": "753a1283fbf4a3390318b2d078eee0076c0405599d7a6123a2f9fc415766a5e0",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_002_approach_check/bundle.json": "ec769ea6b25565e74d008f1343846724b260abb0a99580f59e2069ed1f5776c2",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_002_approach_check/selected_observations.csv": "fb99624d41abe8fc8020a6502289b88086199ec6b6fad75fa8e55d366c7d1e60"
+  },
+  "hardware": "None; immutable SDK exports only.",
+  "tests": "No unit tests requested or run."
+}

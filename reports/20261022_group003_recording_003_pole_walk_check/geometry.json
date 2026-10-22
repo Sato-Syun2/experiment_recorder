@@ -1,0 +1,152 @@
+{
+  "lidar_audit": {
+    "bag": "/data/experiment_data/recordings/20261022_group003/recording_003/lidar",
+    "condition_label": "追い越し",
+    "note": "Planned metadata does not verify actual behavior. IMU average assumes a stationary rig.",
+    "frames": 273,
+    "first_header_ns": 1792647580117476739,
+    "last_header_ns": 1792647607318706518,
+    "duration_s": 27.201229779,
+    "nonmonotonic": 0,
+    "header_fallback_count": 0,
+    "header_interval_ms_p50_p99": [
+      99.966156,
+      101.32998875
+    ],
+    "bag_minus_header_ms_p50_p99": [
+      102.570202,
+      106.27949584
+    ],
+    "imu_first_2000_mean_native": [
+      -0.6125553894042969,
+      -0.06676564657688142,
+      0.7795491647720337
+    ],
+    "imu_up": [
+      -0.6164580065629942,
+      -0.06719101342933186,
+      0.7845157065723534
+    ],
+    "up_difference_from_config_deg": 0.059923012113094275
+  },
+  "floor": {
+    "normal": [
+      -0.6090931064694458,
+      -0.059420893536078045,
+      0.7908696131871388
+    ],
+    "d_m": 2.0628784254134023,
+    "inliers": 7295,
+    "inlier_fraction": 0.12158333333333333,
+    "median_residual_m": 0.0044708989156414525,
+    "p90_residual_m": 0.011303904986001178,
+    "span_xyz_m": [
+      5.9380000829696655,
+      11.406000256538391,
+      3.7950000762939453
+    ],
+    "normal_angle_from_prior_deg": 0.7133051817270536
+  },
+  "corridor": {
+    "version": 1,
+    "name": "corridor",
+    "source_frame": "livox_level_frame",
+    "coordinate_frame": "corridor",
+    "origin_xy": [
+      0.3524031247765153,
+      0.9779262715754943
+    ],
+    "longitudinal_xy": [
+      0.9407801598736306,
+      -0.33901724261185595
+    ],
+    "lateral_xy": [
+      0.33901724261185595,
+      0.9407801598736306
+    ],
+    "wall_offsets": [
+      -0.14978735324297404,
+      2.22875609277688
+    ],
+    "wall_gap": 2.378543446019854,
+    "wall_inlier_counts": [
+      64,
+      256
+    ],
+    "quality": {
+      "wall_residual_rmse_m": [
+        0.016521668006631855,
+        0.01608690731234832
+      ],
+      "wall_spans_m": [
+        10.616281600958397,
+        16.412668163282184
+      ],
+      "parallel_angle_deg": 0.016569520104458824,
+      "seed": 20261023,
+      "longitudinal_origin": "projection of sensor origin onto corridor center; not a fixed laboratory landmark",
+      "accuracy_note": "Wall fit residuals on fitting data, not surveyed corridor accuracy"
+    },
+    "handedness": "right"
+  },
+  "rotation_raw_to_level": [
+    [
+      0.7930987250345322,
+      -0.045634743179676814,
+      0.6073811674422617
+    ],
+    [
+      0.0,
+      0.9971893639757191,
+      0.07492244239012087
+    ],
+    [
+      -0.6090931064694458,
+      -0.059420893536078045,
+      0.7908696131871388
+    ]
+  ],
+  "translation_raw_to_level": [
+    0.0,
+    0.0,
+    2.0628784254134023
+  ],
+  "rotation_raw_to_corridor": [
+    [
+      0.7461315453335597,
+      -0.38099664952128715,
+      0.5460121519817189
+    ],
+    [
+      0.26887414288018563,
+      0.9226650044652869,
+      0.2763982359305463
+    ],
+    [
+      -0.6090931064694458,
+      -0.059420893536078045,
+      0.7908696131871388
+    ]
+  ],
+  "translation_raw_to_corridor": [
+    3.818120542203457e-18,
+    -1.0394843697669531,
+    2.0628784254134023
+  ],
+  "installation_change_from_recording002": {
+    "imu_up_deg": 0.059923012113094275,
+    "floor_normal_deg": 0.07406603455559939,
+    "floor_distance_m": 0.001735163187119415,
+    "wall_gap_m": -0.0016871444601598284,
+    "raw_corridor_longitudinal_axis_deg": 0.07795705089198635,
+    "corridor_center_origin_change_in_sensor_level_m": 0.0017840129814441677,
+    "note": "Independent LiDAR fit. Stability of IMU/walls does not prove no longitudinal sensor translation or unchanged camera orientation."
+  },
+  "zed_geometry_status": "Not yet measured in recording003",
+  "source_sha256": {
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_003_pole_walk_check/prepare_lidar.py": "2aa0e7b45697a1c7829494cf163283ca38930a74fb70731acdbd36a0a0db6910",
+    "/data/experiment_data/recordings/20261022_group003/recording_003/lidar/metadata.yaml": "c4a17ec2ca7080e963d89bd40088322a2d3c4861470d16780d68fe78ca50ba0a",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_002_approach_check/geometry.json": "753a1283fbf4a3390318b2d078eee0076c0405599d7a6123a2f9fc415766a5e0",
+    "/home/hp-ubuntu/experiment_recorder/config.json": "8452a52a21fd80af5441b39dfd0dcaa24b034c184871166f558788768f7f14bc"
+  }
+}

@@ -1,0 +1,282 @@
+{
+  "window_zed_s": [
+    7.2,
+    21.0
+  ],
+  "processed_approach_clouds": 138,
+  "selected_ids": [
+    9,
+    53
+  ],
+  "selected_observed": 85,
+  "confirmed_observed": 33,
+  "confirmed_frame_coverage": 0.2391304347826087,
+  "candidate_inclusive_frame_coverage": 0.6159420289855072,
+  "coverage_note": "Broad chosen interval, not an exhaustive person-presence or surveyed distance gate. Candidates are not confirmed detections.",
+  "selected_x_m": {
+    "n": 85,
+    "min": 1.25326,
+    "median": 6.33418,
+    "p90": 13.636716000000002,
+    "max": 14.97887
+  },
+  "selected_y_m": {
+    "n": 85,
+    "min": -0.23031,
+    "median": -0.03937,
+    "p90": 0.035104,
+    "max": 0.16655
+  },
+  "selected_z_m": {
+    "n": 85,
+    "min": 0.22992,
+    "median": 0.91791,
+    "p90": 1.0552800000000002,
+    "max": 1.24727
+  },
+  "confirmed_x_m": {
+    "n": 33,
+    "min": 1.25326,
+    "median": 3.06783,
+    "p90": 4.684772,
+    "max": 5.04121
+  },
+  "first_observed": {
+    "t_s": 7.665151,
+    "x_m": 14.97071
+  },
+  "last_observed": {
+    "t_s": 19.769239,
+    "x_m": 1.25326
+  },
+  "adjacent_observation_pairs": 75,
+  "approaching_pair_fraction": 0.9866666666666667,
+  "observed_time_intervals_s": {
+    "n": 84,
+    "min": 0.09905700000000017,
+    "median": 0.10005299999999906,
+    "p90": 0.2701038000000009,
+    "max": 1.200011
+  },
+  "maximum_interval_s": 1.200011,
+  "gaps_over_250ms": [
+    {
+      "start_s": 7.764778,
+      "end_s": 8.064782,
+      "interval_s": 0.3000039999999995
+    },
+    {
+      "start_s": 8.064782,
+      "end_s": 8.664926,
+      "interval_s": 0.6001440000000002
+    },
+    {
+      "start_s": 8.763984,
+      "end_s": 9.065041,
+      "interval_s": 0.30105700000000013
+    },
+    {
+      "start_s": 9.065041,
+      "end_s": 9.464785,
+      "interval_s": 0.3997439999999983
+    },
+    {
+      "start_s": 10.064902,
+      "end_s": 10.465001,
+      "interval_s": 0.40009900000000087
+    },
+    {
+      "start_s": 10.564115,
+      "end_s": 10.864999,
+      "interval_s": 0.30088399999999993
+    },
+    {
+      "start_s": 10.964816,
+      "end_s": 11.264816,
+      "interval_s": 0.29999999999999893
+    },
+    {
+      "start_s": 12.064895,
+      "end_s": 12.364769,
+      "interval_s": 0.29987400000000086
+    },
+    {
+      "start_s": 13.464938,
+      "end_s": 14.664949,
+      "interval_s": 1.200011
+    }
+  ],
+  "lateral_linear_fit": {
+    "slope_m_per_m": -0.0036806452002392616,
+    "intercept_m": -0.015911008951540958,
+    "residual_abs_m": {
+      "n": 85,
+      "min": 0.0003261388181278052,
+      "median": 0.045037253433511365,
+      "p90": 0.09924684031800857,
+      "max": 0.2375628808572149
+    },
+    "note": "Describes this actual walking path; not a position-error estimate and not used to fit geometry."
+  },
+  "geometry_heldout": {
+    "interval_zed_s": [
+      12.0,
+      14.0
+    ],
+    "results": {
+      "lidar": {
+        "heldout_floor": {
+          "normal": [
+            -0.60827101421246,
+            -0.059678249891602086,
+            0.7914827097030108
+          ],
+          "d_m": 2.0620808175888587,
+          "inliers": 7431,
+          "inlier_fraction": 0.12385,
+          "median_residual_m": 0.004538710200899132,
+          "p90_residual_m": 0.011402040572305427,
+          "span_xyz_m": [
+            7.984999775886536,
+            12.58899974822998,
+            5.232000112533569
+          ],
+          "normal_angle_from_prior_deg": 0.016099818037503398
+        },
+        "heldout_wall_fit": {
+          "version": 1,
+          "name": "corridor",
+          "source_frame": "livox_frame",
+          "coordinate_frame": "corridor",
+          "origin_xy": [
+            3.391912362725574e-05,
+            -0.0119689673309303
+          ],
+          "longitudinal_xy": [
+            0.9999959844663383,
+            0.0028339109370128642
+          ],
+          "lateral_xy": [
+            -0.0028339109370128642,
+            0.9999959844663383
+          ],
+          "wall_offsets": [
+            -1.1993020771491607,
+            1.1753640463633317
+          ],
+          "wall_gap": 2.374666123512492,
+          "wall_inlier_counts": [
+            80,
+            275
+          ],
+          "quality": {
+            "wall_residual_rmse_m": [
+              0.025164400559133708,
+              0.020162336772881206
+            ],
+            "wall_spans_m": [
+              14.001205996503543,
+              15.434419827961602
+            ],
+            "parallel_angle_deg": 0.3151451004080319,
+            "seed": 20261023,
+            "longitudinal_origin": "projection of sensor origin onto corridor center; not a fixed laboratory landmark",
+            "accuracy_note": "Wall fit residuals on fitting data, not surveyed corridor accuracy"
+          },
+          "handedness": "right"
+        },
+        "floor_angle_difference_deg": 0.01609981796958995,
+        "floor_offset_difference_m": 0.0009375553625758926,
+        "heldout_floor_z_at_x3_and15_y0_m": [
+          -0.00013712313185707055,
+          0.0022323260179104116
+        ],
+        "corridor_axis_difference_deg": 0.1623713535423019,
+        "wall_gap_difference_m": -0.005564466967521664,
+        "heldout_centerline_y_at_x3_and15_m": [
+          -0.003467200380760335,
+          0.03053986741991952
+        ]
+      },
+      "zed": {
+        "heldout_floor": {
+          "normal": [
+            0.07607203619601918,
+            -0.9458033212630648,
+            -0.3157041697487496
+          ],
+          "d_m": 1.961785125835092,
+          "inliers": 13804,
+          "inlier_fraction": 0.23006666666666667,
+          "median_residual_m": 0.0097740581421486,
+          "p90_residual_m": 0.025945572553638385,
+          "span_xyz_m": [
+            7.283397397181096,
+            3.43997350272154,
+            11.62890625
+          ],
+          "normal_angle_from_prior_deg": 0.44076255269019443
+        },
+        "heldout_wall_fit": {
+          "version": 1,
+          "name": "corridor",
+          "source_frame": "livox_frame",
+          "coordinate_frame": "corridor",
+          "origin_xy": [
+            5.129982711333435e-07,
+            0.0028910466465125995
+          ],
+          "longitudinal_xy": [
+            0.9999999842568513,
+            -0.00017744378620661587
+          ],
+          "lateral_xy": [
+            0.00017744378620661587,
+            0.9999999842568513
+          ],
+          "wall_offsets": [
+            -1.1822733533047163,
+            1.1880554466887698
+          ],
+          "wall_gap": 2.3703287999934863,
+          "wall_inlier_counts": [
+            195,
+            256
+          ],
+          "quality": {
+            "wall_residual_rmse_m": [
+              0.036115743222546286,
+              0.0441336802598181
+            ],
+            "wall_spans_m": [
+              14.657849748820627,
+              15.36341332769403
+            ],
+            "parallel_angle_deg": 0.7739676776534169,
+            "seed": 20261023,
+            "longitudinal_origin": "projection of sensor origin onto corridor center; not a fixed laboratory landmark",
+            "accuracy_note": "Wall fit residuals on fitting data, not surveyed corridor accuracy"
+          },
+          "handedness": "right"
+        },
+        "floor_angle_difference_deg": 0.44076255268936754,
+        "floor_offset_difference_m": -0.013055239186437584,
+        "heldout_floor_z_at_x3_and15_y0_m": [
+          -0.011201864657441144,
+          -0.10145394153411563
+        ],
+        "corridor_axis_difference_deg": 0.010166780077333471,
+        "wall_gap_difference_m": -0.0008346815820052811,
+        "heldout_centerline_y_at_x3_and15_m": [
+          0.00235871527951218,
+          0.000229389811510502
+        ]
+      }
+    },
+    "note": "Separate frames, same installation; structural repeatability, not surveyed absolute accuracy. No trajectory-based tuning."
+  },
+  "clock_offset_status": "unestimated; raw absolute timestamps used",
+  "absolute_longitudinal_origin": "sensor projection, not surveyed corridor end",
+  "zed_body_status": "not exported; review RGB/depth is not body tracking",
+  "ground_truth_error_m": null
+}

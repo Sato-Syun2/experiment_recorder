@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Estimate the Livox-to-ZED transform from an ArUco panel seen by both sensors.
+"""両センサーが観測したArUcoパネルの平面からLiDAR→ZED外部校正候補を求める。
 
-The camera estimates the panel plane from the known ArUco marker. LiDAR points
-near the predicted panel location are used to fit that same plane. Plane normals
-and offsets from several panel poses are fused with both sensors' gravity
-directions to solve the rigid transform. The panel still needs to be tilted
-into sufficiently different orientations to constrain translation and yaw.
+既知サイズのマーカーからカメラ側の平面を求め、対応するLiDAR点群にも平面を当てはめる。
+複数姿勢の平面法線・距離とIMUの重力方向から回転・並進を推定する。
+並進を求めるには、パネル法線が十分異なる方向を向く観測が必要になる。
+候補は未使用の独立データで確認してから適用する。
 """
 
 from __future__ import annotations
@@ -83,24 +82,32 @@ def _detect_marker_poses(
     marker_size_m: float,
     dictionary_name: str,
 ) -> list[dict[str, Any]]:
+    """補正済み左画像で既知サイズのArUcoを検出し、パネル姿勢を推定する。"""
+
     try:
         import cv2
     except ImportError as exc:
-        raise RuntimeError("OpenCV is required. Install opencv-contrib-python in the review Python environment.") from exc
+        raise RuntimeError(
+            "OpenCV is required. Install opencv-contrib-python in the review Python environment."
+        ) from exc
     if not hasattr(cv2, "aruco"):
-        raise RuntimeError("cv2.aruco is unavailable. Install opencv-contrib-python, not opencv-python.")
+        raise RuntimeError(
+            "cv2.aruco is unavailable. Install opencv-contrib-python, not opencv-python."
+        )
 
     camera = _json(review_dir / "camera.json")
     imu_path = review_dir / "imu.csv"
     if not imu_path.is_file():
-        raise ValueError("ZED IMU data is missing; re-export the SVO with export_svo_review.py --include-imu")
+        raise ValueError(
+            "ZED IMU data is missing; re-export the SVO with export_svo_review.py --include-imu"
+        )
     imu_rows = {
         int(row["image_timestamp_ns"]): row
         for row in csv.DictReader(imu_path.open(encoding="utf-8-sig"))
     }
     fx, fy, cx, cy = (float(camera[key]) for key in ("fx", "fy", "cx", "cy"))
     matrix = np.array([[fx, 0.0, cx], [0.0, fy, cy], [0.0, 0.0, 1.0]], dtype=np.float64)
-    # export_svo_review.py stores the rectified left image, so its distortion is zero.
+    # 書き出し済みの補正左画像を使うため、歪み係数は0とする。
     distortion = np.zeros((5, 1), dtype=np.float64)
     aruco = cv2.aruco
     dictionary_id = getattr(aruco, dictionary_name, None)
@@ -111,9 +118,11 @@ def _detect_marker_poses(
         parameters = aruco.DetectorParameters()
     else:  # OpenCV versions before the constructor was renamed
         parameters = aruco.DetectorParameters_create()
-    detector = aruco.ArucoDetector(dictionary, parameters) if hasattr(aruco, "ArucoDetector") else None
+    detector = (
+        aruco.ArucoDetector(dictionary, parameters) if hasattr(aruco, "ArucoDetector") else None
+    )
 
-    # OpenCV IPPE_SQUARE corner order: top-left, top-right, bottom-right, bottom-left.
+    # IPPE_SQUAREが要求する順序で、左上・右上・右下・左下の角を定義する。
     half = marker_size_m / 2.0
     object_points = np.array(
         [[-half, half, 0.0], [half, half, 0.0], [half, -half, 0.0], [-half, -half, 0.0]],
@@ -128,11 +137,15 @@ def _detect_marker_poses(
             continue
         if detector is not None:
             corners, ids, _ = detector.detectMarkers(image)
-        else:  # OpenCV versions before the ArucoDetector class
+        else:  # ArucoDetector導入前のOpenCVでも同じマーカー検出を使う。
             corners, ids, _ = aruco.detectMarkers(image, dictionary, parameters=parameters)
         if ids is None:
             continue
-        matching = [index for index, detected_id in enumerate(ids.reshape(-1)) if int(detected_id) == marker_id]
+        matching = [
+            index
+            for index, detected_id in enumerate(ids.reshape(-1))
+            if int(detected_id) == marker_id
+        ]
         if len(matching) != 1:
             continue
         image_points = np.asarray(corners[matching[0]], dtype=np.float64).reshape(4, 2)
@@ -159,24 +172,28 @@ def _detect_marker_poses(
                 "center_cam_marker_m": center,
                 "rotation_cam_marker": rotation,
                 "normal_cam": _unit(normal),
-                "zed_acceleration_imu_m_s2": np.asarray(
-                    [
-                        float(imu_rows[int(row["image_timestamp_ns"])][f"accel_{axis}_m_s2"])
-                        for axis in ("x", "y", "z")
-                    ],
-                    dtype=np.float64,
-                )
-                if int(row["image_timestamp_ns"]) in imu_rows
-                else None,
-                "zed_gyro_imu_deg_s": np.asarray(
-                    [
-                        float(imu_rows[int(row["image_timestamp_ns"])][f"gyro_{axis}_deg_s"])
-                        for axis in ("x", "y", "z")
-                    ],
-                    dtype=np.float64,
-                )
-                if int(row["image_timestamp_ns"]) in imu_rows
-                else None,
+                "zed_acceleration_imu_m_s2": (
+                    np.asarray(
+                        [
+                            float(imu_rows[int(row["image_timestamp_ns"])][f"accel_{axis}_m_s2"])
+                            for axis in ("x", "y", "z")
+                        ],
+                        dtype=np.float64,
+                    )
+                    if int(row["image_timestamp_ns"]) in imu_rows
+                    else None
+                ),
+                "zed_gyro_imu_deg_s": (
+                    np.asarray(
+                        [
+                            float(imu_rows[int(row["image_timestamp_ns"])][f"gyro_{axis}_deg_s"])
+                            for axis in ("x", "y", "z")
+                        ],
+                        dtype=np.float64,
+                    )
+                    if int(row["image_timestamp_ns"]) in imu_rows
+                    else None
+                ),
                 "frame": row["image_file"],
             }
         )
@@ -194,6 +211,8 @@ def _stable_pose_groups(
     min_duration_s: float,
     max_observations: int,
 ) -> list[dict[str, Any]]:
+    """連続したマーカー観測から、姿勢が安定した区間をまとめる。"""
+
     groups: list[list[dict[str, Any]]] = []
     current: list[dict[str, Any]] = []
     for pose in poses:
@@ -201,7 +220,10 @@ def _stable_pose_groups(
             center = np.mean([item["center_cam_marker_m"] for item in current], axis=0)
             rotation = _mean_rotation([item["rotation_cam_marker"] for item in current])
             moved = np.linalg.norm(pose["center_cam_marker_m"] - center) > translation_tolerance_m
-            turned = _rotation_distance_deg(pose["rotation_cam_marker"], rotation) > rotation_tolerance_deg
+            turned = (
+                _rotation_distance_deg(pose["rotation_cam_marker"], rotation)
+                > rotation_tolerance_deg
+            )
             if moved or turned:
                 groups.append(current)
                 current = []
@@ -272,6 +294,8 @@ def _read_lidar_observation_points(
     window_s: float,
     storage: str,
 ) -> tuple[list[np.ndarray], list[int]]:
+    """パネルの安定区間に対応するLiDAR点群を収集する。"""
+
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from track_people import (  # pylint: disable=import-outside-toplevel
         _iter_bag_clouds,
@@ -298,7 +322,9 @@ def _read_lidar_observation_points(
                 if len(points):
                     chunks[index].append(points)
                     counts[index] += 1
-    return [np.concatenate(value).astype(np.float64) if value else np.empty((0, 3)) for value in chunks], counts
+    return [
+        np.concatenate(value).astype(np.float64) if value else np.empty((0, 3)) for value in chunks
+    ], counts
 
 
 def _read_lidar_imu_observations(
@@ -311,6 +337,8 @@ def _read_lidar_imu_observations(
     acceleration_unit: str,
     max_gyro_rad_s: float,
 ) -> tuple[list[dict[str, Any] | None], list[str]]:
+    """対応区間のIMU加速度・角速度を集計し、静止状態を確認する。"""
+
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from track_people import (  # pylint: disable=import-outside-toplevel
         _import_rosbag_types,
@@ -331,7 +359,9 @@ def _read_lidar_imu_observations(
         available = ", ".join(sorted(topic_types)) or "(none)"
         raise ValueError(f"LiDAR IMU topic {topic} was not found. Available: {available}")
     if topic_types[topic] != "sensor_msgs/msg/Imu":
-        raise ValueError(f"LiDAR IMU topic {topic} has type {topic_types[topic]}, expected sensor_msgs/msg/Imu")
+        raise ValueError(
+            f"LiDAR IMU topic {topic} has type {topic_types[topic]}, expected sensor_msgs/msg/Imu"
+        )
 
     offset_ns = int(time_offset_s * 1e9)
     window_ns = int(window_s * 1e9)
@@ -349,10 +379,17 @@ def _read_lidar_imu_observations(
         frame_id = str(getattr(getattr(message, "header", None), "frame_id", ""))
         if frame_id:
             frame_ids.add(frame_id)
-        acceleration = np.array(
-            [message.linear_acceleration.x, message.linear_acceleration.y, message.linear_acceleration.z],
-            dtype=np.float64,
-        ) * accel_scale
+        acceleration = (
+            np.array(
+                [
+                    message.linear_acceleration.x,
+                    message.linear_acceleration.y,
+                    message.linear_acceleration.z,
+                ],
+                dtype=np.float64,
+            )
+            * accel_scale
+        )
         gyro = np.array(
             [message.angular_velocity.x, message.angular_velocity.y, message.angular_velocity.z],
             dtype=np.float64,
@@ -397,6 +434,8 @@ def _fit_target_plane(
     normal_gate_deg: float,
     seed: int,
 ) -> dict[str, Any]:
+    """予測パネル周囲の点群から平面を推定し、形状・支持点を確認する。"""
+
     if not len(points):
         raise ValueError("No LiDAR frames overlap this stable marker pose")
     axis_x = _unit(board_rotation_lidar[:, 0])
@@ -463,6 +502,20 @@ def _fit_target_plane(
     inliers = candidates[np.abs(residuals) < 0.018]
     if len(inliers) < 20:
         raise ValueError("Panel plane refinement produced fewer than 20 inliers")
+    # 広い探索範囲には大きな平行壁も入る。
+    # 点数の多さだけでパネルと誤認しないよう、支持領域の寸法も確認する。
+    panel_spans = np.ptp((inliers - center_guess) @ np.column_stack((axis_x, axis_y)), axis=0)
+    if np.any(panel_spans > np.array([width_m, height_m]) + 0.08):
+        raise ValueError(
+            "Fitted plane exceeds panel dimensions; likely wall/background contamination"
+        )
+    spread = np.linalg.svd(inliers - np.mean(inliers, axis=0), compute_uv=False) / math.sqrt(
+        len(inliers)
+    )
+    if spread[1] < 0.015:
+        raise ValueError("Panel returns are nearly collinear; collect more spatial coverage")
+    if float(normal @ expected_normal) < cosine_min:
+        raise ValueError("Refined panel normal is outside the CAD orientation gate")
     return {
         "normal_lidar": _unit(normal),
         "d_lidar_m": float(offset),
@@ -470,12 +523,16 @@ def _fit_target_plane(
         "candidate_points": int(len(candidates)),
         "median_abs_residual_m": float(np.median(np.abs(residuals[np.abs(residuals) < 0.018]))),
         "span_xyz_m": np.ptp(inliers, axis=0).tolist(),
+        "panel_axis_spans_m": panel_spans.tolist(),
+        "principal_spread_m": spread.tolist(),
     }
 
 
 def _kabsch_normals(
     source: np.ndarray, target: np.ndarray, weights: np.ndarray | None = None
 ) -> np.ndarray:
+    """対応法線の重み付きSVDから、反射を含まない回転を求める。"""
+
     if weights is None:
         weights = np.ones(len(source), dtype=np.float64)
     u, _, vh = np.linalg.svd(target.T @ (source * weights[:, None]))
@@ -487,16 +544,20 @@ def _kabsch_normals(
 def _solve_transform(
     observations: list[dict[str, Any]], imu_rotation_weight: float
 ) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
+    """法線と重力から回転、平面距離から並進を求め、外れ値と退化を確認する。"""
+
     source_normals = np.asarray([item["plane_lidar"]["normal_lidar"] for item in observations])
     target_normals = np.asarray([item["normal_cam"] for item in observations])
     gravity_lidar = _unit(np.mean([item["gravity_lidar"] for item in observations], axis=0))
     gravity_cam = _unit(np.mean([item["gravity_cam"] for item in observations], axis=0))
+    # パネル法線が3方向を十分に張らないと、並進の一部が決まらない。
     source_rank = np.linalg.svd(source_normals, compute_uv=False)
     if source_rank[-1] / source_rank[0] < 0.06:
         raise ValueError(
             "Panel normals do not span 3D well enough to solve translation. Tilt the panel toward "
             "several different directions and collect new poses."
         )
+
     def fit_rotation(keep_mask: np.ndarray) -> np.ndarray:
         source = np.vstack((source_normals[keep_mask], gravity_lidar))
         target = np.vstack((target_normals[keep_mask], gravity_cam))
@@ -508,7 +569,10 @@ def _solve_transform(
     board_only_rotation = _kabsch_normals(source_normals, target_normals)
     rotation = fit_rotation(np.ones(len(observations), dtype=bool))
     normal_errors = np.array(
-        [math.degrees(math.acos(float(np.clip((rotation @ src) @ dst, -1.0, 1.0)))) for src, dst in zip(source_normals, target_normals)]
+        [
+            math.degrees(math.acos(float(np.clip((rotation @ src) @ dst, -1.0, 1.0))))
+            for src, dst in zip(source_normals, target_normals)
+        ]
     )
     keep = normal_errors <= 12.0
     if int(keep.sum()) < 6:
@@ -518,14 +582,20 @@ def _solve_transform(
     if not keep.all():
         rotation = fit_rotation(keep)
         normal_errors = np.array(
-            [math.degrees(math.acos(float(np.clip((rotation @ src) @ dst, -1.0, 1.0)))) for src, dst in zip(source_normals, target_normals)]
+            [
+                math.degrees(math.acos(float(np.clip((rotation @ src) @ dst, -1.0, 1.0))))
+                for src, dst in zip(source_normals, target_normals)
+            ]
         )
 
     normals_cam = (rotation @ source_normals.T).T
     target_offsets = np.asarray(
-        [item["plane_lidar"]["d_lidar_m"] - item["d_cam_m"] for item in observations], dtype=np.float64
+        [item["plane_lidar"]["d_lidar_m"] - item["d_cam_m"] for item in observations],
+        dtype=np.float64,
     )
     keep = normal_errors <= 12.0
+    if int(keep.sum()) < 6:
+        raise ValueError("Fewer than six consistent normals remain after refinement")
     matrix = normals_cam[keep]
     rhs = target_offsets[keep]
     singular = np.linalg.svd(matrix, compute_uv=False)
@@ -536,30 +606,54 @@ def _solve_transform(
         )
     translation, _, _, _ = np.linalg.lstsq(matrix, rhs, rcond=None)
     residuals = normals_cam @ translation - target_offsets
+    # 中央値とMADで平面距離の外れ値を除き、残る法線の条件数も再確認する。
     median = float(np.median(residuals[keep]))
     mad = float(np.median(np.abs(residuals[keep] - median)))
     translation_keep = keep & (np.abs(residuals - median) <= max(0.04, 3.5 * 1.4826 * mad))
-    if int(translation_keep.sum()) >= 6 and not translation_keep.all():
+    if not np.array_equal(translation_keep, keep):
+        if int(translation_keep.sum()) < 6:
+            raise ValueError("Fewer than six plane offsets survive robust rejection")
         matrix = normals_cam[translation_keep]
         rhs = target_offsets[translation_keep]
         singular = np.linalg.svd(matrix, compute_uv=False)
-        if singular[-1] / singular[0] >= 0.06:
-            translation, _, _, _ = np.linalg.lstsq(matrix, rhs, rcond=None)
+        if singular[-1] / singular[0] < 0.06:
+            raise ValueError("Translation becomes unobservable after outlier rejection")
+        translation, _, _, _ = np.linalg.lstsq(matrix, rhs, rcond=None)
     final_residuals = normals_cam @ translation - target_offsets
+    # 法線・回転を固定した条件付き共分散を計算する。
+    # ターゲットや系統誤差を含む、外部校正全体の不確かさではない。
+    variance = float(np.sum(final_residuals[translation_keep] ** 2) / (translation_keep.sum() - 3))
+    covariance = variance * np.linalg.inv(matrix.T @ matrix)
+    leave_one_out = []
+    for index in range(len(matrix)):
+        subset = np.arange(len(matrix)) != index
+        if np.linalg.matrix_rank(matrix[subset]) == 3:
+            trial = np.linalg.lstsq(matrix[subset], rhs[subset], rcond=None)[0]
+            leave_one_out.append(float(np.linalg.norm(trial - translation)))
     report = {
         "rotation_normal_errors_deg": normal_errors.tolist(),
         "plane_offset_residuals_m": final_residuals.tolist(),
-        "used_observations": int(keep.sum()),
+        "used_observations": int(translation_keep.sum()),
+        "rotation_inlier_mask": keep.tolist(),
+        "translation_inlier_mask": translation_keep.tolist(),
+        "translation_conditional_covariance_m2": covariance.tolist(),
+        "translation_conditional_std_m": np.sqrt(np.diag(covariance)).tolist(),
+        "uncertainty_note": "Conditional on fitted rotation/normals; excludes systematic and rotation errors. Not independent accuracy.",
+        "translation_leave_one_out_max_change_m": max(leave_one_out) if leave_one_out else None,
+        "translation_leave_one_out_solvable_count": len(leave_one_out),
         "gravity_direction_lidar": gravity_lidar.tolist(),
         "gravity_direction_zed": gravity_cam.tolist(),
         "gravity_alignment_error_deg": math.degrees(
             math.acos(float(np.clip((rotation @ gravity_lidar) @ gravity_cam, -1.0, 1.0)))
         ),
-        "board_only_to_imu_fused_rotation_deg": _rotation_distance_deg(rotation, board_only_rotation),
+        "board_only_to_imu_fused_rotation_deg": _rotation_distance_deg(
+            rotation, board_only_rotation
+        ),
         "imu_rotation_weight": imu_rotation_weight,
         "translation_singular_values": singular.tolist(),
         "translation_condition_number": float(singular[0] / singular[-1]),
-        "plane_offset_rmse_m": float(np.sqrt(np.mean(final_residuals[keep] ** 2))),
+        "plane_offset_rmse_m": float(np.sqrt(np.mean(final_residuals[translation_keep] ** 2))),
+        "plane_offset_all_rmse_m": float(np.sqrt(np.mean(final_residuals**2))),
     }
     return rotation, translation, report
 
@@ -583,7 +677,7 @@ def _markdown(result: dict[str, Any]) -> str:
 
 ## 推定値
 
-`p_zed = R × p_lidar + t`（座標は各センサーのIMAGE座標、単位 m）
+`p_zed = R × p_lidar + t`（入力はLivox元座標、出力はZED左カメラIMAGE座標、単位 m）
 
 - 回転行列: `{json.dumps(candidate['rotation_source_to_target'])}`
 - 並進: `{np.round(candidate['translation_m'], 5).tolist()} m`
@@ -615,22 +709,55 @@ def _markdown(result: dict[str, Any]) -> str:
 
 
 def main() -> int:
+    """複数姿勢の観測から校正候補と残差・条件数のレポートを作る。"""
+
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--review-dir", type=Path, required=True, help="export_svo_review.py output with camera.json, frames.csv, and frames/")
+    parser.add_argument(
+        "--review-dir",
+        type=Path,
+        required=True,
+        help="export_svo_review.py output with camera.json, frames.csv, and frames/",
+    )
     parser.add_argument("--bag", type=Path, required=True, help="LiDAR rosbag2 directory")
-    parser.add_argument("--output-dir", type=Path, required=True, help="new output directory for the calibration candidate")
-    parser.add_argument("--calibration", type=Path, default=Path("tracking/lidar_to_zed_left_eye.json"))
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        required=True,
+        help="new output directory for the calibration candidate",
+    )
+    parser.add_argument(
+        "--calibration", type=Path, default=Path("tracking/lidar_to_zed_left_eye.json")
+    )
     parser.add_argument("--topic", default="/livox/lidar")
     parser.add_argument("--imu-topic", default="/livox/imu")
     parser.add_argument("--storage", choices=("mcap", "sqlite3"), default="mcap")
     parser.add_argument("--marker-id", type=int, default=1)
-    parser.add_argument("--dictionary", default="DICT_4X4_50", help="OpenCV ArUco dictionary; default assumes DICT_4X4_50")
+    parser.add_argument(
+        "--dictionary",
+        default="DICT_4X4_50",
+        help="OpenCV ArUco dictionary; default assumes DICT_4X4_50",
+    )
     parser.add_argument("--marker-size-m", type=float, default=0.150)
     parser.add_argument("--board-width-m", type=float, default=0.250)
     parser.add_argument("--board-height-m", type=float, default=0.180)
-    parser.add_argument("--marker-offset-x-m", type=float, default=0.0, help="marker center relative to panel center in marker x")
-    parser.add_argument("--marker-offset-y-m", type=float, default=0.0, help="marker center relative to panel center in marker y")
-    parser.add_argument("--lidar-time-offset-seconds", type=float, default=0.0, help="LiDAR timestamp = ZED timestamp + this offset")
+    parser.add_argument(
+        "--marker-offset-x-m",
+        type=float,
+        default=0.0,
+        help="marker center relative to panel center in marker x",
+    )
+    parser.add_argument(
+        "--marker-offset-y-m",
+        type=float,
+        default=0.0,
+        help="marker center relative to panel center in marker y",
+    )
+    parser.add_argument(
+        "--lidar-time-offset-seconds",
+        type=float,
+        required=True,
+        help="LiDAR timestamp = ZED timestamp + this explicit, verified offset",
+    )
     parser.add_argument("--lidar-window-seconds", type=float, default=0.30)
     parser.add_argument(
         "--zed-gravity-acceleration-m-s2",
@@ -639,9 +766,19 @@ def main() -> int:
         metavar=("X", "Y", "Z"),
         help="use a measured static ZED IMU acceleration vector (in IMU axes, m/s^2) for gravity alignment",
     )
-    parser.add_argument("--livox-acceleration-unit", choices=("g", "m/s2"), default="g", help="MID-360 driver2 publishes acceleration values in g")
+    parser.add_argument(
+        "--livox-acceleration-unit",
+        choices=("g", "m/s2"),
+        default="g",
+        help="MID-360 driver2 publishes acceleration values in g",
+    )
     parser.add_argument("--max-static-gyro-rad-s", type=float, default=0.15)
-    parser.add_argument("--imu-rotation-weight", type=float, default=4.0, help="gravity-vector weight relative to one panel normal")
+    parser.add_argument(
+        "--imu-rotation-weight",
+        type=float,
+        default=4.0,
+        help="gravity-vector weight relative to one panel normal",
+    )
     parser.add_argument("--translation-stability-m", type=float, default=0.05)
     parser.add_argument("--rotation-stability-deg", type=float, default=5.0)
     parser.add_argument("--min-stable-seconds", type=float, default=0.40)
@@ -650,9 +787,13 @@ def main() -> int:
     parser.add_argument("--plane-search-m", type=float, default=0.80)
     parser.add_argument("--normal-gate-deg", type=float, default=25.0)
     parser.add_argument("--seed", type=int, default=34103)
-    parser.add_argument("--apply", action="store_true", help="write candidate to the active calibration JSON")
+    parser.add_argument(
+        "--apply", action="store_true", help="write candidate to the active calibration JSON"
+    )
     args = parser.parse_args()
 
+    if not math.isfinite(args.lidar_time_offset_seconds):
+        parser.error("LiDAR time offset must be finite")
     output_dir = args.output_dir.expanduser().resolve()
     if output_dir.exists() and any(output_dir.iterdir()):
         parser.error(f"Output directory is not empty: {output_dir}")
@@ -672,8 +813,12 @@ def main() -> int:
     if args.zed_gravity_acceleration_m_s2 is not None:
         zed_gravity_override = np.asarray(args.zed_gravity_acceleration_m_s2, dtype=np.float64)
         gravity_norm = float(np.linalg.norm(zed_gravity_override))
-        if not np.isfinite(zed_gravity_override).all() or not (0.75 * 9.80665 <= gravity_norm <= 1.25 * 9.80665):
-            parser.error("--zed-gravity-acceleration-m-s2 must be a finite static acceleration vector near 1 g")
+        if not np.isfinite(zed_gravity_override).all() or not (
+            0.75 * 9.80665 <= gravity_norm <= 1.25 * 9.80665
+        ):
+            parser.error(
+                "--zed-gravity-acceleration-m-s2 must be a finite static acceleration vector near 1 g"
+            )
 
     review_dir = args.review_dir.expanduser().resolve()
     bag_path = args.bag.expanduser().resolve()
@@ -706,9 +851,13 @@ def main() -> int:
     )
     camera_metadata = _json(review_dir / "camera.json")
     if not str(camera_metadata.get("coordinate_system", "")).startswith("IMAGE"):
-        raise ValueError("camera.json must declare the ZED IMAGE coordinate system; re-export the SVO with the updated exporter")
+        raise ValueError(
+            "camera.json must declare the ZED IMAGE coordinate system; re-export the SVO with the updated exporter"
+        )
     if camera_metadata.get("camera_imu_transform_direction") != "imu_to_left_camera":
-        raise ValueError("camera.json is missing the ZED IMU-to-left-camera rotation; re-export with --include-imu")
+        raise ValueError(
+            "camera.json is missing the ZED IMU-to-left-camera rotation; re-export with --include-imu"
+        )
     camera_imu_rotation = _quaternion_xyzw_to_rotation(
         camera_metadata["camera_imu_rotation_imu_to_left_camera_xyzw"]
     )
@@ -793,8 +942,12 @@ def main() -> int:
             }
         )
     if len(observations) < 6:
-        details = "; ".join(f"#{item['index']} at {item['elapsed_s']:.2f}s: {item['reason']}" for item in failures)
-        raise ValueError(f"Only {len(observations)} LiDAR panel planes were usable; need at least 6. {details}")
+        details = "; ".join(
+            f"#{item['index']} at {item['elapsed_s']:.2f}s: {item['reason']}" for item in failures
+        )
+        raise ValueError(
+            f"Only {len(observations)} LiDAR panel planes were usable; need at least 6. {details}"
+        )
 
     rotation, translation, solve_report = _solve_transform(observations, args.imu_rotation_weight)
     normal_errors = np.asarray(solve_report["rotation_normal_errors_deg"], dtype=np.float64)
@@ -809,8 +962,14 @@ def main() -> int:
         "translation_m": translation.tolist(),
         "rotation_source_to_target": rotation.tolist(),
         "relative_orientation_zyx_deg": _euler_zyx_deg(rotation),
-        "zed_gravity_acceleration_imu_m_s2": zed_gravity_override.tolist() if zed_gravity_override is not None else None,
-        "zed_gravity_source": "user_supplied_static_measurement" if zed_gravity_override is not None else "static_svo_samples",
+        "zed_gravity_acceleration_imu_m_s2": (
+            zed_gravity_override.tolist() if zed_gravity_override is not None else None
+        ),
+        "zed_gravity_source": (
+            "user_supplied_static_measurement"
+            if zed_gravity_override is not None
+            else "static_svo_samples"
+        ),
         "method": "Multi-pose ArUco camera plane and LiDAR point-cloud plane alignment",
         "observable_translation_directions": ["three-dimensional when panel plane normals span 3D"],
         "notes": "Rotation is fitted jointly to ArUco/LiDAR panel-plane normals and the two IMUs' gravity directions. Translation is fitted from the paired panel plane offsets. Verify residuals and condition number before applying; this is a target-fit result, not independent position accuracy.",
@@ -838,9 +997,7 @@ def main() -> int:
         )
     zed_override_difference_from_svo = None
     if zed_gravity_override is not None:
-        zed_svo_static_mean = np.mean(
-            [item["zed_gravity_imu_m_s2"] for item in groups], axis=0
-        )
+        zed_svo_static_mean = np.mean([item["zed_gravity_imu_m_s2"] for item in groups], axis=0)
         zed_override_difference_from_svo = _vector_angle_deg(
             zed_gravity_override, zed_svo_static_mean
         )
@@ -859,12 +1016,14 @@ def main() -> int:
         "marker_offset_m": [args.marker_offset_x_m, args.marker_offset_y_m],
         "lidar_time_offset_s": args.lidar_time_offset_seconds,
         "livox_acceleration_unit": args.livox_acceleration_unit,
-        "zed_gravity_acceleration_override_m_s2": zed_gravity_override.tolist() if zed_gravity_override is not None else None,
+        "zed_gravity_acceleration_override_m_s2": (
+            zed_gravity_override.tolist() if zed_gravity_override is not None else None
+        ),
         "zed_gravity_override_difference_from_svo_deg": zed_override_difference_from_svo,
         "lidar_imu_frame_ids": lidar_imu_frame_ids,
         "detected_marker_frames": len(poses),
         "detected_stable_poses": len(groups),
-        "used_observations": len(observations),
+        "used_observations": solve_report["used_observations"],
         "failed_observations": failures,
         "candidate": candidate,
         "observations": result_observations,
@@ -874,17 +1033,25 @@ def main() -> int:
         "gravity_direction_lidar": solve_report["gravity_direction_lidar"],
         "gravity_direction_zed": solve_report["gravity_direction_zed"],
         "gravity_alignment_error_deg": solve_report["gravity_alignment_error_deg"],
-        "board_only_to_imu_fused_rotation_deg": solve_report["board_only_to_imu_fused_rotation_deg"],
+        "board_only_to_imu_fused_rotation_deg": solve_report[
+            "board_only_to_imu_fused_rotation_deg"
+        ],
         "relative_orientation_zyx_deg": candidate["relative_orientation_zyx_deg"],
         "solver": solve_report,
         "applied_to": str(calibration_path) if args.apply else None,
     }
     output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / "candidate.json").write_text(json.dumps(candidate, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    (output_dir / "calibration.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (output_dir / "candidate.json").write_text(
+        json.dumps(candidate, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    (output_dir / "calibration.json").write_text(
+        json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     (output_dir / "README.md").write_text(_markdown(result), encoding="utf-8")
     if args.apply:
-        calibration_path.write_text(json.dumps(candidate, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        calibration_path.write_text(
+            json.dumps(candidate, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
     print(f"Candidate: {output_dir / 'candidate.json'}")
     print(f"Report: {output_dir / 'README.md'}")
     print(f"Used panel poses: {len(observations)} / {len(groups)}")

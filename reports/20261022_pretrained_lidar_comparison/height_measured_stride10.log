@@ -1,0 +1,4 @@
+processed=1 source_frame=1 pedestrians=0 inference_s=2.595
+processed=10 source_frame=91 pedestrians=0 inference_s=1.784
+processed=20 source_frame=191 pedestrians=0 inference_s=2.096
+processed=30 source_frame=291 pedestrians=1 inference_s=2.020

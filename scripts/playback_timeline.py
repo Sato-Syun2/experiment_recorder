@@ -108,9 +108,7 @@ def inspect_bag_timeline(bag_path: Path) -> Optional[tuple[int, int]]:
         r"(?m)^\s*starting_time:\s*\n\s*nanoseconds_since_epoch:\s*(\d+)\s*$",
         metadata,
     )
-    duration_match = re.search(
-        r"(?m)^\s*duration:\s*\n\s*nanoseconds:\s*(\d+)\s*$", metadata
-    )
+    duration_match = re.search(r"(?m)^\s*duration:\s*\n\s*nanoseconds:\s*(\d+)\s*$", metadata)
     if start_match is None or duration_match is None:
         return None
     start_ns = int(start_match.group(1))
@@ -118,9 +116,7 @@ def inspect_bag_timeline(bag_path: Path) -> Optional[tuple[int, int]]:
     return start_ns, end_ns
 
 
-def inspect_playback_timeline(
-    svo_path: Path, bag_path: Path
-) -> Optional[PlaybackTimeline]:
+def inspect_playback_timeline(svo_path: Path, bag_path: Path) -> Optional[PlaybackTimeline]:
     """両方の記録時刻が読めた場合だけ、共通の時刻軸を返す。"""
 
     svo_range = inspect_svo_timeline(svo_path)
@@ -133,5 +129,3 @@ def inspect_playback_timeline(
         bag_start_ns=bag_range[0],
         bag_end_ns=bag_range[1],
     )
-
-

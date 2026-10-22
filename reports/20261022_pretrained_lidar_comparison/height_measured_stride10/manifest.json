@@ -1,0 +1,95 @@
+{
+  "completed": true,
+  "processed_frames": 32,
+  "source_frames_step": 10,
+  "bag": "/data/experiment_data/recordings/20261021_group002/recording_003/lidar",
+  "config": "/home/hp-ubuntu/experiment_recorder/reports/20261022_pretrained_lidar_comparison/analysis_config.json",
+  "model": "pointpillars.kitti.openpcdet",
+  "pretrained": {
+    "url": "hf://torch-pointcloud/pointpillars.kitti.openpcdet/resolve/caf39bd441409bdd2997d3099cc524ac451ff06d/model.safetensors",
+    "dataset": "kitti",
+    "metrics": {
+      "mAP": 64.16,
+      "AP/Car": 77.35,
+      "AP/Pedestrian": 52.39,
+      "AP/Cyclist": 62.74
+    },
+    "classes": [
+      "Car",
+      "Pedestrian",
+      "Cyclist"
+    ],
+    "author": "openpcdet",
+    "license": "Apache-2.0"
+  },
+  "model_hparams": {
+    "in_channels": 4,
+    "num_classes": 3,
+    "voxel_size": [
+      0.16,
+      0.16,
+      4.0
+    ],
+    "point_cloud_range": [
+      0.0,
+      -39.68,
+      -3.0,
+      69.12,
+      39.68,
+      1.0
+    ],
+    "anchor_sizes": [
+      [
+        3.9,
+        1.6,
+        1.56
+      ],
+      [
+        0.8,
+        0.6,
+        1.73
+      ],
+      [
+        1.76,
+        0.6,
+        1.73
+      ]
+    ],
+    "anchor_bottom_heights": [
+      -1.78,
+      -0.6,
+      -0.6
+    ],
+    "feature_map_stride": 2,
+    "norm_kwargs": {
+      "eps": 0.001,
+      "momentum": 0.01
+    }
+  },
+  "packages": {
+    "torch": "2.8.0+cpu",
+    "torch-pointcloud": "0.0.18",
+    "numpy": "2.5.1",
+    "scipy": "1.18.1",
+    "safetensors": "0.8.0"
+  },
+  "device": "cpu",
+  "threads": 2,
+  "model_height_m": 2.0506525225917787,
+  "intensity_transform": "clip raw Livox reflectivity to [0,255] then divide by 255; no cross-sensor reflectance calibration",
+  "thresholds": {
+    "score": 0.1,
+    "nms_bev_iou": 0.01,
+    "nms_pre_max": 4096,
+    "nms_post_max": 500
+  },
+  "seconds": 77.72781006199989,
+  "sha256": {
+    "/home/hp-ubuntu/experiment_recorder/scripts/compare_pretrained_lidar.py": "4ab016cac64894cf7b4f4d59fb8e3b3689eb1cd85c41c3d3459077c9dc6ac2b7",
+    "/home/hp-ubuntu/experiment_recorder/scripts/track_people.py": "9aa781d5f6e977461626484b9037692af857888b3fb2ff5adcaf6921ec223d21",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_pretrained_lidar_comparison/analysis_config.json": "b6a0dde52255d1cdcaecf06578dacfa919b755d7e497cfee1f85ebe8a2a9ba57",
+    "/home/hp-ubuntu/experiment_recorder/不要なもの/reports/20261021_group002_recording_003_walk_assessment/corridor_candidate.json": "ad36beb9e218c6f249b1318e5b33f0ab7cece16eb90c1383353a84720234e756",
+    "/data/experiment_data/recordings/20261021_group002/recording_003/lidar/metadata.yaml": "e925d16bcf6d799a4c2229552ddb0a0576834105b8bd8683360ff39a2b7603c4",
+    "/home/hp-ubuntu/.cache/torch-pointcloud/models/pointpillars.kitti.openpcdet/caf39bd441409bdd2997d3099cc524ac451ff06d/model.safetensors": "053113b0c99a36191f9eccc8ceade76856ec7b39d4e374bc3737d501c67debb6"
+  }
+}

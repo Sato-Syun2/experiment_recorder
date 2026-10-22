@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "name": "corridor",
+  "source_frame": "livox_level_frame",
+  "coordinate_frame": "corridor",
+  "origin_xy": [
+    0.007617801931220109,
+    -0.1309505902323357
+  ],
+  "longitudinal_xy": [
+    0.9983122276503811,
+    0.058074918198252064
+  ],
+  "lateral_xy": [
+    -0.058074918198252064,
+    0.9983122276503811
+  ],
+  "wall_offsets": [
+    -1.344094459276375,
+    1.0817505019344122
+  ],
+  "wall_gap": 2.425844961210787,
+  "wall_inlier_counts": [
+    226,
+    265
+  ]
+}

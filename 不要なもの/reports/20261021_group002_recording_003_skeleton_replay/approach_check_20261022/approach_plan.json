@@ -1,0 +1,27 @@
+{
+  "recording": "20261021_group002_recording_003",
+  "cases": [
+    {
+      "id": "far_15m",
+      "label": "15m付近から新規追跡",
+      "window_file": "window_far_15m.json"
+    },
+    {
+      "id": "near_13m",
+      "label": "13m付近から新規追跡",
+      "window_file": "window_near_13m.json"
+    }
+  ],
+  "baseline_body_folder": "body_20261021_235725_564032",
+  "status": "prepared_not_executed",
+  "unchanged_model": {
+    "sdk": "5.4 expected; actual version recorded by each export",
+    "body_format": "BODY_34",
+    "body_fitting": true,
+    "model": "HUMAN_BODY_ACCURATE",
+    "depth": "NEURAL",
+    "confidence": 35
+  },
+  "hypothesis": "Remove outbound/turning history and assess a fresh track of a person approaching from far away.",
+  "limit": "Cold start with an already-visible person, not a new recording of entry into an empty hallway."
+}

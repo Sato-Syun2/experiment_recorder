@@ -1,0 +1,192 @@
+{
+  "processed_frames": 414,
+  "expected_frames": 414,
+  "body_rows": 411,
+  "frames_with_sdk_OK": 411,
+  "sdk_OK_fraction": 0.9927536231884058,
+  "states": {
+    "OK": 411
+  },
+  "ids": {
+    "0": 411
+  },
+  "no_body_source_frames": [
+    216,
+    217,
+    218
+  ],
+  "first_body_time_s": 7.299017,
+  "window_time_s": [
+    7.199002,
+    20.999397
+  ],
+  "both_legs_confidence25_frames": 307,
+  "both_legs_confidence25_fraction": 0.7415458937198067,
+  "both_legs_confidence25_and_inside_frames": 307,
+  "pelvis_x_m": {
+    "n": 411,
+    "min": 0.31444217330889596,
+    "p10": 1.435314791833127,
+    "median": 8.073391886146108,
+    "p90": 14.049049890080722,
+    "max": 14.806692210065815
+  },
+  "pelvis_y_m": {
+    "n": 411,
+    "min": -0.16005018467757492,
+    "p10": -0.08448542851400231,
+    "median": 0.006043673245884396,
+    "p90": 0.10337718150743047,
+    "max": 0.20913054966503974
+  },
+  "head_z_m": {
+    "n": 411,
+    "min": 1.3912704433783973,
+    "p10": 1.4290579072741485,
+    "median": 1.5280999277733156,
+    "p90": 1.6107620868072186,
+    "max": 1.667171777099996
+  },
+  "heels_z_m": {
+    "n": 822,
+    "min": -0.27753241291775654,
+    "p10": -0.1759678731482704,
+    "median": 0.04894494350953127,
+    "p90": 0.1303009570851836,
+    "max": 0.2377791802169582
+  },
+  "supported_inimage_heels_z_m": {
+    "n": 666,
+    "min": -0.27753241291775654,
+    "p10": -0.17655106728432335,
+    "median": 0.05678728210649209,
+    "p90": 0.1294319858294838,
+    "max": 0.2377791802169582
+  },
+  "heels_below_minus_10cm_with_confidence25_inside_rows": 57,
+  "reference_interval_s": [
+    17.0,
+    19.0
+  ],
+  "reference_segment_m": {
+    "torso": 0.5032673341017277,
+    "left_thigh": 0.3770699011187507,
+    "left_shin": 0.3351732706634064,
+    "right_thigh": 0.3770699276425395,
+    "right_shin": 0.33517323034914337
+  },
+  "reprojection_3d_vs_sdk_2d_px": {
+    "n": 12367,
+    "min": 2.8336581764317345e-07,
+    "p10": 6.753855136585587e-06,
+    "median": 1.7785730511730066e-05,
+    "p90": 3.258357562525174e-05,
+    "max": 6.661622186265864e-05
+  },
+  "transform_arithmetic": {
+    "rotation_orthogonality_max": 3.3306690738754696e-16,
+    "determinant": 0.9999999999999998,
+    "runner_corridor_csv_max_abs_difference_m": 0.0,
+    "independent_composed_transform_max_abs_difference_m": 8.881784197001252e-15,
+    "roundtrip_max_abs_difference_m": 3.552713678800501e-15,
+    "bone_length_change_max_m": 7.216449660063518e-16,
+    "note": "Floating-point consistency only; does not validate estimated joint positions or absolute calibration."
+  },
+  "sensor_pairs": {
+    "including_tentative": {
+      "n": 85,
+      "dx_m": {
+        "n": 85,
+        "min": -0.9597875962128057,
+        "p10": -0.3717750729902747,
+        "median": 0.016995925275108625,
+        "p90": 0.10911533294702234,
+        "max": 0.2749533453019133
+      },
+      "dy_m": {
+        "n": 85,
+        "min": -0.046144936194195255,
+        "p10": -0.0020176050096275553,
+        "median": 0.03265747306200596,
+        "p90": 0.10407713604573382,
+        "max": 0.26998192181516467
+      },
+      "abs_dx_m": {
+        "n": 85,
+        "min": 0.0013127932998964198,
+        "p10": 0.016090950345585674,
+        "median": 0.08810814223057806,
+        "p90": 0.3717750729902748,
+        "max": 0.9597875962128057
+      },
+      "abs_dy_m": {
+        "n": 85,
+        "min": 0.0003547931350407393,
+        "p10": 0.008722386109554513,
+        "median": 0.03596946225541049,
+        "p90": 0.10407713604573382,
+        "max": 0.26998192181516467
+      },
+      "raw_clock_residual_ms": {
+        "n": 85,
+        "min": -32.38200000000013,
+        "p10": 0.7482000000001321,
+        "median": 1.0629999999984818,
+        "p90": 1.5870000000006736,
+        "max": 2.0549999999985857
+      }
+    },
+    "confirmed_only": {
+      "n": 33,
+      "dx_m": {
+        "n": 33,
+        "min": -0.0013127932998964198,
+        "p10": 0.015079273617180889,
+        "median": 0.06572639544435166,
+        "p90": 0.09580790708773926,
+        "max": 0.12361883047061983
+      },
+      "dy_m": {
+        "n": 33,
+        "min": -0.046144936194195255,
+        "p10": -0.030912289779192536,
+        "median": 0.010324199652582869,
+        "p90": 0.03598516806593423,
+        "max": 0.049643673245884395
+      },
+      "abs_dx_m": {
+        "n": 33,
+        "min": 0.0013127932998964198,
+        "p10": 0.015079273617180889,
+        "median": 0.06572639544435166,
+        "p90": 0.09580790708773926,
+        "max": 0.12361883047061983
+      },
+      "abs_dy_m": {
+        "n": 33,
+        "min": 0.0003547931350407393,
+        "p10": 0.0016599404291050412,
+        "median": 0.017038085366744456,
+        "p90": 0.044651143477964485,
+        "max": 0.049643673245884395
+      },
+      "raw_clock_residual_ms": {
+        "n": 33,
+        "min": -3.1520000000000437,
+        "p10": 1.0138000000019076,
+        "median": 1.1940000000016937,
+        "p90": 1.880400000001004,
+        "max": 2.0549999999985857
+      }
+    }
+  },
+  "source_hash_match": {
+    "camera.json": true,
+    "frames.csv": true,
+    "bodies.csv": true
+  },
+  "calibration_status": "frozen current floor/wall candidate, longitudinal origins provisionally equated",
+  "clock_status": "unestimated; nearest raw absolute timestamps only, no offset fitted",
+  "position_error_to_ground_truth_m": null,
+  "interpretation": "SDK output availability is high. Corridor approach path broadly agrees. Absolute joint heights and distance-dependent segment lengths are not yet validated; do not call all 15m skeleton measurements normal."
+}

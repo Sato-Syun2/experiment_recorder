@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "source_frame": "livox_frame",
+  "target_frame": "zed_left_eye",
+  "coordinate_system": "IMAGE",
+  "units": "m",
+  "calibration_status": "plane_calibrated_partial_translation",
+  "translation_m": [
+    -0.022068616968160815,
+    -0.1270289112022909,
+    0.007134442286394614
+  ],
+  "rotation_source_to_target": [
+    [
+      0.012593075525401972,
+      -0.999741745581038,
+      0.0189170978585454
+    ],
+    [
+      0.3375434509530445,
+      -0.013557796487234512,
+      -0.9412123059507456
+    ],
+    [
+      0.9412257078764478,
+      0.01823810014746531,
+      0.33728554451012216
+    ]
+  ],
+  "method": "RANSAC floor and parallel side-wall plane alignment using timestamped LiDAR and ZED depth",
+  "observable_translation_directions": [
+    "floor normal",
+    "hallway lateral"
+  ],
+  "unobservable_translation_direction_target": [
+    0.02313453509924162,
+    0.22604004773511413,
+    -0.9738432574627446
+  ],
+  "unobservable_translation_kept_from_initial_m": -0.03617199686210953,
+  "notes": "Parallel floor and hallway walls do not observe translation along the hallway. That component is retained from the initial mount measurement; obtain a shared transverse wall or known target for full translation calibration."
+}

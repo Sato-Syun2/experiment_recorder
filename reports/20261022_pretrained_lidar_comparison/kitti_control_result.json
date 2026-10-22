@@ -1,0 +1,17 @@
+{
+  "purpose": "Positive execution control on an upstream KITTI demo; not a reproduced KITTI benchmark",
+  "source": "https://raw.githubusercontent.com/zhulf0804/PointPillars/main/pointpillars/dataset/demo_data/val/000134.bin",
+  "sha256": "83bfee246dd710803f78933220902cd354da1f081af8ff59c6bf412838cf0783",
+  "points": 19097,
+  "pillars": 6169,
+  "per_class_max_score": {
+    "Car": 0.9759261012077332,
+    "Pedestrian": 0.7899365425109863,
+    "Cyclist": 0.6373023986816406
+  },
+  "per_class_anchors_score_ge_point1": {
+    "Car": 136,
+    "Pedestrian": 83,
+    "Cyclist": 72
+  }
+}

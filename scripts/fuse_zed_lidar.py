@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Associate per-frame ZED body observations with confirmed LiDAR tracks.
+"""ZED人物観測とLiDAR確定トラックを対応付け、廊下座標で位置を融合する。
 
-The ZED SDK export contains absolute image timestamps, person tracks, skeletons,
-and per-person depth summaries. This program aligns those observations with the
-existing LiDAR track CSV, transforms positions into the calibrated corridor
-frame, rejects isolated motion jumps, and writes reviewable CSV/JSON/HTML.
+画像の絶対時刻と録画ごとのoffsetを使い、短いLiDAR観測間だけを線形補間する。
+座標変換・ID対応・品質に応じた重み付き融合の後、急な飛びを運動解析から除外し、
+CSV・JSON・確認HTMLへ保存する。元の観測値と補間・除外の情報も残す。
 """
 
 from __future__ import annotations
@@ -24,10 +23,11 @@ import numpy as np
 
 from track_people import load_settings
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = PROJECT_ROOT / "config.json"
-DEFAULT_TRACKS = PROJECT_ROOT / "tracking/20261013_group001_recording_001_gravity_aligned_tracks.csv"
+DEFAULT_TRACKS = (
+    PROJECT_ROOT / "tracking/20261013_group001_recording_001_gravity_aligned_tracks.csv"
+)
 DEFAULT_BODY_DIR = Path("/data/experiment_data/recording_001_zed_body_tracking")
 DEFAULT_OUTPUT = PROJECT_ROOT / "tracking/20261013_group001_recording_001_zed_lidar_fusion"
 
@@ -38,6 +38,8 @@ def read_csv(path: Path) -> list[dict[str, str]]:
 
 
 def finite_float(value: Any) -> Optional[float]:
+    """CSVの空欄・非数値・非有限値をNoneへ統一する。"""
+
     try:
         number = float(value)
     except (TypeError, ValueError):
@@ -46,6 +48,8 @@ def finite_float(value: Any) -> Optional[float]:
 
 
 def parse_json_cell(row: dict[str, str], name: str, default: Any) -> Any:
+    """CSVに埋め込まれたJSONを読み、空欄や破損時には既定値を返す。"""
+
     value = row.get(name, "")
     if not value:
         return default
@@ -56,6 +60,8 @@ def parse_json_cell(row: dict[str, str], name: str, default: Any) -> Any:
 
 
 def vector3(value: Any) -> Optional[np.ndarray]:
+    """有限な3要素を3Dベクトルとして取り出す。無効値はNoneを返す。"""
+
     try:
         point = np.asarray(value, dtype=float).reshape(-1)
     except (TypeError, ValueError):
@@ -65,8 +71,15 @@ def vector3(value: Any) -> Optional[np.ndarray]:
     return point[:3]
 
 
-def interpolate(values: list[dict[str, Any]], timestamp_ns: int, max_gap_ns: int) -> Optional[dict[str, Any]]:
-    """Interpolate only inside a short, directly observed confirmed segment."""
+def interpolate(
+    values: list[dict[str, Any]], timestamp_ns: int, max_gap_ns: int
+) -> Optional[dict[str, Any]]:
+    """時刻が一致する確定実観測を返すか、短い観測間を線形補間する。
+
+    入力はload_lidarで確定実観測だけに絞った時系列とする。
+    範囲外へは外挿せず、前後の観測間隔が上限を超える場合も値を返さない。
+    補間時は前後の原観測時刻とinterpolatedフラグを残す。
+    """
 
     if not values:
         return None
@@ -106,9 +119,20 @@ def interpolate(values: list[dict[str, Any]], timestamp_ns: int, max_gap_ns: int
         ),
     }
     for field in (
-        "corridor_x", "corridor_y", "corridor_z", "corridor_vx", "corridor_vy",
-        "corridor_vz", "zed_x", "zed_y", "zed_z", "confidence", "point_count",
-        "width", "depth", "height",
+        "corridor_x",
+        "corridor_y",
+        "corridor_z",
+        "corridor_vx",
+        "corridor_vy",
+        "corridor_vz",
+        "zed_x",
+        "zed_y",
+        "zed_z",
+        "confidence",
+        "point_count",
+        "width",
+        "depth",
+        "height",
     ):
         a, b = finite_float(before.get(field)), finite_float(after.get(field))
         result[field] = a + fraction * (b - a) if a is not None and b is not None else None
@@ -116,17 +140,21 @@ def interpolate(values: list[dict[str, Any]], timestamp_ns: int, max_gap_ns: int
 
 
 def camera_to_corridor(point_camera: np.ndarray, settings: Any) -> np.ndarray:
+    """ZED IMAGEの位置を、外部変換の逆変換と廊下変換で廊下座標へ写す。"""
+
     transform = settings.lidar_to_zed_frame
     corridor = settings.corridor_frame
     if transform is None or corridor is None:
         raise RuntimeError("Config must provide the LiDAR-to-ZED and corridor calibrations.")
-    # track_people composes this transform with gravity alignment, so its source
-    # is livox_level_frame and its target is the ZED IMAGE coordinate frame.
+    # load_settingsが重力水平化との合成を行うため、この変換の入力は
+    # 水平化座標、出力はZED IMAGE座標になる。逆変換してから廊下座標へ写す。
     point_level = transform.rotation.T @ (point_camera - transform.translation)
     return corridor.transform_position(point_level)
 
 
 def keypoint_map(raw: Any, names: Sequence[str]) -> dict[str, np.ndarray]:
+    """有限な3D関節だけを、関節名をキーとする辞書へまとめる。"""
+
     if not isinstance(raw, list):
         return {}
     result: dict[str, np.ndarray] = {}
@@ -140,6 +168,8 @@ def keypoint_map(raw: Any, names: Sequence[str]) -> dict[str, np.ndarray]:
 
 
 def keypoint_confidence_map(raw: Any, names: Sequence[str]) -> dict[str, float]:
+    """SDKの関節信頼度を、関節名をキーとする辞書へまとめる。"""
+
     if not isinstance(raw, list):
         return {}
     result: dict[str, float] = {}
@@ -152,7 +182,11 @@ def keypoint_confidence_map(raw: Any, names: Sequence[str]) -> dict[str, float]:
     return result
 
 
-def angle_at(a: Optional[np.ndarray], joint: Optional[np.ndarray], b: Optional[np.ndarray]) -> Optional[float]:
+def angle_at(
+    a: Optional[np.ndarray], joint: Optional[np.ndarray], b: Optional[np.ndarray]
+) -> Optional[float]:
+    """3点が作る関節内角を内積から度で求める。欠損・ゼロ長は除く。"""
+
     if a is None or joint is None or b is None:
         return None
     left = a - joint
@@ -170,13 +204,15 @@ def joint_metrics(
     names: Sequence[str],
     settings: Any,
 ) -> tuple[dict[str, Optional[float]], list[Any]]:
+    """低信頼度の関節を除き、廊下座標の関節と近似的な姿勢角を求める。"""
+
     transformed: list[Any] = []
     lookup: dict[str, np.ndarray] = {}
     for name in names:
         joint_name = str(name).upper()
         point = points.get(joint_name)
-        # Avoid angles built from SDK joints marked as low-confidence. If a
-        # build omits per-joint confidence, keep the available 3D point.
+        # 信頼度25未満の関節は角度計算に使わない。
+        # 関節信頼度が出力されないSDKでは、存在する3D点をそのまま使う。
         if point is not None and joint_name in confidence and confidence[joint_name] < 25.0:
             point = None
         if point is None:
@@ -197,14 +233,15 @@ def joint_metrics(
         pelvis = lookup.get("PELVIS")
         neck = lookup.get("NECK")
         if pelvis is not None and neck is not None and hip is not None and knee is not None:
-            # Approximate hip flexion relative to the torso; this is an SDK
-            # skeleton angle, not a calibrated anatomical joint-center angle.
+            # 体幹に対する大腿の向きを近似する。SDK骨格の角度であり、
+            # 解剖学的な関節中心を校正して得た角度ではない。
             torso = neck - pelvis
             thigh = knee - hip
             norm = float(np.linalg.norm(torso) * np.linalg.norm(thigh))
             metrics[f"{side.lower()}_hip_torso_angle_deg"] = (
                 math.degrees(math.acos(float(np.clip(np.dot(torso, thigh) / norm, -1, 1))))
-                if norm > 1e-9 else None
+                if norm > 1e-9
+                else None
             )
         else:
             metrics[f"{side.lower()}_hip_torso_angle_deg"] = None
@@ -215,11 +252,11 @@ def joint_metrics(
         norm = float(np.linalg.norm(trunk))
         metrics["trunk_lean_from_vertical_deg"] = (
             math.degrees(math.acos(float(np.clip(abs(trunk[2]) / norm, -1, 1))))
-            if norm > 1e-9 else None
+            if norm > 1e-9
+            else None
         )
         metrics["trunk_forward_lean_signed_deg"] = (
-            math.degrees(math.atan2(float(trunk[0]), abs(float(trunk[2]))))
-            if norm > 1e-9 else None
+            math.degrees(math.atan2(float(trunk[0]), abs(float(trunk[2])))) if norm > 1e-9 else None
         )
     else:
         metrics["trunk_lean_from_vertical_deg"] = None
@@ -228,6 +265,8 @@ def joint_metrics(
 
 
 def bbox_distance(u: float, v: float, bbox: Sequence[float]) -> float:
+    """投影点から人物矩形までの画素距離を求める。矩形内なら0。"""
+
     if len(bbox) != 4:
         return 0.0
     x0, y0, x1, y1 = [float(value) for value in bbox]
@@ -247,7 +286,11 @@ def associate_tracks(
     center_gate_m: float,
     forced: dict[str, str],
 ) -> tuple[dict[str, str], dict[str, list[dict[str, Any]]]]:
-    """Find a stable one-to-one ZED ID to LiDAR ID map from projection and 3D."""
+    """画素・3D距離のゲートで候補を絞り、ZED IDとLiDAR IDを固定対応させる。
+
+    各ID組の観測スコア中央値を小さい順に選ぶ貪欲法で、通常は3観測以上を要求する。
+    手動対応を先に確保し、同じIDの重複使用を避ける。フレーム単位の最適割当とは異なる。
+    """
 
     costs: dict[tuple[str, str], list[tuple[float, float, float]]] = defaultdict(list)
     candidate_cache: dict[str, list[dict[str, Any]]] = {}
@@ -268,25 +311,34 @@ def associate_tracks(
             u = fx * zed_point[0] / zed_point[2] + cx
             v = fy * zed_point[1] / zed_point[2] + cy
             pixel_error = bbox_distance(u, v, bbox)
-            center_error = float(np.linalg.norm(zed_point - body_camera)) if body_camera is not None else 0.0
+            center_error = (
+                float(np.linalg.norm(zed_point - body_camera)) if body_camera is not None else 0.0
+            )
             if pixel_error > bbox_gate_px or center_error > center_gate_m:
                 continue
             score = center_error + pixel_error / max(bbox_gate_px, 1.0)
             candidate = {
-                "track_id": track_id, "sample": sample, "projected_u": u,
-                "projected_v": v, "pixel_error": pixel_error,
-                "center_error": center_error, "score": score,
+                "track_id": track_id,
+                "sample": sample,
+                "projected_u": u,
+                "projected_v": v,
+                "pixel_error": pixel_error,
+                "center_error": center_error,
+                "score": score,
             }
             candidates.append(candidate)
             costs[(body_id, track_id)].append((score, center_error, pixel_error))
         candidate_cache[f"{obs['observation_index']}"] = candidates
 
+    # 手動対応を先に予約し、残りはID組ごとの中央値スコア順で貪欲に確保する。
     mapping = dict(forced)
     pair_rows: list[tuple[float, int, str, str]] = []
     for (body_id, track_id), values in costs.items():
         if body_id in mapping or track_id in mapping.values():
             continue
-        pair_rows.append((statistics.median(value[0] for value in values), len(values), body_id, track_id))
+        pair_rows.append(
+            (statistics.median(value[0] for value in values), len(values), body_id, track_id)
+        )
     used_bodies, used_tracks = set(mapping), set(mapping.values())
     for _score, count, body_id, track_id in sorted(pair_rows, key=lambda item: (item[0], -item[1])):
         if count < 3 or body_id in used_bodies or track_id in used_tracks:
@@ -303,7 +355,8 @@ def associate_tracks(
             selected[str(obs["observation_index"])] = []
             continue
         selected[str(obs["observation_index"])] = [
-            candidate for candidate in candidate_cache.get(str(obs["observation_index"]), [])
+            candidate
+            for candidate in candidate_cache.get(str(obs["observation_index"]), [])
             if candidate["track_id"] == track_id
         ]
     return mapping, selected
@@ -321,40 +374,67 @@ def build_observations(
     settings: Any,
     min_confidence: float,
 ) -> list[dict[str, Any]]:
+    """SDK状態OK・信頼度条件を満たす観測を廊下座標へ変換し、品質を計算する。"""
+
     observations: list[dict[str, Any]] = []
     for row in body_rows:
+        # SEARCHING・TERMINATEは予測や追跡喪失の状態なので、実観測として使わない。
+        if row.get("tracking_state", "").split(".")[-1].upper() != "OK":
+            continue
         confidence = finite_float(row.get("confidence")) or 0.0
         if confidence < min_confidence:
             continue
         timestamp_ns = int(row["image_timestamp_ns"])
         body_id = str(row.get("body_id", "-1"))
         points = keypoint_map(parse_json_cell(row, "keypoints_3d_camera_json", []), names)
-        kp_conf = keypoint_confidence_map(parse_json_cell(row, "keypoint_confidence_json", []), names)
-        sdk_velocity_camera = vector3([
-            row.get("velocity_camera_x_mps"), row.get("velocity_camera_y_mps"),
-            row.get("velocity_camera_z_mps"),
-        ])
+        kp_conf = keypoint_confidence_map(
+            parse_json_cell(row, "keypoint_confidence_json", []), names
+        )
+        sdk_velocity_camera = vector3(
+            [
+                row.get("velocity_camera_x_mps"),
+                row.get("velocity_camera_y_mps"),
+                row.get("velocity_camera_z_mps"),
+            ]
+        )
         sdk_velocity_corridor = None
         if sdk_velocity_camera is not None:
             velocity_level = settings.lidar_to_zed_frame.rotation.T @ sdk_velocity_camera
             sdk_velocity_corridor = settings.corridor_frame.transform_velocity(velocity_level)
         pelvis = points.get("PELVIS")
-        body_position = vector3([
-            row.get("position_camera_x_m"), row.get("position_camera_y_m"),
-            row.get("position_camera_z_m"),
-        ])
+        body_position = vector3(
+            [
+                row.get("position_camera_x_m"),
+                row.get("position_camera_y_m"),
+                row.get("position_camera_z_m"),
+            ]
+        )
         skeleton_base_camera = pelvis if pelvis is not None else body_position
-        pelvis_depth_camera = vector3([
-            row.get("pelvis_depth_x_m"), row.get("pelvis_depth_y_m"),
-            row.get("pelvis_depth_z_m"),
-        ])
-        # The SDK's metric depth sampled around the pelvis pixel is the preferred
-        # position measurement. Keep the fitted 3D skeleton pelvis as a separate
-        # value so the two ZED estimates remain reviewable.
-        fusion_camera = pelvis_depth_camera if pelvis_depth_camera is not None else skeleton_base_camera
-        zed_corridor = camera_to_corridor(fusion_camera, settings) if fusion_camera is not None else None
-        skeleton_corridor = camera_to_corridor(skeleton_base_camera, settings) if skeleton_base_camera is not None else None
-        pelvis_depth_corridor = camera_to_corridor(pelvis_depth_camera, settings) if pelvis_depth_camera is not None else None
+        pelvis_depth_camera = vector3(
+            [
+                row.get("pelvis_depth_x_m"),
+                row.get("pelvis_depth_y_m"),
+                row.get("pelvis_depth_z_m"),
+            ]
+        )
+        # 位置融合には骨盤画素付近の実深度を優先する。
+        # SDKがモデルに当てはめた骨盤3D位置も別に残し、両者を比較できるようにする。
+        fusion_camera = (
+            pelvis_depth_camera if pelvis_depth_camera is not None else skeleton_base_camera
+        )
+        zed_corridor = (
+            camera_to_corridor(fusion_camera, settings) if fusion_camera is not None else None
+        )
+        skeleton_corridor = (
+            camera_to_corridor(skeleton_base_camera, settings)
+            if skeleton_base_camera is not None
+            else None
+        )
+        pelvis_depth_corridor = (
+            camera_to_corridor(pelvis_depth_camera, settings)
+            if pelvis_depth_camera is not None
+            else None
+        )
         metrics, points_corridor = joint_metrics(points, kp_conf, names, settings)
         bbox = parse_json_cell(row, "bounding_box_2d_json", [])
         if not isinstance(bbox, list) or len(bbox) != 4:
@@ -370,36 +450,44 @@ def build_observations(
         if depth_median is not None and depth_p90 is not None and depth_p10 is not None:
             spread = max(0.0, depth_p90 - depth_p10)
             zed_quality *= 1.0 / (1.0 + min(spread, 5.0) / 3.0)
-        observations.append({
-            "observation_index": len(observations),
-            "timestamp_ns": timestamp_ns,
-            "elapsed_s": finite_float(row.get("elapsed_s")) or 0.0,
-            "body_id": body_id,
-            "tracking_state": row.get("tracking_state", ""),
-            "confidence": confidence,
-            "body_position_camera": skeleton_base_camera,
-            "zed_sdk_velocity_corridor": sdk_velocity_corridor,
-            "zed_position_corridor": zed_corridor,
-            "zed_skeleton_pelvis_corridor": skeleton_corridor,
-            "zed_depth_pelvis_corridor": pelvis_depth_corridor,
-            "zed_position_source": "pelvis_depth" if pelvis_depth_camera is not None else "skeleton_pelvis_or_body_position",
-            "bbox": bbox,
-            "points_camera": points,
-            "points_corridor": points_corridor,
-            "metrics": metrics,
-            "keypoint_confidence": kp_conf,
-            "depth_median_m": depth_median,
-            "depth_p10_m": depth_p10,
-            "depth_p90_m": depth_p90,
-            "depth_valid_pixels": int(finite_float(row.get("depth_valid_pixels")) or 0),
-            "pelvis_depth_m": finite_float(row.get("pelvis_depth_m")),
-            "pelvis_depth_valid_pixels": pelvis_depth_pixels,
-            "zed_quality": zed_quality,
-        })
+        observations.append(
+            {
+                "observation_index": len(observations),
+                "timestamp_ns": timestamp_ns,
+                "elapsed_s": finite_float(row.get("elapsed_s")) or 0.0,
+                "body_id": body_id,
+                "tracking_state": row.get("tracking_state", ""),
+                "confidence": confidence,
+                "body_position_camera": skeleton_base_camera,
+                "zed_sdk_velocity_corridor": sdk_velocity_corridor,
+                "zed_position_corridor": zed_corridor,
+                "zed_skeleton_pelvis_corridor": skeleton_corridor,
+                "zed_depth_pelvis_corridor": pelvis_depth_corridor,
+                "zed_position_source": (
+                    "pelvis_depth"
+                    if pelvis_depth_camera is not None
+                    else "skeleton_pelvis_or_body_position"
+                ),
+                "bbox": bbox,
+                "points_camera": points,
+                "points_corridor": points_corridor,
+                "metrics": metrics,
+                "keypoint_confidence": kp_conf,
+                "depth_median_m": depth_median,
+                "depth_p10_m": depth_p10,
+                "depth_p90_m": depth_p90,
+                "depth_valid_pixels": int(finite_float(row.get("depth_valid_pixels")) or 0),
+                "pelvis_depth_m": finite_float(row.get("pelvis_depth_m")),
+                "pelvis_depth_valid_pixels": pelvis_depth_pixels,
+                "zed_quality": zed_quality,
+            }
+        )
     return observations
 
 
 def load_lidar(path: Path) -> dict[str, list[dict[str, Any]]]:
+    """confirmedかつdetected=1で必要座標が揃うLiDAR行だけを、ID別時系列へまとめる。"""
+
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for row in read_csv(path):
         if row.get("status") != "confirmed" or row.get("detected") != "1":
@@ -411,7 +499,10 @@ def load_lidar(path: Path) -> dict[str, list[dict[str, Any]]]:
         item: dict[str, Any] = dict(row)
         item["timestamp_ns"] = timestamp_ns
         item["track_id"] = str(row.get("track_id", ""))
-        required = [finite_float(row.get(key)) for key in ("corridor_x", "corridor_y", "corridor_z", "zed_x", "zed_y", "zed_z")]
+        required = [
+            finite_float(row.get(key))
+            for key in ("corridor_x", "corridor_y", "corridor_z", "zed_x", "zed_y", "zed_z")
+        ]
         if any(value is None for value in required):
             continue
         grouped[item["track_id"]].append(item)
@@ -421,13 +512,20 @@ def load_lidar(path: Path) -> dict[str, list[dict[str, Any]]]:
 
 
 def load_forced_associations(path: Optional[Path]) -> dict[str, str]:
+    """任意の手動ID対応を読み、LiDAR側IDの重複がないか検証する。"""
+
     if path is None:
         return {}
     value = json.loads(path.read_text(encoding="utf-8"))
     mapping = value.get("zed_to_lidar", value) if isinstance(value, dict) else None
     if not isinstance(mapping, dict):
-        raise ValueError("Association JSON must be an object mapping ZED body IDs to LiDAR track IDs.")
-    return {str(key): str(item) for key, item in mapping.items()}
+        raise ValueError(
+            "Association JSON must be an object mapping ZED body IDs to LiDAR track IDs."
+        )
+    result = {str(key): str(item) for key, item in mapping.items()}
+    if len(set(result.values())) != len(result):
+        raise ValueError("Forced associations must be one-to-one.")
+    return result
 
 
 def make_output_row(
@@ -437,15 +535,20 @@ def make_output_row(
     max_fusion_residual_m: float,
     minimum_lidar_longitudinal_share: float,
 ) -> dict[str, Any]:
+    """センサーの一致条件と品質重みに従って位置を融合し、元観測も保存する。"""
+
     zed_pos = obs["zed_position_corridor"]
     lidar_pos = None
     lidar_cam = None
     if lidar is not None:
-        lidar_pos = vector3([lidar.get("corridor_x"), lidar.get("corridor_y"), lidar.get("corridor_z")])
+        lidar_pos = vector3(
+            [lidar.get("corridor_x"), lidar.get("corridor_y"), lidar.get("corridor_z")]
+        )
         lidar_cam = vector3([lidar.get("zed_x"), lidar.get("zed_y"), lidar.get("zed_z")])
     zed_lidar_residual = (
         float(np.linalg.norm(zed_pos - lidar_pos))
-        if zed_pos is not None and lidar_pos is not None else None
+        if zed_pos is not None and lidar_pos is not None
+        else None
     )
 
     lidar_quality = 0.0
@@ -454,7 +557,9 @@ def make_output_row(
     if lidar is not None:
         lidar_confidence = finite_float(lidar.get("confidence"))
         lidar_point_count = int(finite_float(lidar.get("point_count")) or 0)
-        lidar_quality = _clamp01(lidar_confidence, 0.5) * min(1.0, math.sqrt(max(0, lidar_point_count) / 30.0))
+        lidar_quality = _clamp01(lidar_confidence, 0.5) * min(
+            1.0, math.sqrt(max(0, lidar_point_count) / 30.0)
+        )
 
     zed_quality = float(obs["zed_quality"])
     fused: Optional[np.ndarray] = None
@@ -465,19 +570,28 @@ def make_output_row(
     longitudinal_lidar_share_used: Optional[float] = None
     if zed_pos is not None and lidar_pos is not None:
         if zed_lidar_residual is not None and zed_lidar_residual <= max_fusion_residual_m:
-            share_weight = zed_weight * minimum_lidar_longitudinal_share / max(1e-9, 1.0 - minimum_lidar_longitudinal_share)
+            # 廊下方向XだけはLiDARの正規化重みに下限を設け、Y・Zは通常の品質比で融合する。
+            share_weight = (
+                zed_weight
+                * minimum_lidar_longitudinal_share
+                / max(1e-9, 1.0 - minimum_lidar_longitudinal_share)
+            )
             longitudinal_lidar_weight = max(lidar_weight, share_weight)
             longitudinal_total = zed_weight + longitudinal_lidar_weight
             lateral_total = zed_weight + lidar_weight
             if longitudinal_total > 1e-9 and lateral_total > 1e-9:
-                fused = np.array([
-                    (zed_weight * zed_pos[0] + longitudinal_lidar_weight * lidar_pos[0]) / longitudinal_total,
-                    (zed_weight * zed_pos[1] + lidar_weight * lidar_pos[1]) / lateral_total,
-                    (zed_weight * zed_pos[2] + lidar_weight * lidar_pos[2]) / lateral_total,
-                ])
+                fused = np.array(
+                    [
+                        (zed_weight * zed_pos[0] + longitudinal_lidar_weight * lidar_pos[0])
+                        / longitudinal_total,
+                        (zed_weight * zed_pos[1] + lidar_weight * lidar_pos[1]) / lateral_total,
+                        (zed_weight * zed_pos[2] + lidar_weight * lidar_pos[2]) / lateral_total,
+                    ]
+                )
                 fusion_status = "weighted_fusion"
                 longitudinal_lidar_share_used = longitudinal_lidar_weight / longitudinal_total
         else:
+            # 不一致を無理に平均せず、位置を未確定のまま残す。
             fusion_status = "sensor_disagreement"
     elif lidar_pos is not None:
         fused = lidar_pos
@@ -494,10 +608,26 @@ def make_output_row(
         "zed_body_id": obs["body_id"],
         "zed_tracking_state": obs["tracking_state"],
         "zed_confidence": obs["confidence"],
-        "zed_sdk_velocity_corridor_x_mps": None if obs["zed_sdk_velocity_corridor"] is None else obs["zed_sdk_velocity_corridor"][0],
-        "zed_sdk_velocity_corridor_y_mps": None if obs["zed_sdk_velocity_corridor"] is None else obs["zed_sdk_velocity_corridor"][1],
-        "zed_sdk_velocity_corridor_z_mps": None if obs["zed_sdk_velocity_corridor"] is None else obs["zed_sdk_velocity_corridor"][2],
-        "zed_sdk_speed_corridor_mps": None if obs["zed_sdk_velocity_corridor"] is None else float(np.linalg.norm(obs["zed_sdk_velocity_corridor"][:2])),
+        "zed_sdk_velocity_corridor_x_mps": (
+            None
+            if obs["zed_sdk_velocity_corridor"] is None
+            else obs["zed_sdk_velocity_corridor"][0]
+        ),
+        "zed_sdk_velocity_corridor_y_mps": (
+            None
+            if obs["zed_sdk_velocity_corridor"] is None
+            else obs["zed_sdk_velocity_corridor"][1]
+        ),
+        "zed_sdk_velocity_corridor_z_mps": (
+            None
+            if obs["zed_sdk_velocity_corridor"] is None
+            else obs["zed_sdk_velocity_corridor"][2]
+        ),
+        "zed_sdk_speed_corridor_mps": (
+            None
+            if obs["zed_sdk_velocity_corridor"] is None
+            else float(np.linalg.norm(obs["zed_sdk_velocity_corridor"][:2]))
+        ),
         "lidar_track_id": "" if lidar is None else lidar.get("track_id", ""),
         "lidar_interpolated": "" if lidar is None else int(bool(lidar.get("interpolated", False))),
         "lidar_confidence": lidar_confidence,
@@ -505,19 +635,49 @@ def make_output_row(
         "lidar_position_corridor_x_m": None if lidar_pos is None else lidar_pos[0],
         "lidar_position_corridor_y_m": None if lidar_pos is None else lidar_pos[1],
         "lidar_position_corridor_z_m": None if lidar_pos is None else lidar_pos[2],
-        "lidar_velocity_corridor_x_mps": None if lidar is None else finite_float(lidar.get("corridor_vx")),
-        "lidar_velocity_corridor_y_mps": None if lidar is None else finite_float(lidar.get("corridor_vy")),
-        "lidar_velocity_corridor_z_mps": None if lidar is None else finite_float(lidar.get("corridor_vz")),
+        "lidar_velocity_corridor_x_mps": (
+            None if lidar is None else finite_float(lidar.get("corridor_vx"))
+        ),
+        "lidar_velocity_corridor_y_mps": (
+            None if lidar is None else finite_float(lidar.get("corridor_vy"))
+        ),
+        "lidar_velocity_corridor_z_mps": (
+            None if lidar is None else finite_float(lidar.get("corridor_vz"))
+        ),
         "zed_position_corridor_x_m": None if zed_pos is None else zed_pos[0],
         "zed_position_corridor_y_m": None if zed_pos is None else zed_pos[1],
         "zed_position_corridor_z_m": None if zed_pos is None else zed_pos[2],
         "zed_position_source": obs["zed_position_source"],
-        "zed_skeleton_pelvis_corridor_x_m": None if obs["zed_skeleton_pelvis_corridor"] is None else obs["zed_skeleton_pelvis_corridor"][0],
-        "zed_skeleton_pelvis_corridor_y_m": None if obs["zed_skeleton_pelvis_corridor"] is None else obs["zed_skeleton_pelvis_corridor"][1],
-        "zed_skeleton_pelvis_corridor_z_m": None if obs["zed_skeleton_pelvis_corridor"] is None else obs["zed_skeleton_pelvis_corridor"][2],
-        "zed_depth_pelvis_corridor_x_m": None if obs["zed_depth_pelvis_corridor"] is None else obs["zed_depth_pelvis_corridor"][0],
-        "zed_depth_pelvis_corridor_y_m": None if obs["zed_depth_pelvis_corridor"] is None else obs["zed_depth_pelvis_corridor"][1],
-        "zed_depth_pelvis_corridor_z_m": None if obs["zed_depth_pelvis_corridor"] is None else obs["zed_depth_pelvis_corridor"][2],
+        "zed_skeleton_pelvis_corridor_x_m": (
+            None
+            if obs["zed_skeleton_pelvis_corridor"] is None
+            else obs["zed_skeleton_pelvis_corridor"][0]
+        ),
+        "zed_skeleton_pelvis_corridor_y_m": (
+            None
+            if obs["zed_skeleton_pelvis_corridor"] is None
+            else obs["zed_skeleton_pelvis_corridor"][1]
+        ),
+        "zed_skeleton_pelvis_corridor_z_m": (
+            None
+            if obs["zed_skeleton_pelvis_corridor"] is None
+            else obs["zed_skeleton_pelvis_corridor"][2]
+        ),
+        "zed_depth_pelvis_corridor_x_m": (
+            None
+            if obs["zed_depth_pelvis_corridor"] is None
+            else obs["zed_depth_pelvis_corridor"][0]
+        ),
+        "zed_depth_pelvis_corridor_y_m": (
+            None
+            if obs["zed_depth_pelvis_corridor"] is None
+            else obs["zed_depth_pelvis_corridor"][1]
+        ),
+        "zed_depth_pelvis_corridor_z_m": (
+            None
+            if obs["zed_depth_pelvis_corridor"] is None
+            else obs["zed_depth_pelvis_corridor"][2]
+        ),
         "zed_depth_median_m": obs["depth_median_m"],
         "zed_pelvis_depth_m": obs["pelvis_depth_m"],
         "zed_pelvis_depth_valid_pixels": obs["pelvis_depth_valid_pixels"],
@@ -539,36 +699,58 @@ def make_output_row(
         "motion_valid": 0,
         "motion_segment_id": None,
         "fused_speed_corridor_mps": None,
-        "keypoints_corridor_json": json.dumps(obs["points_corridor"], ensure_ascii=False, allow_nan=False),
+        "keypoints_corridor_json": json.dumps(
+            obs["points_corridor"], ensure_ascii=False, allow_nan=False
+        ),
         **metrics,
     }
     return row
 
 
-def smooth_and_velocity(rows: list[dict[str, Any]], max_speed_mps: float, max_gap_s: float) -> None:
+def smooth_and_velocity(
+    rows: list[dict[str, Any]],
+    max_speed_mps: float,
+    max_gap_s: float,
+    smoothing_window_s: float = 0.0,
+) -> None:
+    """融合前処理後の位置を別列へ保持し、運動区間と速度を求める。
+
+    既定では位置平滑化を行わない。指定時だけ時間窓の中央移動中央値を使う。
+    欠損・飛び・融合状態の変化で区間を分け、実際の時刻間隔で微分する。
+    """
+
     by_body: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for row in rows:
+        for axis in "xyz":
+            row[f"raw_fused_position_corridor_{axis}_m"] = row.get(
+                f"fused_position_corridor_{axis}_m"
+            )
         by_body[str(row["zed_body_id"])].append(row)
     for sequence in by_body.values():
         sequence.sort(key=lambda row: int(row["timestamp_ns"]))
         previous: Optional[tuple[int, np.ndarray]] = None
         for row in sequence:
-            point = vector3([
-                row.get("fused_position_corridor_x_m"), row.get("fused_position_corridor_y_m"),
-                row.get("fused_position_corridor_z_m"),
-            ])
+            point = vector3(
+                [
+                    row.get("fused_position_corridor_x_m"),
+                    row.get("fused_position_corridor_y_m"),
+                    row.get("fused_position_corridor_z_m"),
+                ]
+            )
             timestamp_ns = int(row["timestamp_ns"])
             row["_point"] = point
             if point is None:
                 continue
             if previous is not None:
                 dt = (timestamp_ns - previous[0]) / 1e9
-                speed = float(np.linalg.norm(point - previous[1]) / dt) if dt > 0 else math.inf
+                speed = (
+                    float(np.linalg.norm((point - previous[1])[:2]) / dt) if dt > 0 else math.inf
+                )
                 if dt <= max_gap_s and speed > max_speed_mps:
                     row["motion_outlier"] = 1
                     row["_point"] = None
-                    # Compare the next frame to the last accepted point so one
-                    # isolated jump does not invalidate the return to the path.
+                    # 次の点は最後に採用した点と比べる。1回の飛びで、
+                    # 元の軌道へ戻った観測まで除外されるのを防ぐ。
                     continue
             previous = (timestamp_ns, point)
 
@@ -581,11 +763,16 @@ def smooth_and_velocity(rows: list[dict[str, Any]], max_speed_mps: float, max_ga
                 break_after_outlier = True
                 continue
             if row["_point"] is None:
+                break_after_outlier = True
                 continue
             timestamp_ns = int(row["timestamp_ns"])
-            if previous_valid is None or (
-                timestamp_ns - int(previous_valid["timestamp_ns"])
-            ) / 1e9 > max_gap_s or break_after_outlier:
+            # 欠測・外れ値・長い時刻差・融合状態の変化をまたいで平滑化や微分をしない。
+            if (
+                previous_valid is None
+                or (timestamp_ns - int(previous_valid["timestamp_ns"])) / 1e9 > max_gap_s
+                or break_after_outlier
+                or (previous_valid.get("fusion_status") != row.get("fusion_status"))
+            ):
                 segment_id += 1
             row["motion_segment_id"] = segment_id
             previous_valid = row
@@ -597,16 +784,18 @@ def smooth_and_velocity(rows: list[dict[str, Any]], max_speed_mps: float, max_ga
             neighborhood = [row]
             for direction in (-1, 1):
                 cursor = index + direction
-                while 0 <= cursor < len(valid) and len(neighborhood) < 5:
+                while 0 <= cursor < len(valid):
                     candidate = valid[cursor]
                     if candidate["motion_segment_id"] != row["motion_segment_id"]:
                         break
                     dt = abs(int(candidate["timestamp_ns"]) - timestamp_ns) / 1e9
-                    if dt > max_gap_s:
+                    if dt > min(max_gap_s, smoothing_window_s / 2):
                         break
                     neighborhood.append(candidate)
                     cursor += direction
-            smoothed[id(row)] = np.median(np.stack([item["_point"] for item in neighborhood]), axis=0)
+            smoothed[id(row)] = np.median(
+                np.stack([item["_point"] for item in neighborhood]), axis=0
+            )
             row["motion_valid"] = 1
             row["fused_position_corridor_x_m"] = float(smoothed[id(row)][0])
             row["fused_position_corridor_y_m"] = float(smoothed[id(row)][1])
@@ -617,7 +806,10 @@ def smooth_and_velocity(rows: list[dict[str, Any]], max_speed_mps: float, max_ga
                 continue
             previous_row = valid[index - 1] if index > 0 else None
             next_row = valid[index + 1] if index + 1 < len(valid) else None
-            if previous_row is not None and previous_row["motion_segment_id"] != row["motion_segment_id"]:
+            if (
+                previous_row is not None
+                and previous_row["motion_segment_id"] != row["motion_segment_id"]
+            ):
                 previous_row = None
             if next_row is not None and next_row["motion_segment_id"] != row["motion_segment_id"]:
                 next_row = None
@@ -629,7 +821,19 @@ def smooth_and_velocity(rows: list[dict[str, Any]], max_speed_mps: float, max_ga
             if previous_row is None and next_row is None:
                 continue
             if previous_row is not None and next_row is not None:
-                velocity = (smoothed[id(next_row)] - smoothed[id(previous_row)]) / dt
+                # 不等間隔の3点微分を使う。整数ナノ秒を引いてから秒に直し、
+                # 大きな絶対時刻を浮動小数へ変換した際の桁落ちを抑える。
+                times = np.array(
+                    [
+                        (int(item["timestamp_ns"]) - int(row["timestamp_ns"])) / 1e9
+                        for item in (previous_row, row, next_row)
+                    ]
+                )
+                velocity = np.gradient(
+                    np.stack([smoothed[id(item)] for item in (previous_row, row, next_row)]),
+                    times,
+                    axis=0,
+                )[1]
             elif next_row is not None:
                 dt = (int(next_row["timestamp_ns"]) - int(row["timestamp_ns"])) / 1e9
                 if dt <= 0 or dt > max_gap_s:
@@ -658,21 +862,27 @@ def _clean_csv_value(value: Any) -> Any:
     return value
 
 
-def write_html(path: Path, rows: list[dict[str, Any]], associations: dict[str, str], metrics: dict[str, Any]) -> None:
+def write_html(
+    path: Path, rows: list[dict[str, Any]], associations: dict[str, str], metrics: dict[str, Any]
+) -> None:
     chart_data = []
     for row in rows:
-        chart_data.append({
-            "t": row["elapsed_s"],
-            "x": row.get("fused_position_corridor_x_m"),
-            "y": row.get("fused_position_corridor_y_m"),
-            "speed": row.get("fused_speed_corridor_mps"),
-            "body": row["zed_body_id"],
-            "status": row["fusion_status"],
-            "motion_valid": row.get("motion_valid", 0),
-            "motion_outlier": row.get("motion_outlier", 0),
-            "segment": row.get("motion_segment_id"),
-        })
-    details = html.escape(json.dumps({"associations": associations, "metrics": metrics}, ensure_ascii=False, indent=2))
+        chart_data.append(
+            {
+                "t": row["elapsed_s"],
+                "x": row.get("fused_position_corridor_x_m"),
+                "y": row.get("fused_position_corridor_y_m"),
+                "speed": row.get("fused_speed_corridor_mps"),
+                "body": row["zed_body_id"],
+                "status": row["fusion_status"],
+                "motion_valid": row.get("motion_valid", 0),
+                "motion_outlier": row.get("motion_outlier", 0),
+                "segment": row.get("motion_segment_id"),
+            }
+        )
+    details = html.escape(
+        json.dumps({"associations": associations, "metrics": metrics}, ensure_ascii=False, indent=2)
+    )
     data_json = json.dumps(chart_data, ensure_ascii=False, allow_nan=False)
     document = f"""<!doctype html>
 <html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -717,6 +927,8 @@ plot('speed','speed');
 
 
 def fuse(args: argparse.Namespace) -> None:
+    """入力の単位・校正を検証し、ID対応から融合、運動集計、保存までを進める。"""
+
     body_dir = args.body_dir.expanduser().resolve()
     body_csv = (args.body_csv or body_dir / "bodies.csv").expanduser().resolve()
     camera_json_path = (args.camera_json or body_dir / "camera.json").expanduser().resolve()
@@ -727,6 +939,10 @@ def fuse(args: argparse.Namespace) -> None:
             raise FileNotFoundError(f"Required input file does not exist: {required}")
 
     camera = json.loads(camera_json_path.read_text(encoding="utf-8"))
+    if camera.get("coordinate_units") != "meter" or not str(
+        camera.get("coordinate_system", "")
+    ).startswith("IMAGE"):
+        raise ValueError("camera.json must declare meter units and IMAGE coordinates.")
     intrinsics = {key: float(camera[key]) for key in ("fx", "fy", "cx", "cy")}
     names = camera.get("keypoint_names", [])
     if not isinstance(names, list) or not names:
@@ -740,20 +956,28 @@ def fuse(args: argparse.Namespace) -> None:
     if not observations:
         raise RuntimeError("No ZED body observations passed the confidence threshold.")
     if not lidar_by_id:
-        print("Warning: no confirmed LiDAR detections found; output will contain ZED-only observations.")
+        print(
+            "Warning: no confirmed LiDAR detections found; output will contain ZED-only observations."
+        )
 
     output_dir = args.output_dir.expanduser().resolve()
     if output_dir.exists() and any(output_dir.iterdir()):
         raise RuntimeError(f"Output directory is not empty; choose a new folder: {output_dir}")
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    # LiDARヘッダー時刻 = ZED画像時刻 + offset。経過秒同士の開始差とは区別する。
     offset_ns = int(round(args.timestamp_offset_ms * 1_000_000))
     max_lidar_gap_ns = int(args.max_lidar_gap_s * 1_000_000_000)
     forced = load_forced_associations(args.association_json)
     mapping, selected = associate_tracks(
-        observations, lidar_by_id, intrinsics, max_lidar_gap_ns=max_lidar_gap_ns,
-        timestamp_offset_ns=offset_ns, bbox_gate_px=args.association_bbox_gate_px,
-        center_gate_m=args.association_center_gate_m, forced=forced,
+        observations,
+        lidar_by_id,
+        intrinsics,
+        max_lidar_gap_ns=max_lidar_gap_ns,
+        timestamp_offset_ns=offset_ns,
+        bbox_gate_px=args.association_bbox_gate_px,
+        center_gate_m=args.association_center_gate_m,
+        forced=forced,
     )
 
     rows: list[dict[str, Any]] = []
@@ -763,12 +987,20 @@ def fuse(args: argparse.Namespace) -> None:
         candidates = selected.get(str(obs["observation_index"]), [])
         candidate = min(candidates, key=lambda item: item["score"]) if candidates else None
         lidar = None if candidate is None else candidate["sample"]
-        row = make_output_row(obs, lidar, max_fusion_residual_m=args.max_fusion_residual_m,
-                              minimum_lidar_longitudinal_share=args.minimum_lidar_longitudinal_share)
+        row = make_output_row(
+            obs,
+            lidar,
+            max_fusion_residual_m=args.max_fusion_residual_m,
+            minimum_lidar_longitudinal_share=args.minimum_lidar_longitudinal_share,
+        )
         if lidar is not None:
             matched += 1
-            row["sync_residual_ms"] = (int(lidar["nearest_source_timestamp_ns"]) - (int(obs["timestamp_ns"]) + offset_ns)) / 1_000_000.0
-            row["lidar_bracket_span_ms"] = (int(lidar["source_after_ns"]) - int(lidar["source_before_ns"])) / 1_000_000.0
+            row["sync_residual_ms"] = (
+                int(lidar["nearest_source_timestamp_ns"]) - (int(obs["timestamp_ns"]) + offset_ns)
+            ) / 1_000_000.0
+            row["lidar_bracket_span_ms"] = (
+                int(lidar["source_after_ns"]) - int(lidar["source_before_ns"])
+            ) / 1_000_000.0
             if row["zed_lidar_position_residual_m"] is not None:
                 residuals.append(float(row["zed_lidar_position_residual_m"]))
             row["association_pixel_error_px"] = candidate["pixel_error"]
@@ -780,18 +1012,31 @@ def fuse(args: argparse.Namespace) -> None:
             row["association_center_error_m"] = ""
         rows.append(row)
 
-    smooth_and_velocity(rows, args.max_speed_mps, args.max_motion_gap_s)
+    smooth_and_velocity(rows, args.max_speed_mps, args.max_motion_gap_s, args.smoothing_window_s)
     output_csv = output_dir / "fused_trajectory.csv"
     fields = [key for key in rows[0].keys() if not key.startswith("_")]
     with output_csv.open("w", newline="", encoding="utf-8-sig") as stream:
         writer = csv.DictWriter(stream, fieldnames=fields)
         writer.writeheader()
         for row in rows:
-            writer.writerow({key: _clean_csv_value(value) for key, value in row.items() if not key.startswith("_")})
+            writer.writerow(
+                {
+                    key: _clean_csv_value(value)
+                    for key, value in row.items()
+                    if not key.startswith("_")
+                }
+            )
 
     fused_positions = [
-        vector3([row.get("fused_position_corridor_x_m"), row.get("fused_position_corridor_y_m"), row.get("fused_position_corridor_z_m")])
-        for row in rows if row.get("motion_valid") == 1
+        vector3(
+            [
+                row.get("fused_position_corridor_x_m"),
+                row.get("fused_position_corridor_y_m"),
+                row.get("fused_position_corridor_z_m"),
+            ]
+        )
+        for row in rows
+        if row.get("motion_valid") == 1
     ]
     fused_positions = [point for point in fused_positions if point is not None]
     summary = {
@@ -804,6 +1049,13 @@ def fuse(args: argparse.Namespace) -> None:
         "lidar_to_zed_frame_file": str(settings.lidar_to_zed_frame_file),
         "timestamp_matching": "absolute nanosecond timestamps from ZED image timestamp and LiDAR message header stamp",
         "timestamp_offset_applied_ms": args.timestamp_offset_ms,
+        "timestamp_offset_evidence": args.sync_note,
+        "smoothing_window_s": args.smoothing_window_s,
+        "smoothing_method": (
+            "disabled"
+            if args.smoothing_window_s == 0
+            else "centered time-window median; raw positions retained"
+        ),
         "zed_body_observations": len(observations),
         "observations_with_associated_lidar": matched,
         "association_coverage": matched / len(observations) if observations else 0.0,
@@ -812,10 +1064,14 @@ def fuse(args: argparse.Namespace) -> None:
         "position_residual_p90_m": float(np.percentile(residuals, 90)) if residuals else None,
         "valid_motion_frames": len(fused_positions),
         "motion_outlier_frames": sum(int(row["motion_outlier"]) for row in rows),
-        "fused_position_range_corridor_x_m": [
-            float(min(point[0] for point in fused_positions)),
-            float(max(point[0] for point in fused_positions)),
-        ] if fused_positions else None,
+        "fused_position_range_corridor_x_m": (
+            [
+                float(min(point[0] for point in fused_positions)),
+                float(max(point[0] for point in fused_positions)),
+            ]
+            if fused_positions
+            else None
+        ),
         "fusion_method": "confidence, keypoint support, person-depth spread, LiDAR confidence and point count; the longitudinal corridor coordinate has the configured minimum LiDAR share; weighted positions are retained only within the configured sensor agreement gate",
         "joint_angle_note": "Angles are computed from the SDK BODY_34 skeleton and are approximate model keypoint angles, not calibrated anatomical joint centers.",
         "thresholds": {
@@ -829,8 +1085,12 @@ def fuse(args: argparse.Namespace) -> None:
             "max_motion_gap_s": args.max_motion_gap_s,
         },
     }
-    (output_dir / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8")
-    (output_dir / "associations.json").write_text(json.dumps({"zed_to_lidar": mapping}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (output_dir / "summary.json").write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2, allow_nan=False) + "\n", encoding="utf-8"
+    )
+    (output_dir / "associations.json").write_text(
+        json.dumps({"zed_to_lidar": mapping}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     write_html(output_dir / "fused_trajectory.html", rows, mapping, summary)
     print(f"Fused trajectory: {output_csv}")
     print(f"Review page: {output_dir / 'fused_trajectory.html'}")
@@ -839,35 +1099,97 @@ def fuse(args: argparse.Namespace) -> None:
 
 def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--body-dir", type=Path, default=DEFAULT_BODY_DIR,
-                        help="folder created by analyze_svo_body_tracking.py on the SDK PC")
+    parser.add_argument(
+        "--body-dir",
+        type=Path,
+        default=DEFAULT_BODY_DIR,
+        help="folder created by analyze_svo_body_tracking.py on the SDK PC",
+    )
     parser.add_argument("--body-csv", type=Path, default=None, help="override bodies.csv")
     parser.add_argument("--camera-json", type=Path, default=None, help="override camera.json")
     parser.add_argument("--tracks", type=Path, default=DEFAULT_TRACKS, help="LiDAR tracks CSV")
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG, help="project config.json")
-    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT,
-                        help="new output folder; existing non-empty folders are not overwritten")
-    parser.add_argument("--timestamp-offset-ms", type=float, default=0.0,
-                        help="optional timestamp correction; current recording uses direct raw timestamps")
-    parser.add_argument("--max-lidar-gap-s", type=float, default=0.25,
-                        help="only interpolate between confirmed LiDAR detections within this gap")
-    parser.add_argument("--association-bbox-gate-px", type=float, default=250.0,
-                        help="allow for the current initial camera/LiDAR calibration residual")
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=DEFAULT_OUTPUT,
+        help="new output folder; existing non-empty folders are not overwritten",
+    )
+    parser.add_argument(
+        "--timestamp-offset-ms",
+        type=float,
+        required=True,
+        help="LiDAR header time = ZED image time + offset; explicit 0 only after clock verification",
+    )
+    parser.add_argument(
+        "--sync-note",
+        required=True,
+        help="recording-specific evidence for the offset (or explicit exploratory assumption)",
+    )
+    parser.add_argument(
+        "--smoothing-window-s",
+        type=float,
+        default=0.0,
+        help="optional centered median full window; default 0 preserves unsmoothed positions",
+    )
+    parser.add_argument(
+        "--max-lidar-gap-s",
+        type=float,
+        default=0.25,
+        help="only interpolate between confirmed LiDAR detections within this gap",
+    )
+    parser.add_argument(
+        "--association-bbox-gate-px",
+        type=float,
+        default=250.0,
+        help="allow for the current initial camera/LiDAR calibration residual",
+    )
     parser.add_argument("--association-center-gate-m", type=float, default=4.0)
-    parser.add_argument("--association-json", type=Path, default=None,
-                        help="optional manual mapping, e.g. {\"zed_to_lidar\": {\"1\": \"45\"}}")
+    parser.add_argument(
+        "--association-json",
+        type=Path,
+        default=None,
+        help="optional manual mapping, e.g. {\"zed_to_lidar\": {\"1\": \"45\"}}",
+    )
     parser.add_argument("--min-body-confidence", type=float, default=35.0)
-    parser.add_argument("--max-fusion-residual-m", type=float, default=2.0,
-                        help="skip weighted fusion when camera/LiDAR positions disagree more")
-    parser.add_argument("--minimum-lidar-longitudinal-share", type=float, default=0.70,
-                        help="minimum normalized LiDAR share for corridor_x when measurements agree")
-    parser.add_argument("--max-speed-mps", type=float, default=4.0,
-                        help="reject isolated position jumps faster than this")
-    parser.add_argument("--max-motion-gap-s", type=float, default=0.25,
-                        help="maximum adjacent time gap for smoothing and velocity")
+    parser.add_argument(
+        "--max-fusion-residual-m",
+        type=float,
+        default=2.0,
+        help="skip weighted fusion when camera/LiDAR positions disagree more",
+    )
+    parser.add_argument(
+        "--minimum-lidar-longitudinal-share",
+        type=float,
+        default=0.70,
+        help="minimum normalized LiDAR share for corridor_x when measurements agree",
+    )
+    parser.add_argument(
+        "--max-speed-mps",
+        type=float,
+        default=4.0,
+        help="reject isolated position jumps faster than this",
+    )
+    parser.add_argument(
+        "--max-motion-gap-s",
+        type=float,
+        default=0.25,
+        help="maximum adjacent time gap for smoothing and velocity",
+    )
     args = parser.parse_args(argv)
-    if (args.max_lidar_gap_s <= 0 or args.max_motion_gap_s <= 0 or args.max_speed_mps <= 0
-            or not 0.0 <= args.minimum_lidar_longitudinal_share < 1.0):
+    if (
+        not math.isfinite(args.timestamp_offset_ms)
+        or not args.sync_note.strip()
+        or not math.isfinite(args.smoothing_window_s)
+        or args.smoothing_window_s < 0
+    ):
+        parser.error("Offset/window must be finite, window nonnegative, and sync-note nonempty.")
+    if (
+        args.max_lidar_gap_s <= 0
+        or args.max_motion_gap_s <= 0
+        or args.max_speed_mps <= 0
+        or not 0.0 <= args.minimum_lidar_longitudinal_share < 1.0
+    ):
         parser.error("gap and speed thresholds must be positive; LiDAR share must be within [0, 1)")
     return args
 

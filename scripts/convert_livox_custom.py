@@ -19,9 +19,7 @@ class LivoxCustomConverter(Node):
 
     def __init__(self, input_topic: str, output_topic: str) -> None:
         super().__init__("livox_custom_to_pointcloud2")
-        self.publisher = self.create_publisher(
-            PointCloud2, output_topic, qos_profile_sensor_data
-        )
+        self.publisher = self.create_publisher(PointCloud2, output_topic, qos_profile_sensor_data)
         self.subscription = self.create_subscription(
             CustomMsg,
             input_topic,
@@ -43,9 +41,7 @@ class LivoxCustomConverter(Node):
             PointField(name="x", offset=0, datatype=PointField.FLOAT32, count=1),
             PointField(name="y", offset=4, datatype=PointField.FLOAT32, count=1),
             PointField(name="z", offset=8, datatype=PointField.FLOAT32, count=1),
-            PointField(
-                name="intensity", offset=12, datatype=PointField.FLOAT32, count=1
-            ),
+            PointField(name="intensity", offset=12, datatype=PointField.FLOAT32, count=1),
         ]
         cloud.is_bigendian = False
         cloud.point_step = 16

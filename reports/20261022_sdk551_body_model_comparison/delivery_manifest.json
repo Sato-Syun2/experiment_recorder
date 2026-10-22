@@ -1,0 +1,24 @@
+{
+  "sdk_inference_executed": false,
+  "shared_directory": "/data/experiment_data/20261022_sdk551_body_model_comparison",
+  "runner": "/data/experiment_data/scripts/run_sdk551_body_model_comparison_20261022.py",
+  "source_sha256": {
+    "reference_window_002.json": "9643c8872b49a7adf335992b92d104b2046d4d82d08e7a2070d28985b21c22c9",
+    "comparison_plan.json": "3f3d2526d52d7de6aaae72eab367c419a18d4ad5fabbe0f2beacc20471d1de32",
+    "README.md": "f93fd27664414832925f6d1724354d68d4fae3901a9104c4a3b97c422864c0a7",
+    "run_sdk551_body_model_comparison_20261022.py": "e595270e3de6e3b839153237a290c00f581c52d6d53517491bf90e0364e48fc1",
+    "geometry_002.json": "e285eba8e2333e0b3771dedaf4521d52b3ecdf58e183bda62a097cd5437b1587",
+    "sdk_tools/analyze_svo_body_tracking.py": "d83ec0adb888049f06d6a6e0a988474f62c41e8cca29fbb7f9c5fc5ba412fe15",
+    "sdk_tools/compare_body_models.py": "c75d349d33d6dd9c7e37ceeb851ef6dae04a6b53bcf643c613bc287a2e6f3f41",
+    "sdk_tools/export_svo_review.py": "77e233058f3e40671e328322fe9dab58f38fb800b26058b4871965a0c9ea91c4",
+    "baseline_reference/case_results.json": "214ad7765d88465e376f434ce8c0a4ca5bbeb97950267948938918e5bab6d34d",
+    "baseline_reference/comparison.json": "3a5b4ecc7c157406ef53998cdf491edfc4634aba959ab42f11df6110fa0afe0b",
+    "baseline_reference/index.html": "e3a63cd6a2368f48de8ddbcc78e291c57d2343413d1d525df04fc4e0d614a03d",
+    "baseline_reference/comparison_manifest.json": "ee2f4d2b67e77333c067dd854a17ad4640ee1d42c873aa655f6f8bcf5f2b1eae",
+    "historical/recording002_sdk/contact_sheet.jpg": "46f1d8d4279e06c8c1b2bce4368c7238b4d46511157660c52f5ecfb58fd9cba2",
+    "historical/recording002_sdk/frames.csv": "f817de22662ccd0ec6848189a38b03282469ac1064b23de81746dff91eb12b35",
+    "historical/recording002_sdk/camera.json": "07ba81882b1df89d5dea402e89e2d024d043fcecc5a087ca358e591bf168159b",
+    "historical/recording002_sdk/bodies.csv": "3f7f88323237c9dcf15c70ab9380cd456542b623d676853d5abc3efab1c7bdcc"
+  },
+  "verification": "Syntax/CLI inspected and actual historical data re-aggregated; no unit tests or new SDK inference run."
+}

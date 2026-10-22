@@ -1,0 +1,13 @@
+{
+  "recording": "20261022_group003/recording_003",
+  "lidar_first_header_ns": 1792647580117476739,
+  "approach_lidar_elapsed_s": [
+    16.8,
+    25.1
+  ],
+  "approach_start_header_ns": "1792647596917476739",
+  "approach_end_header_ns": "1792647605217476739",
+  "window_selection_note": "Proposed after turn from high-band LiDAR range-time occupancy, LiDAR elapsed 16.8--25.1s. RGB not yet available; verify window later. Raw absolute clocks; no clock offset estimated.",
+  "scope": "Export the full walk and a fresh SDK approach separately. Current geometry and person/pole associations are not assumed verified.",
+  "camera_geometry_status": "recording003 ZED orientation/floor still unverified; do not apply recording002 transforms to declare accuracy"
+}

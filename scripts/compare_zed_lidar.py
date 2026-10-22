@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-"""Create an offline visual comparison of ZED depth and LiDAR tracks.
+"""ZED画像・深度の移動領域とLiDAR確定トラックをオフラインで比較する。
 
-The ZED export contains registered left images and depth maps, but no semantic
-person detections. This script associates a single moving foreground region
-with a confirmed LiDAR track using a static empty-hallway background model.
-The LiDAR projection is shown as a separate overlay so calibration error is
-visible in the review page.
+冒頭が無人の廊下であることを前提に背景を作り、単一の移動領域候補を取り出す。
+画像上の投影位置を手掛かりに比較するが、意味的な人物認識やBody Trackingは行わない。
+LiDAR投影点も別に描き、校正・時刻対応のずれを確認できるHTMLを出力する。
 """
 
 from __future__ import annotations
@@ -22,10 +20,11 @@ import warnings
 import cv2
 import numpy as np
 
-
 DEFAULT_ROOT = Path("/data/experiment_data/recording_001_svo_review")
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_TRACKS = PROJECT_ROOT / "tracking/20261013_group001_recording_001_gravity_aligned_tracks.csv"
+DEFAULT_TRACKS = (
+    PROJECT_ROOT / "tracking/20261013_group001_recording_001_gravity_aligned_tracks.csv"
+)
 DEFAULT_OUTPUT = PROJECT_ROOT / "tracking/20261013_group001_recording_001_zed_lidar_comparison.html"
 
 
@@ -35,10 +34,16 @@ def read_csv(path: Path) -> list[dict[str, str]]:
 
 
 def valid_depth(array: np.ndarray) -> np.ndarray:
+    """有限かつ0.2m超・100m未満の深度だけを有効とする。"""
+
     return np.isfinite(array) & (array > 0.2) & (array < 100.0)
 
 
-def make_background(review_root: Path, frames: list[dict[str, str]], count: int) -> tuple[np.ndarray, np.ndarray]:
+def make_background(
+    review_root: Path, frames: list[dict[str, str]], count: int
+) -> tuple[np.ndarray, np.ndarray]:
+    """冒頭フレームの画素ごとの中央値から、明度・深度の背景を作る。"""
+
     selected = frames[: min(count, len(frames))]
     gray_frames: list[np.ndarray] = []
     depth_frames: list[np.ndarray] = []
@@ -51,7 +56,7 @@ def make_background(review_root: Path, frames: list[dict[str, str]], count: int)
             depth = archive["depth_m"].astype(np.float32)
         depth[~valid_depth(depth)] = np.nan
         depth_frames.append(depth)
-    # Early samples are empty in this recording; median suppresses depth noise.
+    # 冒頭が無人である録画を前提に、中央値で深度の揺れを抑える。
     gray_background = np.median(np.stack(gray_frames), axis=0).astype(np.uint8)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", RuntimeWarning)
@@ -67,10 +72,12 @@ def choose_person_component(
     lidar_z: float,
     diff_threshold: int,
 ) -> tuple[np.ndarray | None, tuple[int, int, int, int] | None, np.ndarray]:
-    """Find the moving upright image region nearest the projected track."""
+    """背景差分の縦長な連結領域から、LiDAR投影点に近い候補を選ぶ。"""
+
     difference = cv2.absdiff(gray_background, gray)
     foreground = (difference >= diff_threshold).astype(np.uint8)
     roi = np.zeros_like(foreground)
+    # 対象録画向けの固定画素範囲。別の解像度・設置では適用範囲を確認する。
     roi[100:660, 480:820] = 1
     foreground *= roi
     foreground = cv2.morphologyEx(foreground, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
@@ -90,8 +97,10 @@ def choose_person_component(
             continue
         if y > projected_v + 35 or y + height < projected_v - 1.25 * expected_height:
             continue
-        # Favor the projected corridor position while avoiding tiny fragments.
-        score = abs(center_x - projected_u) + 0.12 * abs(center_y - (projected_v - 0.2 * expected_height))
+        # 小さな断片を避けつつ、LiDAR投影位置に近い領域を優先する。
+        score = abs(center_x - projected_u) + 0.12 * abs(
+            center_y - (projected_v - 0.2 * expected_height)
+        )
         score -= 0.0015 * min(area, 6000)
         candidates.append((score, label, x, y, width, height))
     if not candidates:
@@ -107,9 +116,11 @@ def depth_person_position(
     background_depth: np.ndarray,
     intrinsics: dict[str, float],
 ) -> dict[str, Any] | None:
+    """移動領域内の深度中央値と代表画素をカメラ3D座標へ逆投影する。"""
+
     x, y, width, height = bbox
     valid = valid_depth(depth) & np.isfinite(background_depth)
-    # Keep pixels that are closer than the empty-hallway depth to remove shadows.
+    # 無人時の背景より手前にある深度を優先し、影の領域を除く。
     foreground_depth = valid & (background_depth - depth > 0.15)
     component_depth = component_mask & foreground_depth
     yy, xx = np.where(component_depth)
@@ -148,7 +159,7 @@ def depth_person_position(
 
 def colorize_depth(depth: np.ndarray, valid: np.ndarray, max_range: float = 16.0) -> np.ndarray:
     scaled = np.nan_to_num(np.clip(depth / max_range, 0.0, 1.0), nan=0.0, posinf=1.0, neginf=0.0)
-    # Near objects are warm; distant objects are cool. Invalid pixels are black.
+    # 近い深度は暖色、遠い深度は寒色で示し、無効画素は黒にする。
     image = cv2.applyColorMap((255.0 * scaled).astype(np.uint8), cv2.COLORMAP_TURBO)
     image[~valid] = (0, 0, 0)
     return image
@@ -170,18 +181,26 @@ def draw_overlay(
             height = min(height, body_height)
         cv2.rectangle(output, (x, y), (x + width, y + height), (60, 255, 80), 3)
     if depth_result:
-        cv2.circle(output, (round(depth_result["u"]), round(depth_result["v"])), 9, (0, 230, 255), 3)
+        cv2.circle(
+            output, (round(depth_result["u"]), round(depth_result["v"])), 9, (0, 230, 255), 3
+        )
     u, v = map(lambda value: int(round(value)), lidar_pixel)
     cv2.drawMarker(output, (u, v), (255, 0, 255), cv2.MARKER_CROSS, 26, 4)
-    legend = "Green: RGB foreground ROI   Yellow: ZED depth median   Magenta: LiDAR centroid projection"
+    legend = (
+        "Green: RGB foreground ROI   Yellow: ZED depth median   Magenta: LiDAR centroid projection"
+    )
     if is_depth:
         legend = "Green: RGB foreground ROI   Yellow: ZED point   Magenta: LiDAR projected point"
     cv2.rectangle(output, (0, 0), (output.shape[1], 42), (10, 10, 10), -1)
-    cv2.putText(output, legend, (10, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.58, (255, 255, 255), 1, cv2.LINE_AA)
+    cv2.putText(
+        output, legend, (10, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.58, (255, 255, 255), 1, cv2.LINE_AA
+    )
     return output
 
 
 def summarize(records: list[dict[str, Any]]) -> dict[str, Any]:
+    """対応数とセンサー間の位置・画素差を集計する。真値誤差ではない。"""
+
     valid = [row for row in records if row["zed_depth_m"] is not None]
     if not valid:
         return {"matched_frames": len(records), "depth_samples": 0}
@@ -200,7 +219,9 @@ def summarize(records: list[dict[str, Any]]) -> dict[str, Any]:
         "median_pixel_center_difference_px": float(np.median(pixel_error)),
         "median_vertical_pixel_difference_px": float(np.median(vertical_error)),
         "far_10m_plus_frames": len(far),
-        "far_10m_plus_median_abs_depth_error_m": float(np.median([abs(r["depth_error_m"]) for r in far])) if far else None,
+        "far_10m_plus_median_abs_depth_error_m": (
+            float(np.median([abs(r["depth_error_m"]) for r in far])) if far else None
+        ),
         "max_lidar_z_m": max(row["lidar_z_m"] for row in records),
     }
 
@@ -212,31 +233,47 @@ def main() -> int:
     parser.add_argument("--camera-json", type=Path, default=None)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--track-id", default="45")
-    parser.add_argument("--lidar-time-offset-s", type=float, default=1.675882,
-                        help="LiDAR timestamp minus ZED elapsed time for the synchronized recording.")
+    parser.add_argument(
+        "--lidar-time-offset-s",
+        type=float,
+        required=True,
+        help="Explicit LiDAR elapsed minus ZED elapsed for this recording (not absolute clock correction).",
+    )
     parser.add_argument("--background-frames", type=int, default=28)
     parser.add_argument("--diff-threshold", type=int, default=20)
     args = parser.parse_args()
+    if not math.isfinite(args.lidar_time_offset_s):
+        parser.error("Time offset must be finite.")
 
     camera_path = args.camera_json or (args.review_dir / "camera.json")
     camera = json.loads(camera_path.read_text(encoding="utf-8"))
     intrinsics = {key: float(camera[key]) for key in ("fx", "fy", "cx", "cy")}
     frames = read_csv(args.review_dir / "frames.csv")
     tracks = read_csv(args.tracks)
-    tracks = [r for r in tracks if r["track_id"] == args.track_id and r["status"] == "confirmed" and r["detected"] == "1"]
+    tracks = [
+        r
+        for r in tracks
+        if r["track_id"] == args.track_id and r["status"] == "confirmed" and r["detected"] == "1"
+    ]
     if not tracks:
         raise RuntimeError(f"No confirmed detections for track {args.track_id}")
-    gray_background, depth_background = make_background(args.review_dir, frames, args.background_frames)
+    gray_background, depth_background = make_background(
+        args.review_dir, frames, args.background_frames
+    )
     track_times = np.asarray([float(row["time_sec"]) for row in tracks])
 
     output = args.output.resolve()
-    output.parent.mkdir(parents=True, exist_ok=True)
     assets = output.with_name(output.stem + "_frames")
+    for path in (output, output.with_suffix(".csv"), output.with_suffix(".json"), assets):
+        if path.exists():
+            raise ValueError(f"Choose a new output name; already exists: {path}")
+    output.parent.mkdir(parents=True, exist_ok=True)
     assets.mkdir(parents=True, exist_ok=True)
     records: list[dict[str, Any]] = []
 
     for frame in frames:
         camera_time = float(frame["elapsed_s"])
+        # この比較は経過秒同士の開始差を足す。絶対時計の補正offsetとは異なる。
         target_lidar_time = camera_time + args.lidar_time_offset_s
         closest_index = int(np.argmin(np.abs(track_times - target_lidar_time)))
         lidar = tracks[closest_index]
@@ -282,60 +319,122 @@ def main() -> int:
             "zed_v_px": None if depth_result is None else depth_result["v"],
             "zed_depth_pixels": 0 if depth_result is None else depth_result["pixels"],
             "depth_error_m": None if depth_result is None else depth_result["zed_z"] - lidar_z,
-            "xyz_error_m": None if depth_result is None else math.dist(
-                (depth_result["zed_x"], depth_result["zed_y"], depth_result["zed_z"]),
-                (lidar_x, lidar_y, lidar_z),
+            "xyz_error_m": (
+                None
+                if depth_result is None
+                else math.dist(
+                    (depth_result["zed_x"], depth_result["zed_y"], depth_result["zed_z"]),
+                    (lidar_x, lidar_y, lidar_z),
+                )
             ),
             "pixel_dx_px": None if depth_result is None else depth_result["u"] - projected_u,
             "pixel_dv_px": None if depth_result is None else depth_result["v"] - projected_v,
-            "pixel_error_px": None if depth_result is None else math.hypot(
-                depth_result["u"] - projected_u, depth_result["v"] - projected_v
+            "pixel_error_px": (
+                None
+                if depth_result is None
+                else math.hypot(depth_result["u"] - projected_u, depth_result["v"] - projected_v)
             ),
             "frame_file": frame["image_file"],
         }
         records.append(record)
 
-        rgb_overlay = draw_overlay(image, component_bbox, depth_result, (projected_u, projected_v), is_depth=False)
+        rgb_overlay = draw_overlay(
+            image, component_bbox, depth_result, (projected_u, projected_v), is_depth=False
+        )
         depth_view = colorize_depth(depth, valid_depth(depth))
         depth_bbox = component_bbox
-        depth_overlay = draw_overlay(depth_view, depth_bbox, depth_result, (projected_u, projected_v), is_depth=True)
+        depth_overlay = draw_overlay(
+            depth_view, depth_bbox, depth_result, (projected_u, projected_v), is_depth=True
+        )
         panel_width, panel_height = 640, 360
-        rgb_panel = cv2.resize(rgb_overlay, (panel_width, panel_height), interpolation=cv2.INTER_AREA)
-        depth_panel = cv2.resize(depth_overlay, (panel_width, panel_height), interpolation=cv2.INTER_AREA)
+        rgb_panel = cv2.resize(
+            rgb_overlay, (panel_width, panel_height), interpolation=cv2.INTER_AREA
+        )
+        depth_panel = cv2.resize(
+            depth_overlay, (panel_width, panel_height), interpolation=cv2.INTER_AREA
+        )
         composite = np.hstack((rgb_panel, depth_panel))
         title = f"ZED {camera_time:.2f}s | LiDAR {lidar_time:.2f}s | range {lidar_z:.2f}m"
         cv2.rectangle(composite, (0, 42), (composite.shape[1], 74), (12, 12, 12), -1)
-        cv2.putText(composite, title, (12, 65), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
-        cv2.imwrite(str(assets / f"sample_{len(records)-1:03d}.jpg"), composite, [cv2.IMWRITE_JPEG_QUALITY, 88])
+        cv2.putText(
+            composite,
+            title,
+            (12, 65),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.7,
+            (255, 255, 255),
+            2,
+            cv2.LINE_AA,
+        )
+        cv2.imwrite(
+            str(assets / f"sample_{len(records)-1:03d}.jpg"),
+            composite,
+            [cv2.IMWRITE_JPEG_QUALITY, 88],
+        )
 
     metrics = summarize(records)
     csv_path = output.with_suffix(".csv")
     json_path = output.with_suffix(".json")
     fields = [
-        "sample_index", "camera_elapsed_s", "lidar_time_s", "sync_residual_s", "lidar_z_m",
-        "lidar_x_m", "lidar_y_m", "point_count", "projected_u_px", "projected_v_px",
-        "person_bbox", "zed_depth_m", "zed_x_m", "zed_y_m", "zed_u_px", "zed_v_px",
-        "zed_depth_pixels", "depth_error_m", "xyz_error_m", "pixel_dx_px", "pixel_dv_px",
-        "pixel_error_px", "frame_file",
+        "sample_index",
+        "camera_elapsed_s",
+        "lidar_time_s",
+        "sync_residual_s",
+        "lidar_z_m",
+        "lidar_x_m",
+        "lidar_y_m",
+        "point_count",
+        "projected_u_px",
+        "projected_v_px",
+        "person_bbox",
+        "zed_depth_m",
+        "zed_x_m",
+        "zed_y_m",
+        "zed_u_px",
+        "zed_v_px",
+        "zed_depth_pixels",
+        "depth_error_m",
+        "xyz_error_m",
+        "pixel_dx_px",
+        "pixel_dv_px",
+        "pixel_error_px",
+        "frame_file",
     ]
     with csv_path.open("w", newline="", encoding="utf-8-sig") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()
         for record in records:
             row = dict(record)
-            row["person_bbox"] = "" if row["person_bbox"] is None else ",".join(map(str, row["person_bbox"]))
+            row["person_bbox"] = (
+                "" if row["person_bbox"] is None else ",".join(map(str, row["person_bbox"]))
+            )
             writer.writerow(row)
-    json_path.write_text(json.dumps({"metrics": metrics, "records": records}, ensure_ascii=False, indent=2), encoding="utf-8")
+    json_path.write_text(
+        json.dumps({"metrics": metrics, "records": records}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
     metric_html = "".join(
         f"<div class='metric'><b>{html.escape(label)}</b><span>{html.escape(value)}</span></div>"
         for label, value in [
             ("同期済みフレーム", f"{metrics['matched_frames']} 枚"),
             ("深度ROIを抽出", f"{metrics['depth_samples']} 枚"),
-            ("Z深度差 中央値 / 90%点", f"{metrics.get('median_abs_depth_error_m', float('nan')):.2f} / {metrics.get('p90_abs_depth_error_m', float('nan')):.2f} m"),
-            ("3D位置差 中央値 / 90%点", f"{metrics.get('median_3d_centroid_difference_m', float('nan')):.2f} / {metrics.get('p90_3d_centroid_difference_m', float('nan')):.2f} m"),
-            ("投影点との画素差 中央値", f"{metrics.get('median_pixel_center_difference_px', float('nan')):.1f} px"),
-            ("10m以上の深度差 中央値", f"{metrics.get('far_10m_plus_median_abs_depth_error_m', float('nan')):.2f} m"),
+            (
+                "Z深度差 中央値 / 90%点",
+                f"{metrics.get('median_abs_depth_error_m', float('nan')):.2f} / {metrics.get('p90_abs_depth_error_m', float('nan')):.2f} m",
+            ),
+            (
+                "3D位置差 中央値 / 90%点",
+                f"{metrics.get('median_3d_centroid_difference_m', float('nan')):.2f} / {metrics.get('p90_3d_centroid_difference_m', float('nan')):.2f} m",
+            ),
+            (
+                "投影点との画素差 中央値",
+                f"{metrics.get('median_pixel_center_difference_px', float('nan')):.1f} px",
+            ),
+            (
+                "10m以上の深度差 中央値",
+                f"{metrics.get('far_10m_plus_median_abs_depth_error_m', float('nan')):.2f} m",
+            ),
             ("LiDAR最大距離", f"{metrics.get('max_lidar_z_m', float('nan')):.2f} m"),
         ]
     )
@@ -353,9 +452,12 @@ def main() -> int:
     data = [
         {
             "image": f"{assets.name}/sample_{i:03d}.jpg",
-            "camera_s": r["camera_elapsed_s"], "lidar_s": r["lidar_time_s"],
-            "range": r["lidar_z_m"], "zed": r["zed_depth_m"],
-            "depth_error": r["depth_error_m"], "pixel_error": r["pixel_error_px"],
+            "camera_s": r["camera_elapsed_s"],
+            "lidar_s": r["lidar_time_s"],
+            "range": r["lidar_z_m"],
+            "zed": r["zed_depth_m"],
+            "depth_error": r["depth_error_m"],
+            "pixel_error": r["pixel_error_px"],
         }
         for i, r in enumerate(records)
     ]

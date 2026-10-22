@@ -1,0 +1,15 @@
+{
+  "body_dir": "/data/experiment_data/20261022_group003_recording_002_approach_check/sdk_runs/20261022_150530_153836/sdk",
+  "body_rows": 411,
+  "sdk_frames": 414,
+  "complete_frame_count": true,
+  "source_sha256": {
+    "/data/experiment_data/20261022_group003_recording_002_approach_check/sdk_runs/20261022_150530_153836/sdk/camera.json": "07ba81882b1df89d5dea402e89e2d024d043fcecc5a087ca358e591bf168159b",
+    "/data/experiment_data/20261022_group003_recording_002_approach_check/sdk_runs/20261022_150530_153836/sdk/frames.csv": "f817de22662ccd0ec6848189a38b03282469ac1064b23de81746dff91eb12b35",
+    "/data/experiment_data/20261022_group003_recording_002_approach_check/sdk_runs/20261022_150530_153836/sdk/bodies.csv": "3f7f88323237c9dcf15c70ab9380cd456542b623d676853d5abc3efab1c7bdcc",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_002_approach_check/assessment_sdk_20261022/bundle.json": "3a47332490550ab030f2e32edc27db92b68d1a58c590da30d1f39d2a82334796",
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_002_approach_check/assessment_sdk_20261022/skeleton_replay_template.html": "2cf70056920884eac14eeca771b3918649862ddd6c04fbed1ac509d667537d85",
+    "/home/hp-ubuntu/experiment_recorder/scripts/build_walk_skeleton_replay.py": "6dd04f8022aac746428c6dc9204731f5b24d93116f3f6f54caff1cc63ecadcbf",
+    "reports/20261022_group003_recording_002_approach_check/assessment_sdk_20261022/reference_quality.json": "d8a8ef160188276fbfbe7ce7ace70b8bb19f94c56e09d155bd826cc12af4e4e3"
+  }
+}

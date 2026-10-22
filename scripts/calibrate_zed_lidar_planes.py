@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Calibrate ZED↔LiDAR rotation and observable translation from a static hallway.
+"""静止した廊下の床・平行壁からZEDとLiDARの部分外部校正候補を求める。
 
-This program uses already exported, timestamped ZED metric-depth frames and a
-rosbag2 PointCloud2 topic. It fits the floor and two parallel hallway walls in
-both sensors, estimates a rigid transform, and preserves the existing mount
-estimate along the hallway direction, which parallel planes cannot observe.
+書き出し済みZED深度とrosbag2のPointCloud2に床・左右壁の平面を当てはめる。
+法線から回転、平面距離から高さ・横方向の並進を推定する。
+廊下方向の並進は平行平面では決まらないため、既存の取り付け初期値を保持する。
 """
 
 from __future__ import annotations
@@ -37,7 +36,9 @@ def _unit(value: np.ndarray) -> np.ndarray:
 def _read_lidar_points(
     bag_path: Path, topic: str, first_zed_ns: int, max_elapsed_s: float, seed: int
 ) -> tuple[np.ndarray, int, int]:
-    # Reuse the project rosbag2 decoder; this keeps PointCloud2 handling in one place.
+    # 既存のbagデコーダを再利用し、PointCloud2の読込方法を統一する。
+    """静止区間のLiDAR点群を既存bag読込処理で読み、間引いてまとめる。"""
+
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from track_people import (  # pylint: disable=import-outside-toplevel
         _iter_bag_clouds,
@@ -49,9 +50,7 @@ def _read_lidar_points(
     chunks: list[np.ndarray] = []
     stamp_count = 0
     last_stamp = first_zed_ns
-    for message, fallback_ns, _ in _iter_bag_clouds(
-        bag_path, topic, "pointcloud2", "mcap"
-    ):
+    for message, fallback_ns, _ in _iter_bag_clouds(bag_path, topic, "pointcloud2", "mcap"):
         stamp_ns = _message_timestamp_ns(message, fallback_ns)
         if stamp_ns < first_zed_ns or stamp_ns > first_zed_ns + int(max_elapsed_s * 1e9):
             continue
@@ -73,9 +72,13 @@ def _read_lidar_points(
 
 
 def _read_zed_points(review_dir: Path, max_elapsed_s: float, stride: int) -> tuple[np.ndarray, int]:
+    """静止区間の有効深度を間引き、内部パラメータでZEDの3D点へ戻す。"""
+
     camera = _json(review_dir / "camera.json")
     fx, fy, cx, cy = (float(camera[key]) for key in ("fx", "fy", "cx", "cy"))
-    frames: list[dict[str, str]] = list(csv.DictReader((review_dir / "frames.csv").open(encoding="utf-8-sig")))
+    frames: list[dict[str, str]] = list(
+        csv.DictReader((review_dir / "frames.csv").open(encoding="utf-8-sig"))
+    )
     chunks: list[np.ndarray] = []
     frame_count = 0
     for frame in frames:
@@ -94,11 +97,7 @@ def _read_zed_points(review_dir: Path, max_elapsed_s: float, stride: int) -> tup
         u = uu[valid].astype(np.float32)
         v = vv[valid].astype(np.float32)
         z = z[valid]
-        chunks.append(
-            np.column_stack(((u - cx) * z / fx, (v - cy) * z / fy, z)).astype(
-                np.float64
-            )
-        )
+        chunks.append(np.column_stack(((u - cx) * z / fx, (v - cy) * z / fy, z)).astype(np.float64))
         frame_count += 1
     if not chunks:
         raise ValueError("No valid ZED depth frames in the requested static interval")
@@ -116,18 +115,19 @@ def _fit_plane(
     iterations: int,
     seed: int,
 ) -> dict[str, Any]:
-    """RANSAC plane with normal and offset priors, followed by total least squares."""
+    """事前の法線・距離でRANSAC候補を制限し、内点をSVDで再フィットする。"""
+
     rng = np.random.default_rng(seed)
     expected_normal = _unit(np.asarray(expected_normal, dtype=np.float64))
     sample = points
     if len(points) > 60_000:
         sample = points[rng.choice(len(points), 60_000, replace=False)]
-    # Draw hypotheses from a broad slab around the prior plane. This makes sparse
-    # floor returns likely to form a triplet without excluding a modest angle error.
-    slab_width = d_tolerance + min(2.0, max(0.35, math.sin(math.radians(angle_tolerance_deg)) * 8.0))
-    hypothesis_points = points[
-        np.abs(points @ expected_normal + expected_d) <= slab_width
-    ]
+    # 事前平面の周囲に厚みを持たせて仮説点を選ぶ。
+    # 多少の角度誤差を許しつつ、疎な床点からも3点を選びやすくする。
+    slab_width = d_tolerance + min(
+        2.0, max(0.35, math.sin(math.radians(angle_tolerance_deg)) * 8.0)
+    )
+    hypothesis_points = points[np.abs(points @ expected_normal + expected_d) <= slab_width]
     if len(hypothesis_points) < 100:
         hypothesis_points = points
     cosine_min = math.cos(math.radians(angle_tolerance_deg))
@@ -136,9 +136,7 @@ def _fit_plane(
     best_d = 0.0
     for start in range(0, iterations, 100):
         count = min(100, iterations - start)
-        triangles = hypothesis_points[
-            rng.integers(0, len(hypothesis_points), size=(count, 3))
-        ]
+        triangles = hypothesis_points[rng.integers(0, len(hypothesis_points), size=(count, 3))]
         normals = np.cross(triangles[:, 1] - triangles[:, 0], triangles[:, 2] - triangles[:, 0])
         norms = np.linalg.norm(normals, axis=1)
         valid = norms > 1e-7
@@ -147,9 +145,7 @@ def _fit_plane(
         flip = dots < 0
         normals[flip] *= -1
         offsets = -np.einsum("ij,ij->i", normals, triangles[:, 0])
-        valid &= (np.abs(dots) >= cosine_min) & (
-            np.abs(offsets - expected_d) <= d_tolerance
-        )
+        valid &= (np.abs(dots) >= cosine_min) & (np.abs(offsets - expected_d) <= d_tolerance)
         normals = normals[valid]
         offsets = offsets[valid]
         for batch_start in range(0, len(offsets), 20):
@@ -203,10 +199,12 @@ def _fit_plane(
 
 
 def _wall_modes(points: np.ndarray, lateral: np.ndarray) -> list[float]:
+    """横方向の点密度ヒストグラムから、離れた2本の壁の位置候補を求める。"""
+
     projection = points @ lateral
     in_range = projection[(projection >= -4.0) & (projection <= 4.0)]
     counts, edges = np.histogram(in_range, bins=np.arange(-4.0, 4.05, 0.05))
-    # Smooth adjacent 5 cm bins and find the two strongest spatially separate bands.
+    # 5cm幅の隣接ビンを平滑化し、離れた場所にある強い2本の帯を探す。
     smooth = np.convolve(counts, np.ones(3, dtype=np.int64), mode="same")
     candidates = np.argsort(smooth)[::-1]
     peaks: list[float] = []
@@ -227,6 +225,8 @@ def _kabsch_two_normals(
     target_floor: np.ndarray,
     target_wall: np.ndarray,
 ) -> np.ndarray:
+    """床・壁の法線を対応付け、SVDで反射を含まない回転を求める。"""
+
     source = np.column_stack((_unit(source_floor), _unit(source_wall)))
     target = np.column_stack((_unit(target_floor), _unit(target_wall)))
     u, _, vh = np.linalg.svd(target @ source.T)
@@ -249,13 +249,14 @@ def _validate_person_alignment(
     rotation: np.ndarray,
     translation: np.ndarray,
 ) -> dict[str, Any]:
+    """任意の人物観測でセンサー間の位置差を確認する。独立真値の誤差ではない。"""
+
     bodies = [
         row
         for row in csv.DictReader(body_csv.open(encoding="utf-8-sig"))
         if row.get("body_id") == body_id
         and all(
-            row.get(key)
-            for key in ("pelvis_depth_x_m", "pelvis_depth_y_m", "pelvis_depth_z_m")
+            row.get(key) for key in ("pelvis_depth_x_m", "pelvis_depth_y_m", "pelvis_depth_z_m")
         )
     ]
     tracks = [
@@ -266,7 +267,9 @@ def _validate_person_alignment(
         and row.get("detected") == "1"
     ]
     if not bodies or not tracks:
-        raise ValueError("Person validation found no matching ZED bodies or confirmed LiDAR detections")
+        raise ValueError(
+            "Person validation found no matching ZED bodies or confirmed LiDAR detections"
+        )
     body_times = np.array([int(row["image_timestamp_ns"]) for row in bodies], dtype=np.int64)
     order = np.argsort(body_times)
     body_times = body_times[order]
@@ -284,7 +287,10 @@ def _validate_person_alignment(
             continue
         body = bodies[nearest]
         pelvis = np.array(
-            [float(body[key]) for key in ("pelvis_depth_x_m", "pelvis_depth_y_m", "pelvis_depth_z_m")]
+            [
+                float(body[key])
+                for key in ("pelvis_depth_x_m", "pelvis_depth_y_m", "pelvis_depth_z_m")
+            ]
         )
         lidar = np.array([float(track[key]) for key in ("x", "y", "z")])
         old_residuals.append(rotation0 @ lidar + translation0 - pelvis)
@@ -358,21 +364,44 @@ def _markdown_report(result: dict[str, Any]) -> str:
 
 
 def main() -> int:
+    """床と平行壁を推定し、観測できない廊下方向を初期値に残した校正候補を保存する。"""
+
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--review-dir", type=Path, required=True, help="SVO review export with frames.csv, camera.json, and depth/")
+    parser.add_argument(
+        "--review-dir",
+        type=Path,
+        required=True,
+        help="SVO review export with frames.csv, camera.json, and depth/",
+    )
     parser.add_argument("--bag", type=Path, required=True, help="rosbag2 directory")
     parser.add_argument("--config", type=Path, default=Path("config.json"))
-    parser.add_argument("--calibration", type=Path, default=Path("tracking/lidar_to_zed_left_eye.json"))
-    parser.add_argument("--output-dir", type=Path, required=True, help="new calibration output directory")
+    parser.add_argument(
+        "--calibration", type=Path, default=Path("tracking/lidar_to_zed_left_eye.json")
+    )
+    parser.add_argument(
+        "--output-dir", type=Path, required=True, help="new calibration output directory"
+    )
     parser.add_argument("--topic", default="/livox/lidar")
     parser.add_argument("--static-seconds", type=float, default=8.5)
     parser.add_argument("--depth-stride", type=int, default=4)
     parser.add_argument("--seed", type=int, default=34013)
-    parser.add_argument("--validation-body-csv", type=Path, help="optional ZED bodies.csv for a person-position comparison")
-    parser.add_argument("--validation-tracks", type=Path, help="optional confirmed LiDAR tracks CSV")
+    parser.add_argument(
+        "--validation-body-csv",
+        type=Path,
+        help="optional ZED bodies.csv for a person-position comparison",
+    )
+    parser.add_argument(
+        "--validation-tracks", type=Path, help="optional confirmed LiDAR tracks CSV"
+    )
     parser.add_argument("--validation-body-id", default="0")
-    parser.add_argument("--validation-track-id", help="LiDAR track ID paired with --validation-body-id")
-    parser.add_argument("--apply", action="store_true", help="replace the active calibration JSON with the candidate")
+    parser.add_argument(
+        "--validation-track-id", help="LiDAR track ID paired with --validation-body-id"
+    )
+    parser.add_argument(
+        "--apply",
+        action="store_true",
+        help="replace the active calibration JSON with the candidate",
+    )
     args = parser.parse_args()
 
     if args.output_dir.exists() and any(args.output_dir.iterdir()):
@@ -381,7 +410,9 @@ def main() -> int:
         parser.error("--static-seconds must be positive and --depth-stride must be at least 1")
     validation_args = (args.validation_body_csv, args.validation_tracks, args.validation_track_id)
     if any(validation_args) and not all(validation_args):
-        parser.error("Use --validation-body-csv, --validation-tracks, and --validation-track-id together")
+        parser.error(
+            "Use --validation-body-csv, --validation-tracks, and --validation-track-id together"
+        )
 
     review_dir = args.review_dir.expanduser().resolve()
     calibration_path = args.calibration.expanduser().resolve()
@@ -389,7 +420,7 @@ def main() -> int:
     config = _json(config_path)
     tracking = config["tracking"]
     gravity = _unit(np.asarray(tracking["gravity_alignment"]["up_vector"], dtype=np.float64))
-    # The level-frame rotation has gravity up as its third row; invert it for axes in livox_frame.
+    # 水平化回転の第3行が重力上向き。逆回転で元LiDAR座標の軸に戻す。
     from track_people import _rotation_from_up_vector  # pylint: disable=import-outside-toplevel
 
     raw_to_level = _rotation_from_up_vector(gravity)
@@ -476,7 +507,7 @@ def main() -> int:
     target_wall_n = _unit(np.mean([np.asarray(plane["normal"]) for plane in target_walls], axis=0))
     rotation = _kabsch_two_normals(source_floor_n, source_wall_n, target_floor_n, target_wall_n)
 
-    # Plane constraints determine height and lateral translation, but not the hallway axis.
+    # 床・壁の制約で高さと横方向だけを補正し、観測できない廊下方向は初期値を保つ。
     source_wall_d_mean = float(np.mean([plane["d_m"] for plane in source_walls]))
     target_wall_d_mean = float(np.mean([plane["d_m"] for plane in target_walls]))
     constraint_normals = np.vstack((rotation @ source_floor_n, rotation @ source_wall_n))
@@ -504,8 +535,12 @@ def main() -> int:
     }
     normal_errors = {
         "floor": _angle_between(rotation @ source_floor_n, target_floor_n),
-        "wall_a": _angle_between(rotation @ np.asarray(source_walls[0]["normal"]), np.asarray(target_walls[0]["normal"])),
-        "wall_b": _angle_between(rotation @ np.asarray(source_walls[1]["normal"]), np.asarray(target_walls[1]["normal"])),
+        "wall_a": _angle_between(
+            rotation @ np.asarray(source_walls[0]["normal"]), np.asarray(target_walls[0]["normal"])
+        ),
+        "wall_b": _angle_between(
+            rotation @ np.asarray(source_walls[1]["normal"]), np.asarray(target_walls[1]["normal"])
+        ),
     }
     source_gap = abs(source_walls[0]["d_m"] - source_walls[1]["d_m"])
     target_gap = abs(target_walls[0]["d_m"] - target_walls[1]["d_m"])
@@ -524,7 +559,12 @@ def main() -> int:
             math.acos(float(np.clip((np.trace(rotation @ rotation0.T) - 1) / 2, -1.0, 1.0)))
         ),
         "candidate": candidate,
-        "planes": {"source_floor": source_floor, "target_floor": target_floor, "source_walls": source_walls, "target_walls": target_walls},
+        "planes": {
+            "source_floor": source_floor,
+            "target_floor": target_floor,
+            "source_walls": source_walls,
+            "target_walls": target_walls,
+        },
         "normal_angle_residuals_deg": normal_errors,
         "source_wall_gap_m": source_gap,
         "target_wall_gap_m": target_gap,
@@ -544,11 +584,17 @@ def main() -> int:
         )
     args.output_dir.expanduser().resolve().mkdir(parents=True, exist_ok=True)
     output_dir = args.output_dir.expanduser().resolve()
-    (output_dir / "candidate.json").write_text(json.dumps(candidate, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    (output_dir / "calibration.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (output_dir / "candidate.json").write_text(
+        json.dumps(candidate, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    (output_dir / "calibration.json").write_text(
+        json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
     (output_dir / "README.md").write_text(_markdown_report(result), encoding="utf-8")
     if args.apply:
-        calibration_path.write_text(json.dumps(candidate, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        calibration_path.write_text(
+            json.dumps(candidate, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
     print(f"Candidate: {output_dir / 'candidate.json'}")
     print(f"Report: {output_dir / 'README.md'}")
     print(f"Rotation change: {result['rotation_change_deg']:.2f} deg")

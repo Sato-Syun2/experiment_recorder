@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "name": "corridor",
+  "source_frame": "livox_level_frame",
+  "coordinate_frame": "corridor",
+  "origin_xy": [
+    -0.09706351941056461,
+    -0.14371738084127605
+  ],
+  "longitudinal_xy": [
+    0.9987302690963514,
+    0.050377074058837006
+  ],
+  "lateral_xy": [
+    -0.050377074058837006,
+    0.9987302690963514
+  ],
+  "wall_offsets": [
+    -1.3280703383409256,
+    1.0507800936695795
+  ],
+  "wall_gap": 2.378850432010505,
+  "wall_inlier_counts": [
+    187,
+    175
+  ],
+  "quality": {
+    "wall_residual_rmse_m": [
+      0.019787650769862705,
+      0.018886111229174496
+    ],
+    "wall_spans_m": [
+      16.58906306219345,
+      15.350723802339683
+    ],
+    "parallel_angle_deg": 0.07018991659153492,
+    "seed": 20261021,
+    "longitudinal_origin": "recording_002 nominal pole distances: median offset only, no range scale adjustment; conditional on unchanged rig",
+    "accuracy_note": "Wall fit residuals on fitting data, not surveyed corridor accuracy",
+    "origin_offset_m": -0.10418033599853516
+  },
+  "handedness": "right"
+}

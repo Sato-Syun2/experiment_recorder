@@ -1,0 +1,552 @@
+{
+  "recording": "20261013_group001/recording_001",
+  "review_dir": "/data/experiment_data/recording_001_svo_review",
+  "bag": "/data/experiment_data/recordings/20261013_group001/recording_001/lidar",
+  "topic": "/livox/lidar",
+  "static_interval_zed_elapsed_s": [
+    0.0,
+    8.0
+  ],
+  "fit_interval_zed_elapsed_s": [
+    0.0,
+    4.0
+  ],
+  "heldout_interval_zed_elapsed_s": [
+    4.0,
+    8.0
+  ],
+  "first_zed_timestamp_ns": 1791863411313970000,
+  "lidar_frames_fit": 40,
+  "lidar_frames_heldout": 40,
+  "zed_frames_fit": 8,
+  "zed_frames_heldout": 8,
+  "lidar_points_fit_raw_sampled": 48000,
+  "lidar_points_heldout_raw_sampled": 48000,
+  "zed_points_fit_raw": 785989,
+  "zed_points_heldout_raw": 785857,
+  "fit": {
+    "source_points_after_voxel": 12049,
+    "target_points_after_voxel": 53631,
+    "fit_regions": [
+      "near_left_door_region",
+      "near_right_recess_region"
+    ],
+    "vertical_camera_y_range_m": [
+      -2.5,
+      1.1
+    ],
+    "iterations": [
+      {
+        "distance_gate_m": 0.35,
+        "iteration": 0,
+        "inliers": 10473,
+        "median_inlier_distance_m": 0.03774772956967354,
+        "translation_step_m": 0.04440459576435463,
+        "rotation_step_deg": 0.3132131859796771
+      },
+      {
+        "distance_gate_m": 0.35,
+        "iteration": 1,
+        "inliers": 10701,
+        "median_inlier_distance_m": 0.03326888754963875,
+        "translation_step_m": 0.03512861639378872,
+        "rotation_step_deg": 0.20231239964164424
+      },
+      {
+        "distance_gate_m": 0.35,
+        "iteration": 2,
+        "inliers": 10853,
+        "median_inlier_distance_m": 0.03460340574383736,
+        "translation_step_m": 0.030009038770707406,
+        "rotation_step_deg": 0.1603984343731995
+      },
+      {
+        "distance_gate_m": 0.35,
+        "iteration": 3,
+        "inliers": 10989,
+        "median_inlier_distance_m": 0.037119049578905106,
+        "translation_step_m": 0.027893137040180958,
+        "rotation_step_deg": 0.17475458122855508
+      },
+      {
+        "distance_gate_m": 0.35,
+        "iteration": 4,
+        "inliers": 11092,
+        "median_inlier_distance_m": 0.03808567672967911,
+        "translation_step_m": 0.02561430900799835,
+        "rotation_step_deg": 0.19056846568069977
+      },
+      {
+        "distance_gate_m": 0.35,
+        "iteration": 5,
+        "inliers": 11182,
+        "median_inlier_distance_m": 0.03803221136331558,
+        "translation_step_m": 0.02424966074147589,
+        "rotation_step_deg": 0.20855659098754356
+      },
+      {
+        "distance_gate_m": 0.35,
+        "iteration": 6,
+        "inliers": 11259,
+        "median_inlier_distance_m": 0.03795498237013817,
+        "translation_step_m": 0.022429612475666817,
+        "rotation_step_deg": 0.20925942289992372
+      },
+      {
+        "distance_gate_m": 0.35,
+        "iteration": 7,
+        "inliers": 11338,
+        "median_inlier_distance_m": 0.03782402351498604,
+        "translation_step_m": 0.022046240619321172,
+        "rotation_step_deg": 0.235898894337239
+      },
+      {
+        "distance_gate_m": 0.35,
+        "iteration": 8,
+        "inliers": 11411,
+        "median_inlier_distance_m": 0.03757118061184883,
+        "translation_step_m": 0.021878514063489857,
+        "rotation_step_deg": 0.26166579269990725
+      },
+      {
+        "distance_gate_m": 0.35,
+        "iteration": 9,
+        "inliers": 11465,
+        "median_inlier_distance_m": 0.03731105476617813,
+        "translation_step_m": 0.021648003795918188,
+        "rotation_step_deg": 0.27379048954201063
+      },
+      {
+        "distance_gate_m": 0.35,
+        "iteration": 10,
+        "inliers": 11497,
+        "median_inlier_distance_m": 0.03733334317803383,
+        "translation_step_m": 0.02004603660528783,
+        "rotation_step_deg": 0.26963766041233517
+      },
+      {
+        "distance_gate_m": 0.35,
+        "iteration": 11,
+        "inliers": 11521,
+        "median_inlier_distance_m": 0.03719897195696831,
+        "translation_step_m": 0.019014539366525158,
+        "rotation_step_deg": 0.2654531533235385
+      },
+      {
+        "distance_gate_m": 0.25,
+        "iteration": 0,
+        "inliers": 10968,
+        "median_inlier_distance_m": 0.0335526168346405,
+        "translation_step_m": 0.011830286024816236,
+        "rotation_step_deg": 0.24002966980757856
+      },
+      {
+        "distance_gate_m": 0.25,
+        "iteration": 1,
+        "inliers": 10958,
+        "median_inlier_distance_m": 0.03480646014213562,
+        "translation_step_m": 0.009954108989309077,
+        "rotation_step_deg": 0.21128024700480375
+      },
+      {
+        "distance_gate_m": 0.25,
+        "iteration": 2,
+        "inliers": 10958,
+        "median_inlier_distance_m": 0.03552746772766113,
+        "translation_step_m": 0.009256688776841408,
+        "rotation_step_deg": 0.18319579708678047
+      },
+      {
+        "distance_gate_m": 0.25,
+        "iteration": 3,
+        "inliers": 10956,
+        "median_inlier_distance_m": 0.03568248450756073,
+        "translation_step_m": 0.00879389192857489,
+        "rotation_step_deg": 0.16933692251168747
+      },
+      {
+        "distance_gate_m": 0.25,
+        "iteration": 4,
+        "inliers": 10961,
+        "median_inlier_distance_m": 0.035785380750894547,
+        "translation_step_m": 0.008593330487228894,
+        "rotation_step_deg": 0.161327085250411
+      },
+      {
+        "distance_gate_m": 0.25,
+        "iteration": 5,
+        "inliers": 10966,
+        "median_inlier_distance_m": 0.035675644874572754,
+        "translation_step_m": 0.008394181593816372,
+        "rotation_step_deg": 0.1559666575484928
+      },
+      {
+        "distance_gate_m": 0.25,
+        "iteration": 6,
+        "inliers": 10967,
+        "median_inlier_distance_m": 0.03545504808425903,
+        "translation_step_m": 0.008399009243927915,
+        "rotation_step_deg": 0.15690891430713366
+      },
+      {
+        "distance_gate_m": 0.25,
+        "iteration": 7,
+        "inliers": 10962,
+        "median_inlier_distance_m": 0.03533022850751877,
+        "translation_step_m": 0.008508993648317713,
+        "rotation_step_deg": 0.15680259329428411
+      },
+      {
+        "distance_gate_m": 0.25,
+        "iteration": 8,
+        "inliers": 10952,
+        "median_inlier_distance_m": 0.03510764241218567,
+        "translation_step_m": 0.008316093204783105,
+        "rotation_step_deg": 0.15390226876517873
+      },
+      {
+        "distance_gate_m": 0.25,
+        "iteration": 9,
+        "inliers": 10953,
+        "median_inlier_distance_m": 0.03472508490085602,
+        "translation_step_m": 0.00861207024640763,
+        "rotation_step_deg": 0.1565157770391513
+      },
+      {
+        "distance_gate_m": 0.25,
+        "iteration": 10,
+        "inliers": 10963,
+        "median_inlier_distance_m": 0.03478255122900009,
+        "translation_step_m": 0.008896585595845687,
+        "rotation_step_deg": 0.16239025355546569
+      },
+      {
+        "distance_gate_m": 0.25,
+        "iteration": 11,
+        "inliers": 10954,
+        "median_inlier_distance_m": 0.03427616506814957,
+        "translation_step_m": 0.008676091276536494,
+        "rotation_step_deg": 0.15815905343919892
+      },
+      {
+        "distance_gate_m": 0.18,
+        "iteration": 0,
+        "inliers": 10082,
+        "median_inlier_distance_m": 0.02896588109433651,
+        "translation_step_m": 0.008531245617688693,
+        "rotation_step_deg": 0.2546234653803841
+      },
+      {
+        "distance_gate_m": 0.18,
+        "iteration": 1,
+        "inliers": 10055,
+        "median_inlier_distance_m": 0.027923312038183212,
+        "translation_step_m": 0.00836219655267415,
+        "rotation_step_deg": 0.2326470622389384
+      },
+      {
+        "distance_gate_m": 0.18,
+        "iteration": 2,
+        "inliers": 10039,
+        "median_inlier_distance_m": 0.026981951668858528,
+        "translation_step_m": 0.0077846653291532885,
+        "rotation_step_deg": 0.2083771795261798
+      },
+      {
+        "distance_gate_m": 0.18,
+        "iteration": 3,
+        "inliers": 10033,
+        "median_inlier_distance_m": 0.02639506384730339,
+        "translation_step_m": 0.007446216160097896,
+        "rotation_step_deg": 0.1923012712804991
+      },
+      {
+        "distance_gate_m": 0.18,
+        "iteration": 4,
+        "inliers": 10014,
+        "median_inlier_distance_m": 0.026083430275321007,
+        "translation_step_m": 0.007587260841021166,
+        "rotation_step_deg": 0.18369663909993328
+      },
+      {
+        "distance_gate_m": 0.18,
+        "iteration": 5,
+        "inliers": 10025,
+        "median_inlier_distance_m": 0.02558787539601326,
+        "translation_step_m": 0.007720419238955394,
+        "rotation_step_deg": 0.17603068906437108
+      },
+      {
+        "distance_gate_m": 0.18,
+        "iteration": 6,
+        "inliers": 10032,
+        "median_inlier_distance_m": 0.025221291929483414,
+        "translation_step_m": 0.007104943483816155,
+        "rotation_step_deg": 0.15301398645264902
+      },
+      {
+        "distance_gate_m": 0.18,
+        "iteration": 7,
+        "inliers": 10036,
+        "median_inlier_distance_m": 0.02469656616449356,
+        "translation_step_m": 0.0067058881816964774,
+        "rotation_step_deg": 0.13602284276172144
+      },
+      {
+        "distance_gate_m": 0.18,
+        "iteration": 8,
+        "inliers": 10051,
+        "median_inlier_distance_m": 0.02437690459191799,
+        "translation_step_m": 0.005958273307947652,
+        "rotation_step_deg": 0.11768573003783495
+      },
+      {
+        "distance_gate_m": 0.18,
+        "iteration": 9,
+        "inliers": 10061,
+        "median_inlier_distance_m": 0.024351369589567184,
+        "translation_step_m": 0.0053902517947807165,
+        "rotation_step_deg": 0.09844677795955449
+      },
+      {
+        "distance_gate_m": 0.18,
+        "iteration": 10,
+        "inliers": 10064,
+        "median_inlier_distance_m": 0.024363050237298012,
+        "translation_step_m": 0.004942270182976538,
+        "rotation_step_deg": 0.08793880047771181
+      },
+      {
+        "distance_gate_m": 0.18,
+        "iteration": 11,
+        "inliers": 10065,
+        "median_inlier_distance_m": 0.024197490885853767,
+        "translation_step_m": 0.0053289778962863745,
+        "rotation_step_deg": 0.09201353252091314
+      },
+      {
+        "distance_gate_m": 0.14,
+        "iteration": 0,
+        "inliers": 9447,
+        "median_inlier_distance_m": 0.021936047822237015,
+        "translation_step_m": 0.003219654078533093,
+        "rotation_step_deg": 0.05809732630742062
+      },
+      {
+        "distance_gate_m": 0.14,
+        "iteration": 1,
+        "inliers": 9451,
+        "median_inlier_distance_m": 0.022089315578341484,
+        "translation_step_m": 0.002827980876493128,
+        "rotation_step_deg": 0.05110820081495146
+      },
+      {
+        "distance_gate_m": 0.14,
+        "iteration": 2,
+        "inliers": 9455,
+        "median_inlier_distance_m": 0.02222101390361786,
+        "translation_step_m": 0.0025724646496046257,
+        "rotation_step_deg": 0.044567654798337866
+      },
+      {
+        "distance_gate_m": 0.14,
+        "iteration": 3,
+        "inliers": 9462,
+        "median_inlier_distance_m": 0.02222207374870777,
+        "translation_step_m": 0.002502041321760739,
+        "rotation_step_deg": 0.03693086300914633
+      },
+      {
+        "distance_gate_m": 0.14,
+        "iteration": 4,
+        "inliers": 9457,
+        "median_inlier_distance_m": 0.02209010347723961,
+        "translation_step_m": 0.0022969882130067136,
+        "rotation_step_deg": 0.03491963355932978
+      },
+      {
+        "distance_gate_m": 0.14,
+        "iteration": 5,
+        "inliers": 9468,
+        "median_inlier_distance_m": 0.022086424753069878,
+        "translation_step_m": 0.0021526727691321733,
+        "rotation_step_deg": 0.02551371470926469
+      },
+      {
+        "distance_gate_m": 0.14,
+        "iteration": 6,
+        "inliers": 9479,
+        "median_inlier_distance_m": 0.02208515629172325,
+        "translation_step_m": 0.0019595560081081477,
+        "rotation_step_deg": 0.021907120417759322
+      },
+      {
+        "distance_gate_m": 0.14,
+        "iteration": 7,
+        "inliers": 9482,
+        "median_inlier_distance_m": 0.02212699130177498,
+        "translation_step_m": 0.002067964032715168,
+        "rotation_step_deg": 0.026990477363813832
+      },
+      {
+        "distance_gate_m": 0.14,
+        "iteration": 8,
+        "inliers": 9488,
+        "median_inlier_distance_m": 0.02207227051258087,
+        "translation_step_m": 0.002040804718074049,
+        "rotation_step_deg": 0.024143483608335153
+      },
+      {
+        "distance_gate_m": 0.14,
+        "iteration": 9,
+        "inliers": 9488,
+        "median_inlier_distance_m": 0.022061411291360855,
+        "translation_step_m": 0.0020794003701706414,
+        "rotation_step_deg": 0.021405926208818326
+      },
+      {
+        "distance_gate_m": 0.14,
+        "iteration": 10,
+        "inliers": 9501,
+        "median_inlier_distance_m": 0.022415511310100555,
+        "translation_step_m": 0.002158455947123732,
+        "rotation_step_deg": 0.01736049046328088
+      },
+      {
+        "distance_gate_m": 0.14,
+        "iteration": 11,
+        "inliers": 9506,
+        "median_inlier_distance_m": 0.022412901744246483,
+        "translation_step_m": 0.0019791784274237963,
+        "rotation_step_deg": 0.018516192487203695
+      }
+    ]
+  },
+  "rotation_change_from_active_deg": 6.685661199507684,
+  "translation_change_from_active_m": 0.4857916539851032,
+  "candidate": {
+    "version": 1,
+    "source_frame": "livox_frame",
+    "target_frame": "zed_left_eye",
+    "coordinate_system": "IMAGE",
+    "units": "m",
+    "calibration_status": "exploratory_door_static_scene_icp_candidate",
+    "translation_m": [
+      0.018431756828945798,
+      0.2810226613819561,
+      0.2676093257500405
+    ],
+    "rotation_source_to_target": [
+      [
+        0.004841467317730639,
+        -0.9999858030253571,
+        0.0022257452561007794
+      ],
+      [
+        0.22696324619325295,
+        -0.001068839433809307,
+        -0.9739027376795366
+      ],
+      [
+        0.9738912901713633,
+        0.005220280643648082,
+        0.22695484925061057
+      ]
+    ],
+    "method": "Point-to-point ICP on empty-hallway LiDAR and ZED metric-depth clouds, initialized from the existing plane calibration; held-out later half not used to fit.",
+    "observable_translation_directions": [
+      "floor normal",
+      "hallway lateral"
+    ],
+    "unobservable_translation_direction_target": [
+      0.02313453509924162,
+      0.22604004773511413,
+      -0.9738432574627446
+    ],
+    "unobservable_translation_kept_from_initial_m": -0.03617199686210953,
+    "notes": "Exploratory candidate only. Static-scene ICP can be biased by ZED depth, sparse LiDAR sampling, and repeated parallel hallway surfaces. It has not been accepted as a metric calibration and was not applied to the active transform."
+  },
+  "training_residuals_active": {
+    "all_visible_static_surfaces": {
+      "points": 15761,
+      "median_m": 0.04306747019290924,
+      "p90_m": 0.43926072120666504,
+      "fraction_within_10cm": 0.691326692468752
+    },
+    "near_left_door_region": {
+      "points": 5324,
+      "median_m": 0.0342087522149086,
+      "p90_m": 0.2767431437969208,
+      "fraction_within_10cm": 0.771412471825695
+    },
+    "near_right_recess_region": {
+      "points": 6107,
+      "median_m": 0.05033256858587265,
+      "p90_m": 0.45383140444755554,
+      "fraction_within_10cm": 0.660880956279679
+    }
+  },
+  "training_residuals_candidate": {
+    "all_visible_static_surfaces": {
+      "points": 16259,
+      "median_m": 0.06327944993972778,
+      "p90_m": 0.38346773386001587,
+      "fraction_within_10cm": 0.6083399963097361
+    },
+    "near_left_door_region": {
+      "points": 5572,
+      "median_m": 0.025296732783317566,
+      "p90_m": 0.1991266906261444,
+      "fraction_within_10cm": 0.7778176597272075
+    },
+    "near_right_recess_region": {
+      "points": 6352,
+      "median_m": 0.07700958847999573,
+      "p90_m": 0.3971652388572693,
+      "fraction_within_10cm": 0.5410894206549118
+    }
+  },
+  "heldout_residuals_active": {
+    "all_visible_static_surfaces": {
+      "points": 15671,
+      "median_m": 0.046131785959005356,
+      "p90_m": 0.45768430829048157,
+      "fraction_within_10cm": 0.6872567162274265
+    },
+    "near_left_door_region": {
+      "points": 5285,
+      "median_m": 0.04299259930849075,
+      "p90_m": 0.30998390913009644,
+      "fraction_within_10cm": 0.762724692526017
+    },
+    "near_right_recess_region": {
+      "points": 5960,
+      "median_m": 0.04723498970270157,
+      "p90_m": 0.4531053304672241,
+      "fraction_within_10cm": 0.661744966442953
+    }
+  },
+  "heldout_residuals_candidate": {
+    "all_visible_static_surfaces": {
+      "points": 16187,
+      "median_m": 0.06279444694519043,
+      "p90_m": 0.36340397596359253,
+      "fraction_within_10cm": 0.6083894483227281
+    },
+    "near_left_door_region": {
+      "points": 5484,
+      "median_m": 0.0316460058093071,
+      "p90_m": 0.17127685248851776,
+      "fraction_within_10cm": 0.7773522975929978
+    },
+    "near_right_recess_region": {
+      "points": 6291,
+      "median_m": 0.07818134129047394,
+      "p90_m": 0.3853236138820648,
+      "fraction_within_10cm": 0.5414083611508504
+    }
+  },
+  "correspondence_definition": "nearest 3D metric-depth surface to LiDAR points in ZED-left-eye coordinates; this measures cross-sensor surface consistency, not ground-truth object-position error.",
+  "door_region_definition": "approximate camera-space ROIs around the two foreground door areas: z=0.6–4.5 m; left x=-2.5 to -0.65 m and right x=0.7 to 3.2 m. These ROIs include adjacent wall/floor points and are not manually annotated door corners.",
+  "applied": false
+}

@@ -1,0 +1,30 @@
+{
+  "shared_directory": "/data/experiment_data/20261022_group003_recording_003_pole_walk_check",
+  "sdk_runner": "/data/experiment_data/scripts/run_group003_recording003_pole_walk_20261022.py",
+  "sdk_executed": false,
+  "files_sha256": {
+    "preliminary_manifest.json": "f774b687547865012fdfd805562f91f45713542f9aebb412b358b9910bce6e89",
+    "preparation.log": "7cec651fc24b70559113b08b26032124eb2a85ea9f3764ac41bfcad47bd43341",
+    "run_group003_recording003_pole_walk_20261022.py": "bbad7063834542f4de7b6f86b9319d4c0d26a8b0a320f2c892290b0618912670",
+    "tracks.csv": "9117fc2d4f21d5dabae4c638b835a84c01d48aa920c858cebf04a71825d36dd9",
+    "README.md": "4bb164f7ee17cc5db8b7b6b980977206d86a4bcb4a61740d91a39a621a923bcc",
+    "range_time_occupancy.png": "8c1ccbabbf4ffa9b0e37e09f955cf030475a21550addf61bf94913237e5d3c33",
+    "analysis_config.json": "bb53e312674037db00124582aa46b51a90ebf80e85e93f17dbd8f35f6c74b641",
+    "analysis_plan.json": "199796dbee4d8b9c3116fd1e5cc91ec23f6c9d86c06f71dea85ee9ff66c0b43a",
+    "index_preliminary.html": "3a97df33168369cad03a4b0487ae23571483c2658a66db008722040d5ca0b03a",
+    "build_preliminary.py": "d6a2739ec46d3bbee41fc990103ae740bf8ca2402fb3290c9c74fd653f702894",
+    "metrics_preliminary.json": "7601d8e40164c38b5d06757c01869922b00e36d0c37f6f9c1066179cf6ef5a84",
+    "geometry.json": "d561309131a4c4a32f3f8db63367373f0ad7b51225936e86c89ff2dc618e1f90",
+    "tracks.metadata.json": "6207ee22c8a64e0c37790626d2c1348f0053888a1803816c6dc9be96e2ddd465",
+    "candidate_diagnostics.csv": "13b528844aa30eeeee0f7254703cdae91885e0b9e8923bea7b376974f7ce1047",
+    "preliminary.log": "8e6570a88c7dd8120a4e92588813907df02ed79364c220b10649e03ab6a3d00c",
+    "corridor_candidate.json": "e23f1fbc389bbddee687722a5ee305910b88a5032758dcdb0d6e3c2c2826dd0b",
+    "lidar_preliminary.png": "f89f12f6ef98a483d2dac30cd3be0a5cf828aa7e492df29ec4523149e83c294d",
+    "tracks.frames.csv": "69bee5615db4f209ebc6775369cab969758d8ca66354eedec8887c710d8ae9aa",
+    "preliminary_template.html": "f314c29b72d600417f0fb0d4972157d33e5b95a83294e44100127823ab13b699",
+    "prepare_lidar.py": "2aa0e7b45697a1c7829494cf163283ca38930a74fb70731acdbd36a0a0db6910",
+    "tracking.log": "a4a5f876737ed4e18608571ea4cadf4102abdf39ba83dd978c63d72efd79e40f",
+    "sdk_tools/analyze_svo_body_tracking.py": "6e6b88804490cbd9dd86db36fdee8a15454226f08b26e408d5802bcc8002059c",
+    "sdk_tools/export_svo_review.py": "77e233058f3e40671e328322fe9dab58f38fb800b26058b4871965a0c9ea91c4"
+  }
+}

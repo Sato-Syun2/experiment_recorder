@@ -1,0 +1,140 @@
+{
+  "completed": true,
+  "frames": 138,
+  "background_frames": [
+    {
+      "source_frame": 1,
+      "elapsed_s": -1.835973851
+    },
+    {
+      "source_frame": 2,
+      "elapsed_s": -1.734929365
+    },
+    {
+      "source_frame": 3,
+      "elapsed_s": -1.634905105
+    },
+    {
+      "source_frame": 4,
+      "elapsed_s": -1.535914175
+    },
+    {
+      "source_frame": 5,
+      "elapsed_s": -1.435764514
+    },
+    {
+      "source_frame": 6,
+      "elapsed_s": -1.335862239
+    },
+    {
+      "source_frame": 7,
+      "elapsed_s": -1.234944896
+    },
+    {
+      "source_frame": 8,
+      "elapsed_s": -1.134956171
+    },
+    {
+      "source_frame": 9,
+      "elapsed_s": -1.035820094
+    },
+    {
+      "source_frame": 10,
+      "elapsed_s": -0.934860524
+    },
+    {
+      "source_frame": 11,
+      "elapsed_s": -0.834914545
+    },
+    {
+      "source_frame": 12,
+      "elapsed_s": -0.734971978
+    },
+    {
+      "source_frame": 13,
+      "elapsed_s": -0.635004416
+    },
+    {
+      "source_frame": 14,
+      "elapsed_s": -0.53504045
+    },
+    {
+      "source_frame": 15,
+      "elapsed_s": -0.435738572
+    },
+    {
+      "source_frame": 16,
+      "elapsed_s": -0.335842451
+    },
+    {
+      "source_frame": 17,
+      "elapsed_s": -0.235019285
+    },
+    {
+      "source_frame": 18,
+      "elapsed_s": -0.134831427
+    },
+    {
+      "source_frame": 19,
+      "elapsed_s": -0.034891285
+    },
+    {
+      "source_frame": 20,
+      "elapsed_s": 0.064937793
+    },
+    {
+      "source_frame": 21,
+      "elapsed_s": 0.16406338
+    },
+    {
+      "source_frame": 22,
+      "elapsed_s": 0.265030207
+    },
+    {
+      "source_frame": 23,
+      "elapsed_s": 0.364932055
+    },
+    {
+      "source_frame": 24,
+      "elapsed_s": 0.46514733
+    },
+    {
+      "source_frame": 25,
+      "elapsed_s": 0.56417466
+    },
+    {
+      "source_frame": 26,
+      "elapsed_s": 0.664015766
+    },
+    {
+      "source_frame": 27,
+      "elapsed_s": 0.765125075
+    },
+    {
+      "source_frame": 28,
+      "elapsed_s": 0.865044366
+    },
+    {
+      "source_frame": 29,
+      "elapsed_s": 0.964914536
+    },
+    {
+      "source_frame": 30,
+      "elapsed_s": 1.065120854
+    }
+  ],
+  "background_note": "Only preprocess and cluster-background learning on first 30 bag clouds; no outbound tracking.",
+  "window_zed_s": [
+    7.2,
+    21.0
+  ],
+  "track_history": "fresh; IDs start at 1 at approach",
+  "settings_changes": "new installation geometry only; confirmation/detection thresholds unchanged",
+  "wall_time_s": 18.726975734000007,
+  "config_sha256": "dfd16d86a7491d837eef56736ac9457dd347db8c1118220dde484b1bb4dfde75",
+  "source_sha256": {
+    "/home/hp-ubuntu/experiment_recorder/reports/20261022_group003_recording_002_approach_check/track_approach.py": "47c4925360686d629821587b9f1547d45d1c4865e2d517e1874f0307e22a1f17",
+    "/home/hp-ubuntu/experiment_recorder/scripts/track_people.py": "9aa781d5f6e977461626484b9037692af857888b3fb2ff5adcaf6921ec223d21",
+    "/home/hp-ubuntu/experiment_recorder/scripts/assignment.py": "6d6ff0f2db64bb04f916123d35a7a69c6cfe66243afad25fd5b1c01fdc015c49"
+  }
+}

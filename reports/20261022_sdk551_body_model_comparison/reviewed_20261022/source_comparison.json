@@ -1,0 +1,2432 @@
+{
+  "cases": [
+    {
+      "recording": "002",
+      "scope": "approach",
+      "label": "medium_gen2",
+      "status": "completed",
+      "metrics": {
+        "sdk_version_field": "5.5.1",
+        "pyzed_version": "5.5",
+        "model": "HUMAN_BODY_MEDIUM",
+        "generation_requested": "GEN_2",
+        "generation_effective": "GEN_2",
+        "generation_verified": true,
+        "frames": 414,
+        "window_s": [
+          7.199002,
+          20.999397
+        ],
+        "sdk_OK_any_frames": 411,
+        "sdk_OK_any_fraction": 0.9927536231884058,
+        "sdk_OK_ids": {
+          "0": 411
+        },
+        "dominant_id": "0",
+        "dominant_OK_frames": 411,
+        "dominant_OK_fraction": 0.9927536231884058,
+        "multiple_OK_ID_frames": 0,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 3,
+        "latency": {
+          "n": 384,
+          "median": 56.40300000004572,
+          "p90": 58.43555999999808
+        },
+        "model_enable_seconds": 285.3358564,
+        "processing_wall_s": 28.746323300000086,
+        "depth_precision": "DEPTH_PRECISION.FP16",
+        "positional_mode": "GEN 3",
+        "prediction_timeout_s": 0.20000000298023224,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 0.100015,
+        "max_no_OK_gap_s": 0.10001499999999997,
+        "both_legs_conf25_inside_frames": 385,
+        "both_legs_conf25_inside_fraction": 0.9299516908212561,
+        "reference_rows": 60,
+        "reference_segment_m": {
+          "torso": 0.5357904002330279,
+          "left_thigh": 0.37575423820956944,
+          "left_shin": 0.3340037020678925,
+          "right_thigh": 0.37575420294781336,
+          "right_shin": 0.33400371839126103
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 411,
+            "min": 0.4452814753544144,
+            "median": 0.5465250160765562,
+            "p10": 0.5235860387696202,
+            "p90": 0.578030784793917,
+            "max": 0.6118724066745101
+          },
+          "left_thigh": {
+            "n": 411,
+            "min": 0.21053976794368903,
+            "median": 0.3990430524584181,
+            "p10": 0.3551965721564516,
+            "p90": 0.49684658262385073,
+            "max": 0.5318308333501149
+          },
+          "left_shin": {
+            "n": 411,
+            "min": 0.18714651834117949,
+            "median": 0.354704719836942,
+            "p10": 0.31573040838032546,
+            "p90": 0.441641431384778,
+            "max": 0.4727385795174881
+          },
+          "right_thigh": {
+            "n": 411,
+            "min": 0.21053975250260482,
+            "median": 0.39904298720577175,
+            "p10": 0.3551966207104754,
+            "p90": 0.4968465902773145,
+            "max": 0.5318307062597846
+          },
+          "right_shin": {
+            "n": 411,
+            "min": 0.18714647135241014,
+            "median": 0.35470526852814566,
+            "p10": 0.3157302891996776,
+            "p90": 0.44164132015999136,
+            "max": 0.47273857213265513
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 411,
+            "min": 0.8310740079716825,
+            "median": 1.02003510297844,
+            "p10": 0.9772217616103241,
+            "p90": 1.0788375165783444,
+            "max": 1.1419995699967607
+          },
+          "left_thigh": {
+            "n": 411,
+            "min": 0.5603124237450774,
+            "median": 1.061978846492371,
+            "p10": 0.9452895963301093,
+            "p90": 1.3222647467431743,
+            "max": 1.4153688216112599
+          },
+          "left_shin": {
+            "n": 411,
+            "min": 0.5603127066631689,
+            "median": 1.0619784081460322,
+            "p10": 0.9452901462635506,
+            "p90": 1.3222650786517514,
+            "max": 1.4153692806117315
+          },
+          "right_thigh": {
+            "n": 411,
+            "min": 0.5603124352326823,
+            "median": 1.0619787724934453,
+            "p10": 0.9452898142560682,
+            "p90": 1.3222648911962245,
+            "max": 1.4153686162058656
+          },
+          "right_shin": {
+            "n": 411,
+            "min": 0.5603125385962969,
+            "median": 1.0619799990149639,
+            "p10": 0.9452897432411892,
+            "p90": 1.3222646810256187,
+            "max": 1.415369189330031
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.32230144402866023,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "heel_z_m": {
+          "n": 776,
+          "min": -0.37283697293800944,
+          "median": 0.02317198922921615,
+          "p10": -0.287361280449842,
+          "p90": 0.14431833451745057,
+          "max": 0.2930027496320844
+        },
+        "supported_heel_below_minus10cm_frames": 113,
+        "supported_heel_below_minus10cm_fraction": 0.27294685990338163,
+        "pelvis_x_m": {
+          "n": 411,
+          "min": 0.32494115438158905,
+          "median": 8.209037008244117,
+          "p10": 1.39715382278406,
+          "p90": 14.505078320906971,
+          "max": 15.053639831853122
+        },
+        "pelvis_y_m": {
+          "n": 411,
+          "min": -0.12422142541522396,
+          "median": 0.018296344086017324,
+          "p10": -0.06892782176125023,
+          "p90": 0.17438608920362997,
+          "max": 0.21438299774421932
+        },
+        "floor_note": "Frozen recording002 floor candidate, not surveyed ground truth. Never refitted per model."
+      },
+      "body_dir": "recording_002\\approach\\medium_gen2"
+    },
+    {
+      "recording": "002",
+      "scope": "approach",
+      "label": "accurate_gen2",
+      "status": "completed",
+      "metrics": {
+        "sdk_version_field": "5.5.1",
+        "pyzed_version": "5.5",
+        "model": "HUMAN_BODY_ACCURATE",
+        "generation_requested": "GEN_2",
+        "generation_effective": "GEN_2",
+        "generation_verified": true,
+        "frames": 414,
+        "window_s": [
+          7.199002,
+          20.999397
+        ],
+        "sdk_OK_any_frames": 411,
+        "sdk_OK_any_fraction": 0.9927536231884058,
+        "sdk_OK_ids": {
+          "0": 411
+        },
+        "dominant_id": "0",
+        "dominant_OK_frames": 411,
+        "dominant_OK_fraction": 0.9927536231884058,
+        "multiple_OK_ID_frames": 0,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 3,
+        "latency": {
+          "n": 384,
+          "median": 72.25979999998344,
+          "p90": 74.44257000011021
+        },
+        "model_enable_seconds": 285.20751999999993,
+        "processing_wall_s": 35.388649500000156,
+        "depth_precision": "DEPTH_PRECISION.FP16",
+        "positional_mode": "GEN 3",
+        "prediction_timeout_s": 0.20000000298023224,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 0.100015,
+        "max_no_OK_gap_s": 0.10001499999999997,
+        "both_legs_conf25_inside_frames": 388,
+        "both_legs_conf25_inside_fraction": 0.9371980676328503,
+        "reference_rows": 60,
+        "reference_segment_m": {
+          "torso": 0.5167316140379412,
+          "left_thigh": 0.38557555275392896,
+          "left_shin": 0.34273382014345344,
+          "right_thigh": 0.385575599948938,
+          "right_shin": 0.3427338794398799
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 411,
+            "min": 0.41316821986237406,
+            "median": 0.5320966114201958,
+            "p10": 0.5041114639770202,
+            "p90": 0.5675260279316038,
+            "max": 0.677604470399203
+          },
+          "left_thigh": {
+            "n": 411,
+            "min": 0.21870021031594414,
+            "median": 0.4117681084024849,
+            "p10": 0.360427242052624,
+            "p90": 0.44015907395360165,
+            "max": 0.518765915696271
+          },
+          "left_shin": {
+            "n": 411,
+            "min": 0.19440025037398162,
+            "median": 0.36601589273272894,
+            "p10": 0.32037980914060643,
+            "p90": 0.39125255439044115,
+            "max": 0.46112515486333633
+          },
+          "right_thigh": {
+            "n": 411,
+            "min": 0.2187002108038042,
+            "median": 0.411767741656222,
+            "p10": 0.36042717170283034,
+            "p90": 0.440159275185829,
+            "max": 0.5187657622871148
+          },
+          "right_shin": {
+            "n": 411,
+            "min": 0.19440023935790576,
+            "median": 0.3660161608980636,
+            "p10": 0.32037976760256476,
+            "p90": 0.3912524778782385,
+            "max": 0.4611253050376262
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 411,
+            "min": 0.7995799146750813,
+            "median": 1.0297349667890194,
+            "p10": 0.9755769731944554,
+            "p90": 1.0982994121391865,
+            "max": 1.3113276834450653
+          },
+          "left_thigh": {
+            "n": 411,
+            "min": 0.5672045562896898,
+            "median": 1.0679310590660602,
+            "p10": 0.9347772167563891,
+            "p90": 1.141563750112828,
+            "max": 1.345432592888852
+          },
+          "left_shin": {
+            "n": 411,
+            "min": 0.5672047488415767,
+            "median": 1.0679304790508584,
+            "p10": 0.9347773412221455,
+            "p90": 1.1415638941808541,
+            "max": 1.3454323085779205
+          },
+          "right_thigh": {
+            "n": 411,
+            "min": 0.567204488128312,
+            "median": 1.0679299771841182,
+            "p10": 0.9347769198843545,
+            "p90": 1.1415641322846144,
+            "max": 1.3454320303354654
+          },
+          "right_shin": {
+            "n": 411,
+            "min": 0.5672046185676435,
+            "median": 1.0679310767182786,
+            "p10": 0.9347770583000204,
+            "p90": 1.141563473437908,
+            "max": 1.345432513970402
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.16086151196495105,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "heel_z_m": {
+          "n": 773,
+          "min": -0.37729742932880606,
+          "median": 0.05225453565873539,
+          "p10": -0.04268766973400315,
+          "p90": 0.15118286159486935,
+          "max": 0.28409633260464506
+        },
+        "supported_heel_below_minus10cm_frames": 24,
+        "supported_heel_below_minus10cm_fraction": 0.057971014492753624,
+        "pelvis_x_m": {
+          "n": 411,
+          "min": 0.3221863377235117,
+          "median": 8.029364918128687,
+          "p10": 1.4066343699858221,
+          "p90": 14.323411730133733,
+          "max": 14.623280444862855
+        },
+        "pelvis_y_m": {
+          "n": 411,
+          "min": -0.11542230351996308,
+          "median": 0.004152557784580679,
+          "p10": -0.07489971853216848,
+          "p90": 0.12738819979064053,
+          "max": 0.18465826604423152
+        },
+        "floor_note": "Frozen recording002 floor candidate, not surveyed ground truth. Never refitted per model."
+      },
+      "body_dir": "recording_002\\approach\\accurate_gen2"
+    },
+    {
+      "recording": "002",
+      "scope": "approach",
+      "label": "medium_gen1",
+      "status": "completed",
+      "metrics": {
+        "sdk_version_field": "5.5.1",
+        "pyzed_version": "5.5",
+        "model": "HUMAN_BODY_MEDIUM",
+        "generation_requested": "GEN_1",
+        "generation_effective": "GEN_1",
+        "generation_verified": true,
+        "frames": 414,
+        "window_s": [
+          7.199002,
+          20.999397
+        ],
+        "sdk_OK_any_frames": 314,
+        "sdk_OK_any_fraction": 0.7584541062801933,
+        "sdk_OK_ids": {
+          "0": 314
+        },
+        "dominant_id": "0",
+        "dominant_OK_frames": 314,
+        "dominant_OK_fraction": 0.7584541062801933,
+        "multiple_OK_ID_frames": 0,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 100,
+        "latency": {
+          "n": 384,
+          "median": 56.59990000003745,
+          "p90": 60.500479999950585
+        },
+        "model_enable_seconds": 32.825620599999866,
+        "processing_wall_s": 28.018921899999896,
+        "depth_precision": "DEPTH_PRECISION.FP16",
+        "positional_mode": "GEN 3",
+        "prediction_timeout_s": 0.20000000298023224,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 2.833446,
+        "max_no_OK_gap_s": 2.8334460000000004,
+        "both_legs_conf25_inside_frames": 175,
+        "both_legs_conf25_inside_fraction": 0.4227053140096618,
+        "reference_rows": 60,
+        "reference_segment_m": {
+          "torso": 0.5166864733801682,
+          "left_thigh": 0.3974869366859679,
+          "left_shin": 0.3533217671772447,
+          "right_thigh": 0.3974869074930555,
+          "right_shin": 0.35332168147938203
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 314,
+            "min": 0.4701257326328085,
+            "median": 0.5375369543388033,
+            "p10": 0.4929191815782409,
+            "p90": 0.5716699136707742,
+            "max": 0.6341417435129799
+          },
+          "left_thigh": {
+            "n": 314,
+            "min": 0.33906831776408325,
+            "median": 0.4797571326916749,
+            "p10": 0.38344222161430935,
+            "p90": 0.5818062372846056,
+            "max": 0.6065337646642068
+          },
+          "left_shin": {
+            "n": 314,
+            "min": 0.30139408059423933,
+            "median": 0.4264508575676922,
+            "p10": 0.3408375294949714,
+            "p90": 0.517161199959572,
+            "max": 0.5391411011369878
+          },
+          "right_thigh": {
+            "n": 314,
+            "min": 0.339068325285973,
+            "median": 0.47975721580788383,
+            "p10": 0.3834421727310618,
+            "p90": 0.5818064312321636,
+            "max": 0.6065338003990013
+          },
+          "right_shin": {
+            "n": 314,
+            "min": 0.30139408708980364,
+            "median": 0.426450824081928,
+            "p10": 0.3408374852370608,
+            "p90": 0.517161256329386,
+            "max": 0.5391412146292018
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 314,
+            "min": 0.9098858918392835,
+            "median": 1.040354222595051,
+            "p10": 0.954000553475996,
+            "p90": 1.1064154823541323,
+            "max": 1.2273240663035325
+          },
+          "left_thigh": {
+            "n": 314,
+            "min": 0.8530300909787183,
+            "median": 1.2069758485439337,
+            "p10": 0.9646662222694515,
+            "p90": 1.4637115929781055,
+            "max": 1.5259212534659852
+          },
+          "left_shin": {
+            "n": 314,
+            "min": 0.8530300383192758,
+            "median": 1.20697589897925,
+            "p10": 0.9646660952083075,
+            "p90": 1.4637116872002307,
+            "max": 1.5259209910679699
+          },
+          "right_thigh": {
+            "n": 314,
+            "min": 0.8530301725520277,
+            "median": 1.2069761462929836,
+            "p10": 0.964666170137342,
+            "p90": 1.4637121884129687,
+            "max": 1.5259214554371154
+          },
+          "right_shin": {
+            "n": 314,
+            "min": 0.8530302636052393,
+            "median": 1.2069760969560352,
+            "p10": 0.964666203924851,
+            "p90": 1.4637122017646822,
+            "max": 1.5259216823937345
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.432720177388851,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "heel_z_m": {
+          "n": 405,
+          "min": -0.4912045369010951,
+          "median": -0.03554840732336362,
+          "p10": -0.3310000711287906,
+          "p90": 0.07567296954296863,
+          "max": 0.18938615577541928
+        },
+        "supported_heel_below_minus10cm_frames": 95,
+        "supported_heel_below_minus10cm_fraction": 0.22946859903381642,
+        "pelvis_x_m": {
+          "n": 314,
+          "min": 0.3209605052419672,
+          "median": 6.470026657759506,
+          "p10": 1.120752021758792,
+          "p90": 11.278590163425491,
+          "max": 12.923135563326136
+        },
+        "pelvis_y_m": {
+          "n": 314,
+          "min": -0.14201114493541578,
+          "median": 0.007342497453813768,
+          "p10": -0.08392307375375598,
+          "p90": 0.10403370655549425,
+          "max": 0.1733620010050363
+        },
+        "floor_note": "Frozen recording002 floor candidate, not surveyed ground truth. Never refitted per model."
+      },
+      "body_dir": "recording_002\\approach\\medium_gen1"
+    },
+    {
+      "recording": "002",
+      "scope": "approach",
+      "label": "accurate_gen1",
+      "status": "completed",
+      "metrics": {
+        "sdk_version_field": "5.5.1",
+        "pyzed_version": "5.5",
+        "model": "HUMAN_BODY_ACCURATE",
+        "generation_requested": "GEN_1",
+        "generation_effective": "GEN_1",
+        "generation_verified": true,
+        "frames": 414,
+        "window_s": [
+          7.199002,
+          20.999397
+        ],
+        "sdk_OK_any_frames": 411,
+        "sdk_OK_any_fraction": 0.9927536231884058,
+        "sdk_OK_ids": {
+          "0": 411
+        },
+        "dominant_id": "0",
+        "dominant_OK_frames": 411,
+        "dominant_OK_fraction": 0.9927536231884058,
+        "multiple_OK_ID_frames": 0,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 3,
+        "latency": {
+          "n": 384,
+          "median": 72.87114999985533,
+          "p90": 76.80176000003485
+        },
+        "model_enable_seconds": 29.22977660000015,
+        "processing_wall_s": 35.304976200000056,
+        "depth_precision": "DEPTH_PRECISION.FP16",
+        "positional_mode": "GEN 3",
+        "prediction_timeout_s": 0.20000000298023224,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 0.100015,
+        "max_no_OK_gap_s": 0.10001499999999997,
+        "both_legs_conf25_inside_frames": 307,
+        "both_legs_conf25_inside_fraction": 0.7415458937198067,
+        "reference_rows": 60,
+        "reference_segment_m": {
+          "torso": 0.5032673341017277,
+          "left_thigh": 0.3770699011187507,
+          "left_shin": 0.3351732706634064,
+          "right_thigh": 0.3770699276425395,
+          "right_shin": 0.33517323034914337
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 411,
+            "min": 0.472483750441874,
+            "median": 0.4921645268899698,
+            "p10": 0.48394027701576264,
+            "p90": 0.5469529069112706,
+            "max": 0.5558863593377622
+          },
+          "left_thigh": {
+            "n": 411,
+            "min": 0.3206273501752154,
+            "median": 0.40875870954043486,
+            "p10": 0.37130346160958566,
+            "p90": 0.5154355712594819,
+            "max": 0.5693330990805565
+          },
+          "left_shin": {
+            "n": 411,
+            "min": 0.28500209645584385,
+            "median": 0.36334099120228347,
+            "p10": 0.33004751948616406,
+            "p90": 0.45816497763695024,
+            "max": 0.5060739123811971
+          },
+          "right_thigh": {
+            "n": 411,
+            "min": 0.32062731966435437,
+            "median": 0.4087585939936647,
+            "p10": 0.3713035071876632,
+            "p90": 0.5154355539886674,
+            "max": 0.5693331516805236
+          },
+          "right_shin": {
+            "n": 411,
+            "min": 0.28500221564131056,
+            "median": 0.36334133210466824,
+            "p10": 0.3300476010449216,
+            "p90": 0.4581650653370866,
+            "max": 0.506073814929742
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 411,
+            "min": 0.9388325417249686,
+            "median": 0.9779385498334099,
+            "p10": 0.9615968377513283,
+            "p90": 1.086803910862835,
+            "max": 1.1045548194180994
+          },
+          "left_thigh": {
+            "n": 411,
+            "min": 0.8503127648850448,
+            "median": 1.084039612622659,
+            "p10": 0.984707239978433,
+            "p90": 1.3669496550379812,
+            "max": 1.5098874171376948
+          },
+          "left_shin": {
+            "n": 411,
+            "min": 0.85031272300366,
+            "median": 1.0840392805879921,
+            "p10": 0.9847071600694859,
+            "p90": 1.3669496279643871,
+            "max": 1.5098874423355064
+          },
+          "right_thigh": {
+            "n": 411,
+            "min": 0.8503126241568316,
+            "median": 1.0840392299360608,
+            "p10": 0.9847072915866607,
+            "p90": 1.3669495130815572,
+            "max": 1.5098874504260353
+          },
+          "right_shin": {
+            "n": 411,
+            "min": 0.850313180871961,
+            "median": 1.0840404280681446,
+            "p10": 0.9847075218421157,
+            "p90": 1.366950054035715,
+            "max": 1.5098873331935694
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.3488579430123554,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "heel_z_m": {
+          "n": 666,
+          "min": -0.27753241291775654,
+          "median": 0.05678728210649209,
+          "p10": -0.17655106728432335,
+          "p90": 0.1294319858294838,
+          "max": 0.2377791802169582
+        },
+        "supported_heel_below_minus10cm_frames": 57,
+        "supported_heel_below_minus10cm_fraction": 0.13768115942028986,
+        "pelvis_x_m": {
+          "n": 411,
+          "min": 0.31444217330889596,
+          "median": 8.073391886146108,
+          "p10": 1.435314791833127,
+          "p90": 14.049049890080722,
+          "max": 14.806692210065815
+        },
+        "pelvis_y_m": {
+          "n": 411,
+          "min": -0.16005018467757492,
+          "median": 0.006043673245884396,
+          "p10": -0.08448542851400231,
+          "p90": 0.10337718150743047,
+          "max": 0.20913054966503974
+        },
+        "floor_note": "Frozen recording002 floor candidate, not surveyed ground truth. Never refitted per model."
+      },
+      "body_dir": "recording_002\\approach\\accurate_gen1"
+    },
+    {
+      "recording": "002",
+      "scope": "approach",
+      "label": "fast_gen1",
+      "status": "completed",
+      "metrics": {
+        "sdk_version_field": "5.5.1",
+        "pyzed_version": "5.5",
+        "model": "HUMAN_BODY_FAST",
+        "generation_requested": "GEN_1",
+        "generation_effective": "GEN_1",
+        "generation_verified": true,
+        "frames": 414,
+        "window_s": [
+          7.199002,
+          20.999397
+        ],
+        "sdk_OK_any_frames": 222,
+        "sdk_OK_any_fraction": 0.5362318840579711,
+        "sdk_OK_ids": {
+          "0": 222
+        },
+        "dominant_id": "0",
+        "dominant_OK_frames": 222,
+        "dominant_OK_fraction": 0.5362318840579711,
+        "multiple_OK_ID_frames": 0,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 192,
+        "latency": {
+          "n": 384,
+          "median": 47.327100000075006,
+          "p90": 55.224870000029114
+        },
+        "model_enable_seconds": 29.43180379999967,
+        "processing_wall_s": 23.59156660000008,
+        "depth_precision": "DEPTH_PRECISION.FP16",
+        "positional_mode": "GEN 3",
+        "prediction_timeout_s": 0.20000000298023224,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 6.433569,
+        "max_no_OK_gap_s": 6.433569,
+        "both_legs_conf25_inside_frames": 137,
+        "both_legs_conf25_inside_fraction": 0.3309178743961353,
+        "reference_rows": 60,
+        "reference_segment_m": {
+          "torso": 0.49834990581594996,
+          "left_thigh": 0.4220002844437227,
+          "left_shin": 0.37511138019168067,
+          "right_thigh": 0.42200026846143446,
+          "right_shin": 0.37511144831204435
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 222,
+            "min": 0.3311249135417629,
+            "median": 0.5160038386918482,
+            "p10": 0.4960759315670585,
+            "p90": 0.5849971071345293,
+            "max": 0.5949308550448063
+          },
+          "left_thigh": {
+            "n": 222,
+            "min": 0.34554150604789524,
+            "median": 0.4227382770217959,
+            "p10": 0.3642162652642778,
+            "p90": 0.6097854656245371,
+            "max": 0.6598574523886555
+          },
+          "left_shin": {
+            "n": 222,
+            "min": 0.307148080683308,
+            "median": 0.3757673279942764,
+            "p10": 0.32374775313773757,
+            "p90": 0.5420314774959318,
+            "max": 0.5865400505885707
+          },
+          "right_thigh": {
+            "n": 222,
+            "min": 0.34554150667312217,
+            "median": 0.42273826218109334,
+            "p10": 0.3642162498835366,
+            "p90": 0.609785497683369,
+            "max": 0.6598575025712377
+          },
+          "right_shin": {
+            "n": 222,
+            "min": 0.3071480580634245,
+            "median": 0.3757674018921541,
+            "p10": 0.3237478057235994,
+            "p90": 0.5420315306888843,
+            "max": 0.5865400402390291
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 222,
+            "min": 0.6644426128657754,
+            "median": 1.0354247741794862,
+            "p10": 0.9954369927186636,
+            "p90": 1.173868200449866,
+            "max": 1.193801479847225
+          },
+          "left_thigh": {
+            "n": 222,
+            "min": 0.8188181827966899,
+            "median": 1.0017487963996186,
+            "p10": 0.8630711368936272,
+            "p90": 1.44498828105851,
+            "max": 1.5636421981527195
+          },
+          "left_shin": {
+            "n": 222,
+            "min": 0.818818348103319,
+            "median": 1.0017486747596422,
+            "p10": 0.8630709976655562,
+            "p90": 1.444988091854093,
+            "max": 1.5636423781353974
+          },
+          "right_thigh": {
+            "n": 222,
+            "min": 0.8188182152891221,
+            "median": 1.0017487991710277,
+            "p10": 0.8630711331332279,
+            "p90": 1.4449884117528606,
+            "max": 1.5636423762880625
+          },
+          "right_shin": {
+            "n": 222,
+            "min": 0.8188181391038668,
+            "median": 1.0017486898442087,
+            "p10": 0.863070981118878,
+            "p90": 1.4449879712495044,
+            "max": 1.5636420665868438
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.3867542437778404,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "heel_z_m": {
+          "n": 301,
+          "min": -0.5002730512101199,
+          "median": -0.030255240592346633,
+          "p10": -0.2882834580057587,
+          "p90": 0.11775264897701243,
+          "max": 0.19365456075972132
+        },
+        "supported_heel_below_minus10cm_frames": 31,
+        "supported_heel_below_minus10cm_fraction": 0.0748792270531401,
+        "pelvis_x_m": {
+          "n": 222,
+          "min": 0.34756437063421913,
+          "median": 3.989848029431797,
+          "p10": 0.8311517091085742,
+          "p90": 7.557430635629106,
+          "max": 7.9760069147798855
+        },
+        "pelvis_y_m": {
+          "n": 222,
+          "min": -0.22715373619648294,
+          "median": -0.010281897039231436,
+          "p10": -0.08953660282947797,
+          "p90": 0.09857255087641532,
+          "max": 0.12018303834468136
+        },
+        "floor_note": "Frozen recording002 floor candidate, not surveyed ground truth. Never refitted per model."
+      },
+      "body_dir": "recording_002\\approach\\fast_gen1"
+    },
+    {
+      "recording": "003",
+      "scope": "full",
+      "label": "medium_gen2",
+      "status": "completed",
+      "metrics": {
+        "sdk_version_field": "5.5.1",
+        "pyzed_version": "5.5",
+        "model": "HUMAN_BODY_MEDIUM",
+        "generation_requested": "GEN_2",
+        "generation_effective": "GEN_2",
+        "generation_verified": true,
+        "frames": 763,
+        "window_s": [
+          0.0,
+          25.467012
+        ],
+        "sdk_OK_any_frames": 606,
+        "sdk_OK_any_fraction": 0.7942332896461337,
+        "sdk_OK_ids": {
+          "0": 286,
+          "2": 323
+        },
+        "dominant_id": "2",
+        "dominant_OK_frames": 323,
+        "dominant_OK_fraction": 0.4233289646133683,
+        "multiple_OK_ID_frames": 3,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 157,
+        "latency": {
+          "n": 733,
+          "median": 55.127900000115915,
+          "p90": 58.267419999810954
+        },
+        "model_enable_seconds": 0.8179615999997623,
+        "processing_wall_s": 49.43016190000026,
+        "depth_precision": "DEPTH_PRECISION.FP16",
+        "positional_mode": "GEN 3",
+        "prediction_timeout_s": 0.20000000298023224,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 5.266375,
+        "max_no_OK_gap_s": 5.266375,
+        "both_legs_conf25_inside_frames": 200,
+        "both_legs_conf25_inside_fraction": 0.2621231979030144,
+        "reference_rows": 45,
+        "reference_segment_m": {
+          "torso": 0.5501903836927154,
+          "left_thigh": 0.424782559412584,
+          "left_shin": 0.37758452147498367,
+          "right_thigh": 0.4247825035559024,
+          "right_shin": 0.37758440383156394
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 323,
+            "min": 0.21096473257643014,
+            "median": 0.5326088673701342,
+            "p10": 0.2225647848119618,
+            "p90": 0.5786974898056595,
+            "max": 0.5967330106376653
+          },
+          "left_thigh": {
+            "n": 323,
+            "min": 0.16827203096663162,
+            "median": 0.3990583852405408,
+            "p10": 0.20786769575523364,
+            "p90": 0.46049769862807843,
+            "max": 0.4663464027768146
+          },
+          "left_shin": {
+            "n": 323,
+            "min": 0.14957515496532595,
+            "median": 0.3547184311685508,
+            "p10": 0.18477131669778712,
+            "p90": 0.4093313724002605,
+            "max": 0.4145302973337018
+          },
+          "right_thigh": {
+            "n": 323,
+            "min": 0.16827203361898158,
+            "median": 0.3990582383084916,
+            "p10": 0.20786769463997942,
+            "p90": 0.46049782024300123,
+            "max": 0.4663463443266162
+          },
+          "right_shin": {
+            "n": 323,
+            "min": 0.14957510973939803,
+            "median": 0.35471838918302295,
+            "p10": 0.18477126109255454,
+            "p90": 0.40933137138522047,
+            "max": 0.4145300755086176
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 323,
+            "min": 0.3834395126292414,
+            "median": 0.9680446680936529,
+            "p10": 0.4045232185233276,
+            "p90": 1.0518131667834918,
+            "max": 1.084593675797402
+          },
+          "left_thigh": {
+            "n": 323,
+            "min": 0.39613686399773274,
+            "median": 0.9394415481473246,
+            "p10": 0.4893508246729483,
+            "p90": 1.084078638409457,
+            "max": 1.0978473396405626
+          },
+          "left_shin": {
+            "n": 323,
+            "min": 0.3961368818325246,
+            "median": 0.9394411343528872,
+            "p10": 0.4893508769268469,
+            "p90": 1.0840787932759055,
+            "max": 1.0978476970252762
+          },
+          "right_thigh": {
+            "n": 323,
+            "min": 0.39613692233168113,
+            "median": 0.9394413257794987,
+            "p10": 0.48935088639455593,
+            "p90": 1.0840790672594136,
+            "max": 1.09784734640146
+          },
+          "right_shin": {
+            "n": 323,
+            "min": 0.39613688547931064,
+            "median": 0.9394413158581061,
+            "p10": 0.48935088212748024,
+            "p90": 1.0840791283525006,
+            "max": 1.0978474515953118
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.5577593889437786,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "floor_note": "No validated current-recording ZED floor transform provided; floor metrics unavailable."
+      },
+      "body_dir": "recording_003\\full\\medium_gen2"
+    },
+    {
+      "recording": "003",
+      "scope": "full",
+      "label": "accurate_gen2",
+      "status": "completed",
+      "metrics": {
+        "sdk_version_field": "5.5.1",
+        "pyzed_version": "5.5",
+        "model": "HUMAN_BODY_ACCURATE",
+        "generation_requested": "GEN_2",
+        "generation_effective": "GEN_2",
+        "generation_verified": true,
+        "frames": 763,
+        "window_s": [
+          0.0,
+          25.467012
+        ],
+        "sdk_OK_any_frames": 725,
+        "sdk_OK_any_fraction": 0.9501965923984272,
+        "sdk_OK_ids": {
+          "0": 725
+        },
+        "dominant_id": "0",
+        "dominant_OK_frames": 725,
+        "dominant_OK_fraction": 0.9501965923984272,
+        "multiple_OK_ID_frames": 0,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 38,
+        "latency": {
+          "n": 733,
+          "median": 71.89419999986058,
+          "p90": 74.32173999995939
+        },
+        "model_enable_seconds": 1.2307517000003827,
+        "processing_wall_s": 64.17713739999999,
+        "depth_precision": "DEPTH_PRECISION.FP16",
+        "positional_mode": "GEN 3",
+        "prediction_timeout_s": 0.20000000298023224,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 1.132844,
+        "max_no_OK_gap_s": 1.132844,
+        "both_legs_conf25_inside_frames": 445,
+        "both_legs_conf25_inside_fraction": 0.583224115334207,
+        "reference_rows": 45,
+        "reference_segment_m": {
+          "torso": 0.5313563743557503,
+          "left_thigh": 0.38500871048349083,
+          "left_shin": 0.3422299947795593,
+          "right_thigh": 0.38500871491731214,
+          "right_shin": 0.34222994012877295
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 725,
+            "min": 0.17747098886643461,
+            "median": 0.5085300023676974,
+            "p10": 0.2070148478524422,
+            "p90": 0.5461304712155088,
+            "max": 0.5759551467103561
+          },
+          "left_thigh": {
+            "n": 725,
+            "min": 0.1622260172204855,
+            "median": 0.3844722807070252,
+            "p10": 0.19763296958760332,
+            "p90": 0.6465627761223703,
+            "max": 0.6647771920082367
+          },
+          "left_shin": {
+            "n": 725,
+            "min": 0.1442009044119437,
+            "median": 0.3417531319340408,
+            "p10": 0.17567375611226901,
+            "p90": 0.5747224369976803,
+            "max": 0.5909128858941236
+          },
+          "right_thigh": {
+            "n": 725,
+            "min": 0.16222604568049212,
+            "median": 0.38447223308278716,
+            "p10": 0.19763297546431832,
+            "p90": 0.6465626622286433,
+            "max": 0.6647772289409769
+          },
+          "right_shin": {
+            "n": 725,
+            "min": 0.14420089871692016,
+            "median": 0.3417531761444087,
+            "p10": 0.1756737956426041,
+            "p90": 0.5747224283652216,
+            "max": 0.5909127407513212
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 725,
+            "min": 0.3339961604518465,
+            "median": 0.9570413133450614,
+            "p10": 0.3895969971254037,
+            "p90": 1.0278044972692226,
+            "max": 1.0839338239024234
+          },
+          "left_thigh": {
+            "n": 725,
+            "min": 0.42135674545327395,
+            "median": 0.9986067074280164,
+            "p10": 0.5133207748453729,
+            "p90": 1.6793458395017142,
+            "max": 1.7266549402828182
+          },
+          "left_shin": {
+            "n": 725,
+            "min": 0.42135670926456303,
+            "median": 0.9986066012541488,
+            "p10": 0.5133207456740483,
+            "p90": 1.679345603145851,
+            "max": 1.726654281939105
+          },
+          "right_thigh": {
+            "n": 725,
+            "min": 0.4213568145212848,
+            "median": 0.9986065722313839,
+            "p10": 0.5133207841977389,
+            "p90": 1.6793455243409354,
+            "max": 1.7266550163254104
+          },
+          "right_shin": {
+            "n": 725,
+            "min": 0.42135675991019605,
+            "median": 0.998606889905118,
+            "p10": 0.5133209431544833,
+            "p90": 1.6793458460968296,
+            "max": 1.7266541335599535
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.6214301324564584,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "floor_note": "No validated current-recording ZED floor transform provided; floor metrics unavailable."
+      },
+      "body_dir": "recording_003\\full\\accurate_gen2"
+    },
+    {
+      "recording": "003",
+      "scope": "full",
+      "label": "medium_gen1",
+      "status": "completed",
+      "metrics": {
+        "sdk_version_field": "5.5.1",
+        "pyzed_version": "5.5",
+        "model": "HUMAN_BODY_MEDIUM",
+        "generation_requested": "GEN_1",
+        "generation_effective": "GEN_1",
+        "generation_verified": true,
+        "frames": 763,
+        "window_s": [
+          0.0,
+          25.467012
+        ],
+        "sdk_OK_any_frames": 525,
+        "sdk_OK_any_fraction": 0.6880733944954128,
+        "sdk_OK_ids": {
+          "0": 525
+        },
+        "dominant_id": "0",
+        "dominant_OK_frames": 525,
+        "dominant_OK_fraction": 0.6880733944954128,
+        "multiple_OK_ID_frames": 0,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 238,
+        "latency": {
+          "n": 733,
+          "median": 54.92779999985942,
+          "p90": 58.111980000012416
+        },
+        "model_enable_seconds": 0.6335169999997561,
+        "processing_wall_s": 48.22195220000003,
+        "depth_precision": "DEPTH_PRECISION.FP16",
+        "positional_mode": "GEN 3",
+        "prediction_timeout_s": 0.20000000298023224,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 5.599495,
+        "max_no_OK_gap_s": 5.599495,
+        "both_legs_conf25_inside_frames": 300,
+        "both_legs_conf25_inside_fraction": 0.3931847968545216,
+        "reference_rows": 45,
+        "reference_segment_m": {
+          "torso": 0.5462427193985202,
+          "left_thigh": 0.3877492565176047,
+          "left_shin": 0.34466611217643944,
+          "right_thigh": 0.3877493122912031,
+          "right_shin": 0.34466610316289475
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 525,
+            "min": 0.44456270055723107,
+            "median": 0.511274593900366,
+            "p10": 0.47483969742328497,
+            "p90": 0.5493280152830031,
+            "max": 0.6644602772142685
+          },
+          "left_thigh": {
+            "n": 525,
+            "min": 0.34363927505333125,
+            "median": 0.3961374654903685,
+            "p10": 0.37208695463609703,
+            "p90": 0.4891621301539023,
+            "max": 0.6266073574546929
+          },
+          "left_shin": {
+            "n": 525,
+            "min": 0.30545715588073025,
+            "median": 0.35212215975892924,
+            "p10": 0.3307439924856425,
+            "p90": 0.43481064450989265,
+            "max": 0.5569843426620706
+          },
+          "right_thigh": {
+            "n": 525,
+            "min": 0.34363926188232463,
+            "median": 0.39613742577960126,
+            "p10": 0.3720869594580798,
+            "p90": 0.4891620622388226,
+            "max": 0.6266073872591267
+          },
+          "right_shin": {
+            "n": 525,
+            "min": 0.3054572546131471,
+            "median": 0.35212218460033967,
+            "p10": 0.3307439450761856,
+            "p90": 0.43481068054108096,
+            "max": 0.5569844233348229
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 525,
+            "min": 0.8138556080834336,
+            "median": 0.9359842717232765,
+            "p10": 0.869283343393833,
+            "p90": 1.0056482142002372,
+            "max": 1.2164194663242747
+          },
+          "left_thigh": {
+            "n": 525,
+            "min": 0.8862409644303966,
+            "median": 1.021633075581108,
+            "p10": 0.959607138844903,
+            "p90": 1.2615424064177236,
+            "max": 1.6160117573977693
+          },
+          "left_shin": {
+            "n": 525,
+            "min": 0.8862407561679937,
+            "median": 1.0216326680200951,
+            "p10": 0.9596069378480993,
+            "p90": 1.2615416170862395,
+            "max": 1.6160113309223232
+          },
+          "right_thigh": {
+            "n": 525,
+            "min": 0.8862408029862567,
+            "median": 1.0216328262165908,
+            "p10": 0.9596070132514878,
+            "p90": 1.2615420498062873,
+            "max": 1.616011601816947
+          },
+          "right_shin": {
+            "n": 525,
+            "min": 0.8862410658026997,
+            "median": 1.0216327668111913,
+            "p10": 0.9596068253914446,
+            "p90": 1.2615417546168803,
+            "max": 1.6160116072440784
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.2466058676075728,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "floor_note": "No validated current-recording ZED floor transform provided; floor metrics unavailable."
+      },
+      "body_dir": "recording_003\\full\\medium_gen1"
+    },
+    {
+      "recording": "003",
+      "scope": "full",
+      "label": "accurate_gen1",
+      "status": "completed",
+      "metrics": {
+        "sdk_version_field": "5.5.1",
+        "pyzed_version": "5.5",
+        "model": "HUMAN_BODY_ACCURATE",
+        "generation_requested": "GEN_1",
+        "generation_effective": "GEN_1",
+        "generation_verified": true,
+        "frames": 763,
+        "window_s": [
+          0.0,
+          25.467012
+        ],
+        "sdk_OK_any_frames": 531,
+        "sdk_OK_any_fraction": 0.6959370904325033,
+        "sdk_OK_ids": {
+          "0": 531
+        },
+        "dominant_id": "0",
+        "dominant_OK_frames": 531,
+        "dominant_OK_fraction": 0.6959370904325033,
+        "multiple_OK_ID_frames": 0,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 232,
+        "latency": {
+          "n": 733,
+          "median": 67.0828000002075,
+          "p90": 73.081319999892
+        },
+        "model_enable_seconds": 0.6493490000002566,
+        "processing_wall_s": 58.48111169999993,
+        "depth_precision": "DEPTH_PRECISION.FP16",
+        "positional_mode": "GEN 3",
+        "prediction_timeout_s": 0.20000000298023224,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 5.466364,
+        "max_no_OK_gap_s": 5.466364,
+        "both_legs_conf25_inside_frames": 348,
+        "both_legs_conf25_inside_fraction": 0.45609436435124506,
+        "reference_rows": 45,
+        "reference_segment_m": {
+          "torso": 0.5481603798499595,
+          "left_thigh": 0.3845565431964206,
+          "left_shin": 0.34182799649963946,
+          "right_thigh": 0.38455661864340446,
+          "right_shin": 0.3418281017306399
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 531,
+            "min": 0.4292719001835403,
+            "median": 0.5081478284614863,
+            "p10": 0.4810757965515316,
+            "p90": 0.5467979561383877,
+            "max": 0.567931751398768
+          },
+          "left_thigh": {
+            "n": 531,
+            "min": 0.33061512169449914,
+            "median": 0.3685989393326155,
+            "p10": 0.35683558424601997,
+            "p90": 0.44908712512068905,
+            "max": 0.46284474182417373
+          },
+          "left_shin": {
+            "n": 531,
+            "min": 0.2938801585182325,
+            "median": 0.32764359108295904,
+            "p10": 0.31718724593219494,
+            "p90": 0.39918860377342563,
+            "max": 0.41141755436346783
+          },
+          "right_thigh": {
+            "n": 531,
+            "min": 0.33061509228403196,
+            "median": 0.368599013484404,
+            "p10": 0.35683561753472226,
+            "p90": 0.44908714580953,
+            "max": 0.462844676851632
+          },
+          "right_shin": {
+            "n": 531,
+            "min": 0.29388007909327096,
+            "median": 0.3276436237934315,
+            "p10": 0.317187242635715,
+            "p90": 0.39918857392100243,
+            "max": 0.4114175247203013
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 531,
+            "min": 0.7831136943918476,
+            "median": 0.9270057580603961,
+            "p10": 0.8776186937903282,
+            "p90": 0.9975145527446826,
+            "max": 1.0360685891859245
+          },
+          "left_thigh": {
+            "n": 531,
+            "min": 0.8597308446410449,
+            "median": 0.9585038815588313,
+            "p10": 0.9279144785315965,
+            "p90": 1.1678051851306248,
+            "max": 1.2035804617365873
+          },
+          "left_shin": {
+            "n": 531,
+            "min": 0.8597310972992304,
+            "median": 0.9585042607336717,
+            "p10": 0.9279147676030962,
+            "p90": 1.1678054690112156,
+            "max": 1.2035806270300677
+          },
+          "right_thigh": {
+            "n": 531,
+            "min": 0.8597305994897153,
+            "median": 0.9585038863320208,
+            "p10": 0.9279143830459264,
+            "p90": 1.1678050098156394,
+            "max": 1.203580056649144
+          },
+          "right_shin": {
+            "n": 531,
+            "min": 0.8597306002794589,
+            "median": 0.9585040613530782,
+            "p10": 0.927914472302977,
+            "p90": 1.1678050221732867,
+            "max": 1.2035801697910073
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.16445446176035108,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "floor_note": "No validated current-recording ZED floor transform provided; floor metrics unavailable."
+      },
+      "body_dir": "recording_003\\full\\accurate_gen1"
+    },
+    {
+      "recording": "003",
+      "scope": "full",
+      "label": "fast_gen1",
+      "status": "completed",
+      "metrics": {
+        "sdk_version_field": "5.5.1",
+        "pyzed_version": "5.5",
+        "model": "HUMAN_BODY_FAST",
+        "generation_requested": "GEN_1",
+        "generation_effective": "GEN_1",
+        "generation_verified": true,
+        "frames": 763,
+        "window_s": [
+          0.0,
+          25.467012
+        ],
+        "sdk_OK_any_frames": 461,
+        "sdk_OK_any_fraction": 0.6041939711664482,
+        "sdk_OK_ids": {
+          "0": 461
+        },
+        "dominant_id": "0",
+        "dominant_OK_frames": 461,
+        "dominant_OK_fraction": 0.6041939711664482,
+        "multiple_OK_ID_frames": 0,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 302,
+        "latency": {
+          "n": 733,
+          "median": 46.88129999976809,
+          "p90": 55.42761999995492
+        },
+        "model_enable_seconds": 0.6499373000001469,
+        "processing_wall_s": 43.9541635999999,
+        "depth_precision": "DEPTH_PRECISION.FP16",
+        "positional_mode": "GEN 3",
+        "prediction_timeout_s": 0.20000000298023224,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 5.599495,
+        "max_no_OK_gap_s": 5.599495,
+        "both_legs_conf25_inside_frames": 209,
+        "both_legs_conf25_inside_fraction": 0.27391874180865006,
+        "reference_rows": 45,
+        "reference_segment_m": {
+          "torso": 0.5591379738328683,
+          "left_thigh": 0.4074542741648045,
+          "left_shin": 0.3621816340686703,
+          "right_thigh": 0.40745434615403525,
+          "right_shin": 0.36218162195361114
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 461,
+            "min": 0.45846289796014145,
+            "median": 0.5343478483850241,
+            "p10": 0.47956196133282425,
+            "p90": 0.5784166061177334,
+            "max": 0.6221619016772405
+          },
+          "left_thigh": {
+            "n": 461,
+            "min": 0.3349615385857925,
+            "median": 0.43066899008563525,
+            "p10": 0.37282264168157375,
+            "p90": 0.5434122132382666,
+            "max": 0.6695188202774874
+          },
+          "left_shin": {
+            "n": 461,
+            "min": 0.29774364113394836,
+            "median": 0.3828168545771193,
+            "p10": 0.33139799458038394,
+            "p90": 0.48303302212138305,
+            "max": 0.5951278295923222
+          },
+          "right_thigh": {
+            "n": 461,
+            "min": 0.33496152715354394,
+            "median": 0.4306689472869603,
+            "p10": 0.3728227416158009,
+            "p90": 0.5434121284005109,
+            "max": 0.6695187525273743
+          },
+          "right_shin": {
+            "n": 461,
+            "min": 0.2977435270483055,
+            "median": 0.3828168199677529,
+            "p10": 0.3313979846938864,
+            "p90": 0.48303305587738604,
+            "max": 0.5951279486064021
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 461,
+            "min": 0.8199459157055577,
+            "median": 0.9556636704927964,
+            "p10": 0.8576809012728044,
+            "p90": 1.0344792040374413,
+            "max": 1.112716236052339
+          },
+          "left_thigh": {
+            "n": 461,
+            "min": 0.8220837522747629,
+            "median": 1.0569750212300901,
+            "p10": 0.9150048614553907,
+            "p90": 1.3336765563501505,
+            "max": 1.64317535176152
+          },
+          "left_shin": {
+            "n": 461,
+            "min": 0.8220837644061643,
+            "median": 1.0569747843827346,
+            "p10": 0.9150049682462646,
+            "p90": 1.3336761908523476,
+            "max": 1.6431750635911175
+          },
+          "right_thigh": {
+            "n": 461,
+            "min": 0.8220835789708673,
+            "median": 1.0569747294440417,
+            "p10": 0.915004945056735,
+            "p90": 1.3336761125013936,
+            "max": 1.6431748951679297
+          },
+          "right_shin": {
+            "n": 461,
+            "min": 0.8220834769093861,
+            "median": 1.0569747241807448,
+            "p10": 0.9150049715563217,
+            "p90": 1.3336763286659912,
+            "max": 1.6431754471590143
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.293794979003881,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "floor_note": "No validated current-recording ZED floor transform provided; floor metrics unavailable."
+      },
+      "body_dir": "recording_003\\full\\fast_gen1"
+    },
+    {
+      "recording": "003",
+      "scope": "approach",
+      "label": "medium_gen2",
+      "status": "completed",
+      "metrics": {
+        "sdk_version_field": "5.5.1",
+        "pyzed_version": "5.5",
+        "model": "HUMAN_BODY_MEDIUM",
+        "generation_requested": "GEN_2",
+        "generation_effective": "GEN_2",
+        "generation_verified": true,
+        "frames": 249,
+        "window_s": [
+          14.933402,
+          23.200451
+        ],
+        "sdk_OK_any_frames": 245,
+        "sdk_OK_any_fraction": 0.9839357429718876,
+        "sdk_OK_ids": {
+          "0": 245
+        },
+        "dominant_id": "0",
+        "dominant_OK_frames": 245,
+        "dominant_OK_fraction": 0.9839357429718876,
+        "multiple_OK_ID_frames": 0,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 4,
+        "latency": {
+          "n": 219,
+          "median": 55.581399999937275,
+          "p90": 58.10939999992115
+        },
+        "model_enable_seconds": 0.7429893999997148,
+        "processing_wall_s": 16.64085299999988,
+        "depth_precision": "DEPTH_PRECISION.FP16",
+        "positional_mode": "GEN 3",
+        "prediction_timeout_s": 0.20000000298023224,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 0.133406,
+        "max_no_OK_gap_s": 0.1334060000000008,
+        "both_legs_conf25_inside_frames": 191,
+        "both_legs_conf25_inside_fraction": 0.7670682730923695,
+        "reference_rows": 45,
+        "reference_segment_m": {
+          "torso": 0.5527926382666956,
+          "left_thigh": 0.37271421813219224,
+          "left_shin": 0.3313015678069397,
+          "right_thigh": 0.37271420729940713,
+          "right_shin": 0.3313015264447094
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 245,
+            "min": 0.24381360639032473,
+            "median": 0.5393658644609265,
+            "p10": 0.5049550368690907,
+            "p90": 0.5541687631376042,
+            "max": 0.5561822982328113
+          },
+          "left_thigh": {
+            "n": 245,
+            "min": 0.18002387603052314,
+            "median": 0.37472088072049764,
+            "p10": 0.28338462844031076,
+            "p90": 0.38814948932561716,
+            "max": 0.40849389704805955
+          },
+          "left_shin": {
+            "n": 245,
+            "min": 0.16002122837035357,
+            "median": 0.33308524576052206,
+            "p10": 0.2518974467721103,
+            "p90": 0.3450213653758671,
+            "max": 0.36310545730860805
+          },
+          "right_thigh": {
+            "n": 245,
+            "min": 0.1800239144751691,
+            "median": 0.374720778475589,
+            "p10": 0.283384602442667,
+            "p90": 0.38814912204020113,
+            "max": 0.4084938132575646
+          },
+          "right_shin": {
+            "n": 245,
+            "min": 0.16002122133851202,
+            "median": 0.3330851562754957,
+            "p10": 0.25189746829545245,
+            "p90": 0.3450214993067479,
+            "max": 0.3631054073402176
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 245,
+            "min": 0.44105798361355264,
+            "median": 0.9757110119124066,
+            "p10": 0.9134619419903969,
+            "p90": 1.0024894052048587,
+            "max": 1.00613188333467
+          },
+          "left_thigh": {
+            "n": 245,
+            "min": 0.4830078040292878,
+            "median": 1.0053839174645967,
+            "p10": 0.7603268527303711,
+            "p90": 1.0414131536778413,
+            "max": 1.0959976227769694
+          },
+          "left_shin": {
+            "n": 245,
+            "min": 0.4830077606623437,
+            "median": 1.0053838500233774,
+            "p10": 0.7603267573997694,
+            "p90": 1.0414118099704328,
+            "max": 1.0959967974561518
+          },
+          "right_thigh": {
+            "n": 245,
+            "min": 0.48300792121549874,
+            "median": 1.005383672360442,
+            "p10": 0.7603268050767373,
+            "p90": 1.0414121985116465,
+            "max": 1.0959974298200421
+          },
+          "right_shin": {
+            "n": 245,
+            "min": 0.4830077997398476,
+            "median": 1.0053837054417676,
+            "p10": 0.7603269172908305,
+            "p90": 1.0414123442450491,
+            "max": 1.0959967834643103
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.23575713154134556,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "floor_note": "No validated current-recording ZED floor transform provided; floor metrics unavailable."
+      },
+      "body_dir": "recording_003\\approach\\medium_gen2"
+    },
+    {
+      "recording": "003",
+      "scope": "approach",
+      "label": "accurate_gen2",
+      "status": "completed",
+      "metrics": {
+        "sdk_version_field": "5.5.1",
+        "pyzed_version": "5.5",
+        "model": "HUMAN_BODY_ACCURATE",
+        "generation_requested": "GEN_2",
+        "generation_effective": "GEN_2",
+        "generation_verified": true,
+        "frames": 249,
+        "window_s": [
+          14.933402,
+          23.200451
+        ],
+        "sdk_OK_any_frames": 245,
+        "sdk_OK_any_fraction": 0.9839357429718876,
+        "sdk_OK_ids": {
+          "0": 245
+        },
+        "dominant_id": "0",
+        "dominant_OK_frames": 245,
+        "dominant_OK_fraction": 0.9839357429718876,
+        "multiple_OK_ID_frames": 0,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 4,
+        "latency": {
+          "n": 219,
+          "median": 72.06550000000789,
+          "p90": 74.43109999994704
+        },
+        "model_enable_seconds": 1.23474860000033,
+        "processing_wall_s": 20.981103000000076,
+        "depth_precision": "DEPTH_PRECISION.FP16",
+        "positional_mode": "GEN 3",
+        "prediction_timeout_s": 0.20000000298023224,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 0.133406,
+        "max_no_OK_gap_s": 0.1334060000000008,
+        "both_legs_conf25_inside_frames": 191,
+        "both_legs_conf25_inside_fraction": 0.7670682730923695,
+        "reference_rows": 45,
+        "reference_segment_m": {
+          "torso": 0.5313271942155564,
+          "left_thigh": 0.3817007402804683,
+          "left_shin": 0.3392895435433365,
+          "right_thigh": 0.3817007019985103,
+          "right_shin": 0.3392895898768542
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 245,
+            "min": 0.3687206424114514,
+            "median": 0.5106641596553967,
+            "p10": 0.47988855188945967,
+            "p90": 0.5323466028647037,
+            "max": 0.5344135656894913
+          },
+          "left_thigh": {
+            "n": 245,
+            "min": 0.23686856839168277,
+            "median": 0.3794977266397241,
+            "p10": 0.252131753620073,
+            "p90": 0.38540256322659766,
+            "max": 0.38856223428156217
+          },
+          "left_shin": {
+            "n": 245,
+            "min": 0.21054978680254355,
+            "median": 0.33733136797758273,
+            "p10": 0.2241170951938143,
+            "p90": 0.3425800415479102,
+            "max": 0.3453886427008072
+          },
+          "right_thigh": {
+            "n": 245,
+            "min": 0.23686854003851626,
+            "median": 0.3794977945514486,
+            "p10": 0.252131802309835,
+            "p90": 0.3854025327672167,
+            "max": 0.38856218402843584
+          },
+          "right_shin": {
+            "n": 245,
+            "min": 0.2105498359768695,
+            "median": 0.33733146574896555,
+            "p10": 0.22411714419812107,
+            "p90": 0.342580111277958,
+            "max": 0.3453884528960829
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 245,
+            "min": 0.6939615484124149,
+            "median": 0.9611105270253176,
+            "p10": 0.9031883877089333,
+            "p90": 1.0019186080822615,
+            "max": 1.0058087963641529
+          },
+          "left_thigh": {
+            "n": 245,
+            "min": 0.6205609352961566,
+            "median": 0.9942284271203523,
+            "p10": 0.6605482437231066,
+            "p90": 1.0096982336041824,
+            "max": 1.0179761087077068
+          },
+          "left_shin": {
+            "n": 245,
+            "min": 0.620560788887532,
+            "median": 0.994228600311982,
+            "p10": 0.6605481938914761,
+            "p90": 1.0096982004520674,
+            "max": 1.0179760893712648
+          },
+          "right_thigh": {
+            "n": 245,
+            "min": 0.6205609232530065,
+            "median": 0.9942287047534162,
+            "p10": 0.660548437531611,
+            "p90": 1.0096982550708562,
+            "max": 1.0179760791478774
+          },
+          "right_shin": {
+            "n": 245,
+            "min": 0.6205608490767104,
+            "median": 0.9942287527047342,
+            "p10": 0.6605482481188556,
+            "p90": 1.0096982680850837,
+            "max": 1.0179753909379956
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.3218453924564873,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "floor_note": "No validated current-recording ZED floor transform provided; floor metrics unavailable."
+      },
+      "body_dir": "recording_003\\approach\\accurate_gen2"
+    },
+    {
+      "recording": "003",
+      "scope": "approach",
+      "label": "medium_gen1",
+      "status": "completed",
+      "metrics": {
+        "sdk_version_field": "5.5.1",
+        "pyzed_version": "5.5",
+        "model": "HUMAN_BODY_MEDIUM",
+        "generation_requested": "GEN_1",
+        "generation_effective": "GEN_1",
+        "generation_verified": true,
+        "frames": 249,
+        "window_s": [
+          14.933402,
+          23.200451
+        ],
+        "sdk_OK_any_frames": 242,
+        "sdk_OK_any_fraction": 0.9718875502008032,
+        "sdk_OK_ids": {
+          "0": 242
+        },
+        "dominant_id": "0",
+        "dominant_OK_frames": 242,
+        "dominant_OK_fraction": 0.9718875502008032,
+        "multiple_OK_ID_frames": 0,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 7,
+        "latency": {
+          "n": 219,
+          "median": 56.16489999965779,
+          "p90": 58.19197999981043
+        },
+        "model_enable_seconds": 0.6362484000001132,
+        "processing_wall_s": 16.856603500000347,
+        "depth_precision": "DEPTH_PRECISION.FP16",
+        "positional_mode": "GEN 3",
+        "prediction_timeout_s": 0.20000000298023224,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 0.133406,
+        "max_no_OK_gap_s": 0.1334060000000008,
+        "both_legs_conf25_inside_frames": 158,
+        "both_legs_conf25_inside_fraction": 0.6345381526104418,
+        "reference_rows": 45,
+        "reference_segment_m": {
+          "torso": 0.7373146172885329,
+          "left_thigh": 0.3989948454021405,
+          "left_shin": 0.35466215063103496,
+          "right_thigh": 0.3989948806024668,
+          "right_shin": 0.3546621571868167
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 242,
+            "min": 0.4721418402556251,
+            "median": 0.7491965880177462,
+            "p10": 0.5294156185101786,
+            "p90": 0.7755206803606838,
+            "max": 0.7956571877331702
+          },
+          "left_thigh": {
+            "n": 242,
+            "min": 0.28518492673820356,
+            "median": 0.4247526009163792,
+            "p10": 0.33539367447374685,
+            "p90": 0.5726008133355202,
+            "max": 0.5782483529547938
+          },
+          "left_shin": {
+            "n": 242,
+            "min": 0.25349769672571193,
+            "median": 0.3775578196267752,
+            "p10": 0.2981277094734683,
+            "p90": 0.5089784326748221,
+            "max": 0.5139983452490552
+          },
+          "right_thigh": {
+            "n": 242,
+            "min": 0.28518487986362434,
+            "median": 0.4247525935347294,
+            "p10": 0.3353937045112822,
+            "p90": 0.5726008624107047,
+            "max": 0.578248435743055
+          },
+          "right_shin": {
+            "n": 242,
+            "min": 0.25349772894658246,
+            "median": 0.37755784481032373,
+            "p10": 0.29812775239614925,
+            "p90": 0.5089785151313876,
+            "max": 0.5139987075368996
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 242,
+            "min": 0.6403532890639304,
+            "median": 1.0161151975704878,
+            "p10": 0.7180321752701707,
+            "p90": 1.05181785655173,
+            "max": 1.0791284603297187
+          },
+          "left_thigh": {
+            "n": 242,
+            "min": 0.7147584236351983,
+            "median": 1.0645566122245964,
+            "p10": 0.8405965098012956,
+            "p90": 1.4351082975981932,
+            "max": 1.4492627150909347
+          },
+          "left_shin": {
+            "n": 242,
+            "min": 0.7147582460509938,
+            "median": 1.0645562797016908,
+            "p10": 0.8405963504789632,
+            "p90": 1.435107839303458,
+            "max": 1.4492619083669354
+          },
+          "right_thigh": {
+            "n": 242,
+            "min": 0.7147582430957666,
+            "median": 1.0645564998061365,
+            "p10": 0.8405965109247786,
+            "p90": 1.435108293986378,
+            "max": 1.4492627947253915
+          },
+          "right_shin": {
+            "n": 242,
+            "min": 0.7147583236884607,
+            "median": 1.0645563310309614,
+            "p10": 0.8405964559650264,
+            "p90": 1.4351080452693614,
+            "max": 1.4492629030792057
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.4288118674873546,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "floor_note": "No validated current-recording ZED floor transform provided; floor metrics unavailable."
+      },
+      "body_dir": "recording_003\\approach\\medium_gen1"
+    },
+    {
+      "recording": "003",
+      "scope": "approach",
+      "label": "accurate_gen1",
+      "status": "completed",
+      "metrics": {
+        "sdk_version_field": "5.5.1",
+        "pyzed_version": "5.5",
+        "model": "HUMAN_BODY_ACCURATE",
+        "generation_requested": "GEN_1",
+        "generation_effective": "GEN_1",
+        "generation_verified": true,
+        "frames": 249,
+        "window_s": [
+          14.933402,
+          23.200451
+        ],
+        "sdk_OK_any_frames": 243,
+        "sdk_OK_any_fraction": 0.9759036144578314,
+        "sdk_OK_ids": {
+          "0": 243
+        },
+        "dominant_id": "0",
+        "dominant_OK_frames": 243,
+        "dominant_OK_fraction": 0.9759036144578314,
+        "multiple_OK_ID_frames": 0,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 6,
+        "latency": {
+          "n": 219,
+          "median": 69.67029999987062,
+          "p90": 73.29599999993661
+        },
+        "model_enable_seconds": 0.6464766000003692,
+        "processing_wall_s": 20.136550499999885,
+        "depth_precision": "DEPTH_PRECISION.FP16",
+        "positional_mode": "GEN 3",
+        "prediction_timeout_s": 0.20000000298023224,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 0.166492,
+        "max_no_OK_gap_s": 0.16649200000000164,
+        "both_legs_conf25_inside_frames": 173,
+        "both_legs_conf25_inside_fraction": 0.6947791164658634,
+        "reference_rows": 45,
+        "reference_segment_m": {
+          "torso": 0.7565480041288204,
+          "left_thigh": 0.3955830772622839,
+          "left_shin": 0.3516293733449273,
+          "right_thigh": 0.39558310287033077,
+          "right_shin": 0.35162940811657656
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 243,
+            "min": 0.44567162412229405,
+            "median": 0.7877117964422965,
+            "p10": 0.5233636068094952,
+            "p90": 0.9540500029878068,
+            "max": 1.2592085567316118
+          },
+          "left_thigh": {
+            "n": 243,
+            "min": 0.3306469342558813,
+            "median": 0.4095595120247471,
+            "p10": 0.3490519810469259,
+            "p90": 0.7752542474708142,
+            "max": 0.924675643385736
+          },
+          "left_shin": {
+            "n": 243,
+            "min": 0.2939083803583317,
+            "median": 0.3640529432723418,
+            "p10": 0.31026845182643137,
+            "p90": 0.6891153328575378,
+            "max": 0.8219335891811018
+          },
+          "right_thigh": {
+            "n": 243,
+            "min": 0.33064691121418716,
+            "median": 0.4095595947177396,
+            "p10": 0.3490519490163442,
+            "p90": 0.775254507546991,
+            "max": 0.9246758186215385
+          },
+          "right_shin": {
+            "n": 243,
+            "min": 0.29390835980923763,
+            "median": 0.36405295013495215,
+            "p10": 0.31026844305561374,
+            "p90": 0.6891155604105423,
+            "max": 0.8219334464913698
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 243,
+            "min": 0.5890857178791893,
+            "median": 1.0411920884641839,
+            "p10": 0.6917784515368043,
+            "p90": 1.2610567971643964,
+            "max": 1.664413295467767
+          },
+          "left_thigh": {
+            "n": 243,
+            "min": 0.8358470148525896,
+            "median": 1.0353312251352864,
+            "p10": 0.8823733903447379,
+            "p90": 1.9597760673589089,
+            "max": 2.3375005063036283
+          },
+          "left_shin": {
+            "n": 243,
+            "min": 0.8358470669343806,
+            "median": 1.0353314338026811,
+            "p10": 0.8823735311841446,
+            "p90": 1.9597774961239005,
+            "max": 2.337499798046833
+          },
+          "right_thigh": {
+            "n": 243,
+            "min": 0.835846902496669,
+            "median": 1.035331367153946,
+            "p10": 0.8823732522538023,
+            "p90": 1.9597765979430968,
+            "max": 2.3375007979666926
+          },
+          "right_shin": {
+            "n": 243,
+            "min": 0.835846925840166,
+            "median": 1.0353313509382491,
+            "p10": 0.882373418985336,
+            "p90": 1.9597779494657006,
+            "max": 2.3374991611022256
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.8533100072942795,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "floor_note": "No validated current-recording ZED floor transform provided; floor metrics unavailable."
+      },
+      "body_dir": "recording_003\\approach\\accurate_gen1"
+    },
+    {
+      "recording": "003",
+      "scope": "approach",
+      "label": "fast_gen1",
+      "status": "completed",
+      "metrics": {
+        "sdk_version_field": "5.5.1",
+        "pyzed_version": "5.5",
+        "model": "HUMAN_BODY_FAST",
+        "generation_requested": "GEN_1",
+        "generation_effective": "GEN_1",
+        "generation_verified": true,
+        "frames": 249,
+        "window_s": [
+          14.933402,
+          23.200451
+        ],
+        "sdk_OK_any_frames": 228,
+        "sdk_OK_any_fraction": 0.9156626506024096,
+        "sdk_OK_ids": {
+          "0": 228
+        },
+        "dominant_id": "0",
+        "dominant_OK_frames": 228,
+        "dominant_OK_fraction": 0.9156626506024096,
+        "multiple_OK_ID_frames": 0,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 21,
+        "latency": {
+          "n": 219,
+          "median": 42.73569999986648,
+          "p90": 55.35253999987617
+        },
+        "model_enable_seconds": 0.6402256999999736,
+        "processing_wall_s": 14.582628300000124,
+        "depth_precision": "DEPTH_PRECISION.FP16",
+        "positional_mode": "GEN 3",
+        "prediction_timeout_s": 0.20000000298023224,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 0.633374,
+        "max_no_OK_gap_s": 0.6333740000000017,
+        "both_legs_conf25_inside_frames": 123,
+        "both_legs_conf25_inside_fraction": 0.4939759036144578,
+        "reference_rows": 45,
+        "reference_segment_m": {
+          "torso": 0.5605533090905591,
+          "left_thigh": 0.40584009753743044,
+          "left_shin": 0.3607467450499728,
+          "right_thigh": 0.40584007887797985,
+          "right_shin": 0.3607467838048673
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 228,
+            "min": 0.45969592241311147,
+            "median": 0.5493246452719692,
+            "p10": 0.5195257560110572,
+            "p90": 0.5758100728488378,
+            "max": 0.6217694031274102
+          },
+          "left_thigh": {
+            "n": 228,
+            "min": 0.3604059883524517,
+            "median": 0.43308423523309897,
+            "p10": 0.38267614843611625,
+            "p90": 0.5927495904862234,
+            "max": 0.6690702794841721
+          },
+          "left_shin": {
+            "n": 228,
+            "min": 0.32036082621979517,
+            "median": 0.3849637436606057,
+            "p10": 0.3401565711819694,
+            "p90": 0.5268883944023619,
+            "max": 0.5947291117027739
+          },
+          "right_thigh": {
+            "n": 228,
+            "min": 0.360405928865507,
+            "median": 0.4330842460514789,
+            "p10": 0.38267614994513244,
+            "p90": 0.5927494872192905,
+            "max": 0.6690702119252792
+          },
+          "right_shin": {
+            "n": 228,
+            "min": 0.32036087944670766,
+            "median": 0.38496375864157373,
+            "p10": 0.3401565566770369,
+            "p90": 0.5268885443353587,
+            "max": 0.5947291568094539
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 228,
+            "min": 0.8200752987417405,
+            "median": 0.9799686066668534,
+            "p10": 0.9268088290370369,
+            "p90": 1.0272173288621402,
+            "max": 1.1092065518909666
+          },
+          "left_thigh": {
+            "n": 228,
+            "min": 0.8880492354977606,
+            "median": 1.0671302265620901,
+            "p10": 0.942923458667911,
+            "p90": 1.460549595968778,
+            "max": 1.6486056541578276
+          },
+          "left_shin": {
+            "n": 228,
+            "min": 0.8880491109501678,
+            "median": 1.0671301929759012,
+            "p10": 0.9429234659756914,
+            "p90": 1.4605492679618612,
+            "max": 1.6486056211550528
+          },
+          "right_thigh": {
+            "n": 228,
+            "min": 0.8880491297506052,
+            "median": 1.0671303022826644,
+            "p10": 0.9429235057392844,
+            "p90": 1.4605494086686963,
+            "max": 1.6486055634895593
+          },
+          "right_shin": {
+            "n": 228,
+            "min": 0.8880491630938423,
+            "median": 1.0671301198621517,
+            "p10": 0.9429233244696981,
+            "p90": 1.4605495266739776,
+            "max": 1.6486055690829133
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.3504981591062233,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "floor_note": "No validated current-recording ZED floor transform provided; floor metrics unavailable."
+      },
+      "body_dir": "recording_003\\approach\\fast_gen1"
+    },
+    {
+      "recording": "002",
+      "scope": "approach",
+      "label": "historical_5_4_accurate",
+      "status": "historical",
+      "metrics": {
+        "sdk_version_field": "5.4",
+        "pyzed_version": null,
+        "model": "HUMAN_BODY_ACCURATE",
+        "generation_requested": null,
+        "generation_effective": null,
+        "generation_verified": false,
+        "frames": 414,
+        "window_s": [
+          7.199002,
+          20.999397
+        ],
+        "sdk_OK_any_frames": 411,
+        "sdk_OK_any_fraction": 0.9927536231884058,
+        "sdk_OK_ids": {
+          "0": 411
+        },
+        "dominant_id": "0",
+        "dominant_OK_frames": 411,
+        "dominant_OK_fraction": 0.9927536231884058,
+        "multiple_OK_ID_frames": 0,
+        "single_ID_adjacency_changes": 0,
+        "SDK_OK_no_body_frames": 3,
+        "latency": null,
+        "model_enable_seconds": null,
+        "processing_wall_s": null,
+        "depth_precision": null,
+        "positional_mode": null,
+        "prediction_timeout_s": null,
+        "identity_note": "Dominant ID selected only by observation count; not visually verified person identity. SDK OK can include SDK predictions.",
+        "timestamp_count_verified": true,
+        "first_OK_latency_s": 0.100015,
+        "max_no_OK_gap_s": 0.10001499999999997,
+        "both_legs_conf25_inside_frames": 307,
+        "both_legs_conf25_inside_fraction": 0.7415458937198067,
+        "reference_rows": 60,
+        "reference_segment_m": {
+          "torso": 0.5032673341017277,
+          "left_thigh": 0.3770699011187507,
+          "left_shin": 0.3351732706634064,
+          "right_thigh": 0.3770699276425395,
+          "right_shin": 0.33517323034914337
+        },
+        "segment_lengths_m": {
+          "torso": {
+            "n": 411,
+            "min": 0.472483750441874,
+            "median": 0.4921645268899698,
+            "p10": 0.48394027701576264,
+            "p90": 0.5469529069112706,
+            "max": 0.5558863593377622
+          },
+          "left_thigh": {
+            "n": 411,
+            "min": 0.3206273501752154,
+            "median": 0.40875870954043486,
+            "p10": 0.37130346160958566,
+            "p90": 0.5154355712594819,
+            "max": 0.5693330990805565
+          },
+          "left_shin": {
+            "n": 411,
+            "min": 0.28500209645584385,
+            "median": 0.36334099120228347,
+            "p10": 0.33004751948616406,
+            "p90": 0.45816497763695024,
+            "max": 0.5060739123811971
+          },
+          "right_thigh": {
+            "n": 411,
+            "min": 0.32062731966435437,
+            "median": 0.4087585939936647,
+            "p10": 0.3713035071876632,
+            "p90": 0.5154355539886674,
+            "max": 0.5693331516805236
+          },
+          "right_shin": {
+            "n": 411,
+            "min": 0.28500221564131056,
+            "median": 0.36334133210466824,
+            "p10": 0.3300476010449216,
+            "p90": 0.4581650653370866,
+            "max": 0.506073814929742
+          }
+        },
+        "segment_ratios_to_same_model_near_reference": {
+          "torso": {
+            "n": 411,
+            "min": 0.9388325417249686,
+            "median": 0.9779385498334099,
+            "p10": 0.9615968377513283,
+            "p90": 1.086803910862835,
+            "max": 1.1045548194180994
+          },
+          "left_thigh": {
+            "n": 411,
+            "min": 0.8503127648850448,
+            "median": 1.084039612622659,
+            "p10": 0.984707239978433,
+            "p90": 1.3669496550379812,
+            "max": 1.5098874171376948
+          },
+          "left_shin": {
+            "n": 411,
+            "min": 0.85031272300366,
+            "median": 1.0840392805879921,
+            "p10": 0.9847071600694859,
+            "p90": 1.3669496279643871,
+            "max": 1.5098874423355064
+          },
+          "right_thigh": {
+            "n": 411,
+            "min": 0.8503126241568316,
+            "median": 1.0840392299360608,
+            "p10": 0.9847072915866607,
+            "p90": 1.3669495130815572,
+            "max": 1.5098874504260353
+          },
+          "right_shin": {
+            "n": 411,
+            "min": 0.850313180871961,
+            "median": 1.0840404280681446,
+            "p10": 0.9847075218421157,
+            "p90": 1.366950054035715,
+            "max": 1.5098873331935694
+          }
+        },
+        "segment_ratio_abs_deviation_p90": 0.3488579430123554,
+        "reference_note": "Each model uses its own median within the identical fixed near interval. Relative shape variation only; uniform size bias will not be detected.",
+        "heel_z_m": {
+          "n": 666,
+          "min": -0.27753241291775654,
+          "median": 0.05678728210649209,
+          "p10": -0.17655106728432335,
+          "p90": 0.1294319858294838,
+          "max": 0.2377791802169582
+        },
+        "supported_heel_below_minus10cm_frames": 57,
+        "supported_heel_below_minus10cm_fraction": 0.13768115942028986,
+        "pelvis_x_m": {
+          "n": 411,
+          "min": 0.31444217330889596,
+          "median": 8.073391886146108,
+          "p10": 1.435314791833127,
+          "p90": 14.049049890080722,
+          "max": 14.806692210065815
+        },
+        "pelvis_y_m": {
+          "n": 411,
+          "min": -0.16005018467757492,
+          "median": 0.006043673245884396,
+          "p10": -0.08448542851400231,
+          "p90": 0.10337718150743047,
+          "max": 0.20913054966503974
+        },
+        "floor_note": "Frozen recording002 floor candidate, not surveyed ground truth. Never refitted per model."
+      },
+      "note": "Historical sdk_version field recorded pyzed package version only; runtime SDK patch and generation were not read back. SDK/model changes are confounded."
+    }
+  ],
+  "execution_errors": {},
+  "ranking_status": "pending_visual_person_pole_association",
+  "interpretation": "Compare metrics within each identical recording/window. No absolute accuracy ground truth. Review RGB and ID association before choosing a model."
+}

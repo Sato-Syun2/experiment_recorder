@@ -1,0 +1,23 @@
+
+==================================== ERRORS ====================================
+_______ ERROR collecting calibration_gui/tests/test_calibration_core.py ________
+calibration_gui/tests/test_calibration_core.py:9: in <module>
+    from calibration_gui.calibration_file import load_calibration_yaml, save_calibration_yaml
+calibration_gui/calibration_file.py:11: in <module>
+    from scipy.spatial.transform import Rotation
+/usr/lib/python3/dist-packages/scipy/spatial/__init__.py:110: in <module>
+    from ._kdtree import *
+/usr/lib/python3/dist-packages/scipy/spatial/_kdtree.py:4: in <module>
+    from ._ckdtree import cKDTree, cKDTreeNode
+_ckdtree.pyx:1: in init scipy.spatial._ckdtree
+    ???
+E   ValueError: numpy.dtype size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject
+=============================== warnings summary ===============================
+../../../usr/lib/python3/dist-packages/scipy/__init__.py:132
+  Warning: A NumPy version >=1.21.6 and <1.28.0 is required for this version of SciPy (detected version 2.5.1)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR calibration_gui/tests/test_calibration_core.py - ValueError: numpy.dtyp...
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 warning, 1 error in 0.27s

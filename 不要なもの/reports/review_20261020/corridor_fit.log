@@ -1,0 +1,6 @@
+Read 30 pointcloud2 frames.
+Corridor frame: /home/hp-ubuntu/experiment_recorder/reports/review_20261020/corridor_candidate.json
+  longitudinal (+X): [+0.99831, +0.05807]
+  lateral (+Y): [-0.05807, +0.99831]
+  center origin XY: [0.007877482971842275, -0.13541452692282058]
+  wall gap: 2.380 m

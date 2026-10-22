@@ -15,6 +15,8 @@ class ProgressError(RuntimeError):
 
 
 class RecordingProgress:
+    """計画とグループごとにTake履歴を保持し、再録画・未完了試行を選ぶ。"""
+
     def __init__(self, path: Path, group: str, plan_sha256: str) -> None:
         self.path = Path(path)
         self.group = group
@@ -109,9 +111,7 @@ class RecordingProgress:
                     attempt.pop("details", None)
                 break
         else:
-            raise ProgressError(
-                f"試行{trial_number} Take{take_number}の開始記録がありません"
-            )
+            raise ProgressError(f"試行{trial_number} Take{take_number}の開始記録がありません")
         self.data["attempts"][str(trial_number)] = attempts
         self.save()
 
@@ -147,9 +147,7 @@ class RecordingProgress:
     ) -> int | None:
         available = set(available_trials)
         ordered_rerecords = [
-            trial
-            for trial in self.rerecord_trials()
-            if trial in available and trial != after_trial
+            trial for trial in self.rerecord_trials() if trial in available and trial != after_trial
         ]
         if after_trial is not None:
             ordered_rerecords.sort(key=lambda trial: (trial <= after_trial, trial))
@@ -157,9 +155,7 @@ class RecordingProgress:
             return ordered_rerecords[0]
         completed = self.completed_trials()
         pending = [
-            trial
-            for trial in available_trials
-            if trial not in completed and trial != after_trial
+            trial for trial in available_trials if trial not in completed and trial != after_trial
         ]
         if after_trial is not None:
             pending.sort(key=lambda trial: (trial <= after_trial, trial))

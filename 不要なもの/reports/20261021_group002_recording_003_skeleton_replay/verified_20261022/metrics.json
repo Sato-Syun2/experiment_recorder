@@ -1,0 +1,294 @@
+{
+  "sdk_frames": 899,
+  "expected_frames": 899,
+  "body_rows": 796,
+  "state_counts": {
+    "OK": 757,
+    "SEARCHING": 38,
+    "TERMINATE": 1
+  },
+  "ids": {
+    "0": 796
+  },
+  "duration_s": 30.001342,
+  "timestamp_monotonic": true,
+  "counts_match_frame_ledger": true,
+  "exported_source_hash_checks": [
+    {
+      "file": "camera.json",
+      "matches_recorded_sha256": true
+    },
+    {
+      "file": "frames.csv",
+      "matches_recorded_sha256": true
+    },
+    {
+      "file": "bodies.csv",
+      "matches_recorded_sha256": true
+    }
+  ],
+  "sdk_OK_time_s": [
+    2.366594,
+    28.901105
+  ],
+  "shape_coherent_OK": 365,
+  "shape_inconsistent_OK": 392,
+  "shape_coherent_OK_time_s": [
+    2.366594,
+    14.533691
+  ],
+  "shape_inconsistent_OK_time_s": [
+    15.867302,
+    28.901105
+  ],
+  "joint_confidence": {
+    "PELVIS": {
+      "sdk_OK": {
+        "n": 757,
+        "min": 11.580826759338379,
+        "median": 87.4688720703125,
+        "p10": 51.068748474121094,
+        "p90": 96.89522399902344,
+        "max": 98.77230834960938
+      },
+      "shape_coherent_OK": {
+        "n": 365,
+        "min": 11.580826759338379,
+        "median": 86.78962707519531,
+        "p10": 51.73303985595703,
+        "p90": 95.5854263305664,
+        "max": 98.17945861816406
+      },
+      "shape_inconsistent_OK": {
+        "n": 392,
+        "min": 14.089991569519043,
+        "median": 88.13995742797852,
+        "p10": 51.068748474121094,
+        "p90": 97.81071624755859,
+        "max": 98.77230834960938
+      }
+    },
+    "NECK": {
+      "sdk_OK": {
+        "n": 757,
+        "min": 31.054651260375977,
+        "median": 93.14320373535156,
+        "p10": 67.50433349609375,
+        "p90": 99.3895248413086,
+        "max": 99.74185943603516
+      },
+      "shape_coherent_OK": {
+        "n": 365,
+        "min": 48.424686431884766,
+        "median": 93.79620361328125,
+        "p10": 71.66093444824219,
+        "p90": 99.37520294189453,
+        "max": 99.66215515136719
+      },
+      "shape_inconsistent_OK": {
+        "n": 392,
+        "min": 31.054651260375977,
+        "median": 91.53444290161133,
+        "p10": 62.59304618835449,
+        "p90": 99.3956672668457,
+        "max": 99.74185943603516
+      }
+    },
+    "LEFT_KNEE": {
+      "sdk_OK": {
+        "n": 757,
+        "min": 0.0,
+        "median": 72.25151824951172,
+        "p10": 22.694599533081057,
+        "p90": 90.28002014160157,
+        "max": 99.8828125
+      },
+      "shape_coherent_OK": {
+        "n": 365,
+        "min": 0.0,
+        "median": 72.89640045166016,
+        "p10": 19.716502761840818,
+        "p90": 88.76918182373046,
+        "max": 99.853515625
+      },
+      "shape_inconsistent_OK": {
+        "n": 392,
+        "min": 0.0,
+        "median": 69.12515640258789,
+        "p10": 23.625356674194336,
+        "p90": 91.29393844604492,
+        "max": 99.8828125
+      }
+    },
+    "RIGHT_KNEE": {
+      "sdk_OK": {
+        "n": 757,
+        "min": 0.0,
+        "median": 71.25387573242188,
+        "p10": 25.00032768249512,
+        "p90": 91.42983703613281,
+        "max": 99.892578125
+      },
+      "shape_coherent_OK": {
+        "n": 365,
+        "min": 0.0,
+        "median": 73.17378234863281,
+        "p10": 22.888490295410158,
+        "p90": 91.50127563476563,
+        "max": 99.892578125
+      },
+      "shape_inconsistent_OK": {
+        "n": 392,
+        "min": 0.0,
+        "median": 69.81045532226562,
+        "p10": 28.448324775695802,
+        "p90": 91.10863571166993,
+        "max": 99.5263671875
+      }
+    },
+    "LEFT_ANKLE": {
+      "sdk_OK": {
+        "n": 757,
+        "min": 0.0,
+        "median": 48.66904830932617,
+        "p10": 0.0,
+        "p90": 80.27517547607422,
+        "max": 96.22913360595703
+      },
+      "shape_coherent_OK": {
+        "n": 365,
+        "min": 0.0,
+        "median": 50.04288101196289,
+        "p10": 0.0,
+        "p90": 79.72272796630861,
+        "max": 96.22913360595703
+      },
+      "shape_inconsistent_OK": {
+        "n": 392,
+        "min": 0.0,
+        "median": 46.900089263916016,
+        "p10": 0.0,
+        "p90": 80.8896240234375,
+        "max": 96.0158462524414
+      }
+    },
+    "RIGHT_ANKLE": {
+      "sdk_OK": {
+        "n": 757,
+        "min": 0.0,
+        "median": 48.49782943725586,
+        "p10": 0.0,
+        "p90": 80.4277877807617,
+        "max": 98.27803039550781
+      },
+      "shape_coherent_OK": {
+        "n": 365,
+        "min": 0.0,
+        "median": 50.626380920410156,
+        "p10": 0.0,
+        "p90": 82.59919586181641,
+        "max": 98.27803039550781
+      },
+      "shape_inconsistent_OK": {
+        "n": 392,
+        "min": 0.0,
+        "median": 45.51571846008301,
+        "p10": 0.0,
+        "p90": 79.38956451416016,
+        "max": 94.25325012207031
+      }
+    }
+  },
+  "image_to_nearest_sdk_frame_time_difference_s": {
+    "n": 300,
+    "min": 0.0,
+    "median": 0.0,
+    "p10": 0.0,
+    "p90": 0.0,
+    "max": 0.0
+  },
+  "shape_coherent_pelvis_x_m": {
+    "n": 365,
+    "min": 0.6718630047884726,
+    "median": 7.583664042379661,
+    "p10": 1.743700825075914,
+    "p90": 12.75798514971325,
+    "max": 13.719910718672931
+  },
+  "shape_inconsistent_confidence": {
+    "n": 392,
+    "min": 35.08432388305664,
+    "median": 88.66371536254883,
+    "p10": 45.578426361083984,
+    "p90": 100.0,
+    "max": 100.0
+  },
+  "shape_inconsistent_left_shin_m": {
+    "n": 392,
+    "min": 0.5566366290491891,
+    "median": 1.2438766954795508,
+    "p10": 1.2438763924588137,
+    "p90": 1.2438768903348731,
+    "max": 1.243877235650547
+  },
+  "shape_inconsistent_left_ankle_height_m": {
+    "n": 392,
+    "min": -4.482250023906602,
+    "median": 3.6805451963460682,
+    "p10": 3.6331619385513116,
+    "p90": 3.7404035931907273,
+    "max": 3.845820564738398
+  },
+  "sdk_OK_confidence": {
+    "n": 757,
+    "min": 35.08432388305664,
+    "median": 83.44512939453125,
+    "p10": 46.50198211669922,
+    "p90": 100.0,
+    "max": 100.0
+  },
+  "body_abs_position_error_m": null,
+  "accuracy_note": "No independent joint/position ground truth. Internal segment-length consistency is not accuracy.",
+  "coordinate_note": "Frozen recording_002 candidate. No visual pose fitting, scale correction, translation snapping, or clock correction applied.",
+  "pelvis_minus_selected_lidar": {
+    "shape_coherent": {
+      "n": 277,
+      "dx_m": {
+        "n": 277,
+        "min": -1.9025512683286578,
+        "median": -0.2781881529984105,
+        "p10": -0.6719144158087565,
+        "p90": -0.007239362703861432,
+        "max": 0.3200489700170941
+      },
+      "dy_m": {
+        "n": 277,
+        "min": -0.11207779175941249,
+        "median": 0.00266175603382301,
+        "p10": -0.05593304326214842,
+        "p90": 0.038339940598679755,
+        "max": 0.1016916474255484
+      }
+    },
+    "shape_inconsistent": {
+      "n": 297,
+      "dx_m": {
+        "n": 297,
+        "min": -1.2593220194927195,
+        "median": 0.07854710199731496,
+        "p10": -0.8395151282561218,
+        "p90": 0.4579836386770492,
+        "max": 2.6558822669893267
+      },
+      "dy_m": {
+        "n": 297,
+        "min": 0.05178659785757994,
+        "median": 0.15341120662785646,
+        "p10": 0.09451426525415045,
+        "p90": 0.1975965767396714,
+        "max": 0.264819407025278
+      }
+    }
+  },
+  "pairing_note": "Raw clocks; includes original tentative LiDAR observations; pelvis and cluster median differ. Not true position error."
+}

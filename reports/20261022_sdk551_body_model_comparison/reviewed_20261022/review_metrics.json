@@ -1,0 +1,374 @@
+{
+  "source_run": "/data/experiment_data/20261022_sdk551_body_model_comparison/runs/20261022_160153_425608",
+  "completed": {
+    "status": "all_selected_cases_completed",
+    "completed_cases": 15,
+    "failed_cases": 0,
+    "note": "Comparison metrics generated; visual target association and accuracy verdict still require review."
+  },
+  "effective_settings_and_counts": [
+    {
+      "recording": "002",
+      "scope": "approach",
+      "model_id": "medium_gen2",
+      "frames": 414,
+      "runtime_sdk": "5.5.1",
+      "generation": "GEN_2",
+      "source_svo": "F:\\20261022_group003\\recording_002\\recording_002.svo2"
+    },
+    {
+      "recording": "002",
+      "scope": "approach",
+      "model_id": "accurate_gen2",
+      "frames": 414,
+      "runtime_sdk": "5.5.1",
+      "generation": "GEN_2",
+      "source_svo": "F:\\20261022_group003\\recording_002\\recording_002.svo2"
+    },
+    {
+      "recording": "002",
+      "scope": "approach",
+      "model_id": "medium_gen1",
+      "frames": 414,
+      "runtime_sdk": "5.5.1",
+      "generation": "GEN_1",
+      "source_svo": "F:\\20261022_group003\\recording_002\\recording_002.svo2"
+    },
+    {
+      "recording": "002",
+      "scope": "approach",
+      "model_id": "accurate_gen1",
+      "frames": 414,
+      "runtime_sdk": "5.5.1",
+      "generation": "GEN_1",
+      "source_svo": "F:\\20261022_group003\\recording_002\\recording_002.svo2"
+    },
+    {
+      "recording": "002",
+      "scope": "approach",
+      "model_id": "fast_gen1",
+      "frames": 414,
+      "runtime_sdk": "5.5.1",
+      "generation": "GEN_1",
+      "source_svo": "F:\\20261022_group003\\recording_002\\recording_002.svo2"
+    },
+    {
+      "recording": "003",
+      "scope": "full",
+      "model_id": "medium_gen2",
+      "frames": 763,
+      "runtime_sdk": "5.5.1",
+      "generation": "GEN_2",
+      "source_svo": "F:\\20261022_group003\\recording_003\\recording_003.svo2"
+    },
+    {
+      "recording": "003",
+      "scope": "full",
+      "model_id": "accurate_gen2",
+      "frames": 763,
+      "runtime_sdk": "5.5.1",
+      "generation": "GEN_2",
+      "source_svo": "F:\\20261022_group003\\recording_003\\recording_003.svo2"
+    },
+    {
+      "recording": "003",
+      "scope": "full",
+      "model_id": "medium_gen1",
+      "frames": 763,
+      "runtime_sdk": "5.5.1",
+      "generation": "GEN_1",
+      "source_svo": "F:\\20261022_group003\\recording_003\\recording_003.svo2"
+    },
+    {
+      "recording": "003",
+      "scope": "full",
+      "model_id": "accurate_gen1",
+      "frames": 763,
+      "runtime_sdk": "5.5.1",
+      "generation": "GEN_1",
+      "source_svo": "F:\\20261022_group003\\recording_003\\recording_003.svo2"
+    },
+    {
+      "recording": "003",
+      "scope": "full",
+      "model_id": "fast_gen1",
+      "frames": 763,
+      "runtime_sdk": "5.5.1",
+      "generation": "GEN_1",
+      "source_svo": "F:\\20261022_group003\\recording_003\\recording_003.svo2"
+    },
+    {
+      "recording": "003",
+      "scope": "approach",
+      "model_id": "medium_gen2",
+      "frames": 249,
+      "runtime_sdk": "5.5.1",
+      "generation": "GEN_2",
+      "source_svo": "F:\\20261022_group003\\recording_003\\recording_003.svo2"
+    },
+    {
+      "recording": "003",
+      "scope": "approach",
+      "model_id": "accurate_gen2",
+      "frames": 249,
+      "runtime_sdk": "5.5.1",
+      "generation": "GEN_2",
+      "source_svo": "F:\\20261022_group003\\recording_003\\recording_003.svo2"
+    },
+    {
+      "recording": "003",
+      "scope": "approach",
+      "model_id": "medium_gen1",
+      "frames": 249,
+      "runtime_sdk": "5.5.1",
+      "generation": "GEN_1",
+      "source_svo": "F:\\20261022_group003\\recording_003\\recording_003.svo2"
+    },
+    {
+      "recording": "003",
+      "scope": "approach",
+      "model_id": "accurate_gen1",
+      "frames": 249,
+      "runtime_sdk": "5.5.1",
+      "generation": "GEN_1",
+      "source_svo": "F:\\20261022_group003\\recording_003\\recording_003.svo2"
+    },
+    {
+      "recording": "003",
+      "scope": "approach",
+      "model_id": "fast_gen1",
+      "frames": 249,
+      "runtime_sdk": "5.5.1",
+      "generation": "GEN_1",
+      "source_svo": "F:\\20261022_group003\\recording_003\\recording_003.svo2"
+    }
+  ],
+  "recording002_far_window": [
+    {
+      "model": "medium_gen2",
+      "far_frame_count": 100,
+      "far_OK_frames": 97,
+      "far_both_legs_conf25_inside_frames": 97,
+      "far_heel_z_m": {
+        "n": 194,
+        "min": -0.37283697293800944,
+        "median": -0.2756600802139626,
+        "p10": -0.3175469210996207,
+        "p90": -0.12301502842458854,
+        "max": -0.09741006178592992
+      },
+      "far_shin_ratio": {
+        "n": 97,
+        "min": 1.2200465975091257,
+        "median": 1.3089666246262524,
+        "p10": 1.220814667276374,
+        "p90": 1.3295599114145829,
+        "max": 1.4153692806117315
+      },
+      "note": "Same declared time interval, roughly far approach. Not a surveyed true-distance gate."
+    },
+    {
+      "model": "accurate_gen2",
+      "far_frame_count": 100,
+      "far_OK_frames": 97,
+      "far_both_legs_conf25_inside_frames": 97,
+      "far_heel_z_m": {
+        "n": 194,
+        "min": -0.37729742932880606,
+        "median": -0.02235216295764675,
+        "p10": -0.1820671283320747,
+        "p90": 0.07142047354882657,
+        "max": 0.14897587663487188
+      },
+      "far_shin_ratio": {
+        "n": 97,
+        "min": 1.0651285812385363,
+        "median": 1.1382887484686697,
+        "p10": 1.070608012582617,
+        "p90": 1.220084900981859,
+        "max": 1.3454323085779205
+      },
+      "note": "Same declared time interval, roughly far approach. Not a surveyed true-distance gate."
+    },
+    {
+      "model": "medium_gen1",
+      "far_frame_count": 100,
+      "far_OK_frames": 11,
+      "far_both_legs_conf25_inside_frames": 1,
+      "far_heel_z_m": {
+        "n": 12,
+        "min": -0.4912045369010951,
+        "median": -0.4691030460833683,
+        "p10": -0.49108802016581204,
+        "p90": -0.42088303934728977,
+        "max": -0.4179532339399483
+      },
+      "far_shin_ratio": {
+        "n": 11,
+        "min": 1.5257364907717694,
+        "median": 1.5257760965147371,
+        "p10": 1.525741098440936,
+        "p90": 1.5259181058525966,
+        "max": 1.5259209910679699
+      },
+      "note": "Same declared time interval, roughly far approach. Not a surveyed true-distance gate."
+    },
+    {
+      "model": "accurate_gen1",
+      "far_frame_count": 100,
+      "far_OK_frames": 97,
+      "far_both_legs_conf25_inside_frames": 63,
+      "far_heel_z_m": {
+        "n": 150,
+        "min": -0.27753241291775654,
+        "median": -0.17254984889403602,
+        "p10": -0.24016919298315406,
+        "p90": -0.01131741945870759,
+        "max": 0.004718882419760151
+      },
+      "far_shin_ratio": {
+        "n": 97,
+        "min": 1.2874269905344717,
+        "median": 1.3566763121750522,
+        "p10": 1.2889995348021246,
+        "p90": 1.3846101653556244,
+        "max": 1.5098874423355064
+      },
+      "note": "Same declared time interval, roughly far approach. Not a surveyed true-distance gate."
+    },
+    {
+      "model": "fast_gen1",
+      "far_frame_count": 100,
+      "far_OK_frames": 0,
+      "far_both_legs_conf25_inside_frames": 0,
+      "far_heel_z_m": {
+        "n": 0
+      },
+      "far_shin_ratio": {
+        "n": 0
+      },
+      "note": "Same declared time interval, roughly far approach. Not a surveyed true-distance gate."
+    }
+  ],
+  "common_far_heel_frames": 63,
+  "common_supported_far_heel_z_m": {
+    "medium_gen2": {
+      "n": 126,
+      "min": -0.37283697293800944,
+      "median": -0.27715042432251225,
+      "p10": -0.32918379949379295,
+      "p90": -0.11776620419821815,
+      "max": -0.09792336245986966
+    },
+    "accurate_gen2": {
+      "n": 126,
+      "min": -0.37729742932880606,
+      "median": -0.037430936139820625,
+      "p10": -0.2924584932515959,
+      "p90": 0.07204127983271036,
+      "max": 0.14897587663487188
+    },
+    "accurate_gen1": {
+      "n": 126,
+      "min": -0.27753241291775654,
+      "median": -0.17505171289206056,
+      "p10": -0.24541730865584732,
+      "p90": -0.011246669183163749,
+      "max": 0.004718882419760151
+    }
+  },
+  "recording003_full_common_image_review_window": [
+    {
+      "model": "medium_gen2",
+      "interval_s": [
+        8.0,
+        20.5
+      ],
+      "frames": 373,
+      "OK_frames": 373,
+      "both_legs_conf25_inside_frames_any_id": 372,
+      "ambiguous_multiple_OK_frames": 3,
+      "ids": {
+        "0": 203,
+        "2": 173
+      },
+      "note": "Broad image-reviewed walking interval. Union over SDK IDs, counting each time once; not a pose accuracy or exhaustive occlusion label."
+    },
+    {
+      "model": "accurate_gen2",
+      "interval_s": [
+        8.0,
+        20.5
+      ],
+      "frames": 373,
+      "OK_frames": 373,
+      "both_legs_conf25_inside_frames_any_id": 373,
+      "ambiguous_multiple_OK_frames": 0,
+      "ids": {
+        "0": 373
+      },
+      "note": "Broad image-reviewed walking interval. Union over SDK IDs, counting each time once; not a pose accuracy or exhaustive occlusion label."
+    },
+    {
+      "model": "medium_gen1",
+      "interval_s": [
+        8.0,
+        20.5
+      ],
+      "frames": 373,
+      "OK_frames": 373,
+      "both_legs_conf25_inside_frames_any_id": 250,
+      "ambiguous_multiple_OK_frames": 0,
+      "ids": {
+        "0": 373
+      },
+      "note": "Broad image-reviewed walking interval. Union over SDK IDs, counting each time once; not a pose accuracy or exhaustive occlusion label."
+    },
+    {
+      "model": "accurate_gen1",
+      "interval_s": [
+        8.0,
+        20.5
+      ],
+      "frames": 373,
+      "OK_frames": 373,
+      "both_legs_conf25_inside_frames_any_id": 306,
+      "ambiguous_multiple_OK_frames": 0,
+      "ids": {
+        "0": 373
+      },
+      "note": "Broad image-reviewed walking interval. Union over SDK IDs, counting each time once; not a pose accuracy or exhaustive occlusion label."
+    },
+    {
+      "model": "fast_gen1",
+      "interval_s": [
+        8.0,
+        20.5
+      ],
+      "frames": 373,
+      "OK_frames": 308,
+      "both_legs_conf25_inside_frames_any_id": 172,
+      "ambiguous_multiple_OK_frames": 0,
+      "ids": {
+        "0": 308
+      },
+      "note": "Broad image-reviewed walking interval. Union over SDK IDs, counting each time once; not a pose accuracy or exhaustive occlusion label."
+    }
+  ],
+  "historical_vs_current_accurate_gen1": {
+    "joint_rows": 411,
+    "joint_max_abs_difference_m": 0.0
+  },
+  "recommendation": {
+    "far_range_first_candidate": "accurate_gen2",
+    "moderate_range_speed_candidate": "medium_gen2",
+    "scope": "These single-person recordings only. Relative skeleton stability and runtime, not independent absolute joint accuracy."
+  },
+  "caveats": [
+    "Recording003 full medium_gen2 switches IDs 0 to 2; do not interpret dominant-ID-only quality as whole-walk quality.",
+    "Early recording003 contains a partly visible head near the camera; high full-run SDK OK is not evidence of pole false detections or a human recall rate.",
+    "Recording003 ZED floor calibration remains unverified. No recording002 floor transform applied to recording003.",
+    "Recording002 fixed floor is a candidate; accurate_gen2 still has an early heel minimum near -0.38m. Not all joints are validated.",
+    "LiDAR recording003 had no confirmed detections with current settings; SDK success does not establish LiDAR success."
+  ]
+}
